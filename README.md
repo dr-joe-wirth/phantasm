@@ -27,7 +27,7 @@
   * The results can be found in the folder ```finalAnalysis```.
 
 ## Description of the workflow
-### Part 1: Maximizing the breadth of taxonomic space and identifying a phylogenetic marker
+### Part 1: Identifying a suitable phylogenetic marker for your input genome
   * Extracts the 16S rRNA gene sequences from the input genbank.
   * Uses the 16S rRNA gene sequences and BLASTn to determine which taxonomic orders are related to the input.
   * Retreives data from NCBI's Taxonomy database to create a single taxonomy encompassing all the identified orders.
@@ -40,7 +40,7 @@
   * Creates an individual gene tree for each core gene.
   * Uses the species tree and gene trees to calculate a score of how well correlated each individual core gene is to the species tree's topology. Saves this information in the file ```initialAnalysis/putativePhylogeneticMarkers.txt```.
 
-### Part 2: Maximizing relevant taxonomic space and performing phylogenomic analyses
+### Part 2: Refining the phylogeny and performing phylogenomic analyses
   * Using the phylogenetic marker specified by the user, finds the most closely-related taxa to the input genome.
   * Uses this information to select genomes from:
       * many species from the closest genus/genera
@@ -49,3 +49,23 @@
   * Calculates the core genes for the refined set of genomes.
   * Creates a species tree based on a concatenated alignment of the core genes.
   * Calculates the average amino acid identity (AAI) for the species in the tree.
+
+## Dependencies
+### External software
+  * FastTree (http://www.microbesonline.org/fasttree/)
+  * MUSCLE (https://www.drive5.com/muscle/)
+  * blast+ (https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
+
+### Python modules (python3.7 or above)
+  * xenoGI (https://github.com/ecbush/xenoGI)
+  * scipy
+  * Bio
+  * textdistance
+  * numpy
+  * parasail
+  * rpy2
+
+### R packages (R version 4.1.1 or above)
+  * ape
+  * gplots
+  * dendextend
