@@ -12,19 +12,29 @@
 ### Run the following command:
 
         $ python3 <path to phantasm>/phantasm.py getPhyloMarker <gbff filename> <email address>
-       
+ 
   * After it finishes running, open ```initialAnalysis/putativePhylogeneticMarkers.txt``` and determine which gene you wish to use as the phylogenetic marker of the group. Make a note of the gene number or the locus tag as this will be used as input in the next step.
+
+    * example:
+
+        $ cd ~/workdir
+        $ python3 ~/phantasm/phantasm.py getPhyloMarker R_pomeroyi.gbff email@address.com
+        $ less ~/workdir/initialAnalysis/putativePhylogeneticMarkers.txt
 
 ## Refining the phylogeny and performing phylogenomic analyses
 ### Run one of the following commands:
 
         $ python3 <path to phantasm>/phantasm.py refinePhylogeny --locus_tag <locus tag> <gbff file> <email address>
 
-        OR
+  OR
 
         $ python3 <path to phantasm>/phantasm.py refinePhylogeny --gene_num <gene number> <gbff file> <email address>
   
   * The results can be found in the folder ```finalAnalysis```.
+  
+  * example:
+
+        $ python3 ~/phantasm/phantasm.py refinePhylogeny --locus_tag SPO_RS17765 R_pomeroyi.gbff email@address.com
 
 ## Description of the workflow
 ### Part 1: Identifying a suitable phylogenetic marker for your input genome
