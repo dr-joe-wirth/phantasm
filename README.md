@@ -17,11 +17,11 @@
 
     * example:
 
-        $ cd ~/workdir
+        ```$ cd ~/workdir```
 
-        $ python3 ~/phantasm/phantasm.py getPhyloMarker R_pomeroyi.gbff email@address.com
+        ```$ python3 ~/phantasm/phantasm.py getPhyloMarker R_pomeroyi.gbff email@address.com```
         
-        $ less ~/workdir/initialAnalysis/putativePhylogeneticMarkers.txt
+        ```$ less ~/workdir/initialAnalysis/putativePhylogeneticMarkers.txt```
 
 ## Refining the phylogeny and performing phylogenomic analyses
 ### Run one of the following commands:
