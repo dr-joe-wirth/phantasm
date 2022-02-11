@@ -1309,8 +1309,9 @@ class Taxonomy:
             # get a list of all artificial ids in the root object
             artificialIds = root.__getAllArtificialTaxIds()
 
-            # save the current minimum value for artificial ids in root
-            curMin = min(map(int, artificialIds))
+            if len(artificialIds) > 0:
+                # save the current minimum value for artificial ids in root
+                curMin = min(map(int, artificialIds))
 
             # replace any artificial ids in taxO with unused ones in root
             for txid in artificialIds:
