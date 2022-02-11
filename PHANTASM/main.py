@@ -23,7 +23,7 @@ def runPt2(locusTag:str, queryGbff:str, paramD_1:dict, paramD_2:dict) -> None:
     """
     outgroupSciName = findMissingRelativesWrapper(locusTag, queryGbff, paramD_1, paramD_2)
     coreGenesWrapper_2(paramD_1, paramD_2)
-    finalAnalysesWrapper(outgroupSciName)
+    finalAnalysesWrapper(outgroupSciName, paramD_2)
 
 
 def taxonomyWrapper(queryGenbank:str, paramD_1:dict) -> str:
