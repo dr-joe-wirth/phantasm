@@ -50,7 +50,7 @@ class Parameters:
     __percIdentThresh = 0.35
     __aabrhHardCoreGeneTreeFileStem = 'aabrhHardCoreFam'
 
-    # stuff needed for calcScores (not necessary for prokTaxBuilder)
+    # stuff needed for calcScores (not necessary for phantasm)
     __gapOpen = 12
     __gapExtend = 1
     __matrix = 'parasail.blosum62'
