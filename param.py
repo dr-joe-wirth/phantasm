@@ -1,16 +1,28 @@
 # specify the number of processors to use
-NUM_PROCESSORS:int = 3
+NUM_PROCESSORS:int = 1
 
 # specify the maximum number of taxa in a given analysis
 MAX_LEAVES:int = 50
 
-# modifying these files may cause phantasm to fail
+# specify the path to the folder containing the blast+ executables
 BLASTPLUS_DIR:str = '/usr/local/ncbi/blast/bin'
+
+# specify the path to the MUSCLE executable
 MUSCLE_EXE:str = '/usr/local/bin/muscle'
+
+# specify the path to the FastTree executable (FastTreeMP is acceptable)
 FASTTREE_EXE:str = '/usr/local/bin/FastTree'
-PHANTASM_DIR:str = '/Users/jwirth/Documents/phantasm'
-XENOGI_DIR:str = '/Users/jwirth/Documents/xenoGI'
-CSV_1:str = '/Users/jwirth/Documents/phantasm/resources/lpsn_gss_2022-02-01.csv'
-CSV_2:str = '/Users/jwirth/Documents/phantasm/resources/genusParents.csv'
-CSV_3:str = '/Users/jwirth/Documents/phantasm/resources/validPhylumClassOrderFamily.csv'
-CSV_4:str = '/Users/jwirth/Documents/phantasm/resources/synonymsPhylumClassOrderFamily.csv'
+
+# specify the path to the phantasm directory
+PHANTASM_DIR:str = '/phantasm'
+
+# specify the path to the xenoGI directory
+XENOGI_DIR:str = '/xenoGI'
+
+# specify the paths to each of the required lpsn csv files
+# MODIFYING THIS MAY CAUSE PHANTASM TO FAIL!
+import os
+CSV_1:str = os.path.join(PHANTASM_DIR, 'PHANTASM', 'lpsn_data', 'lpsn_gss_2022-02-01.csv')
+CSV_2:str = os.path.join(PHANTASM_DIR, 'PHANTASM', 'lpsn_data', 'genusParents.csv')
+CSV_3:str = os.path.join(PHANTASM_DIR, 'PHANTASM', 'lpsn_data', 'validPhylumClassOrderFamily.csv')
+CSV_4:str = os.path.join(PHANTASM_DIR, 'PHANTASM', 'lpsn_data', 'synonymsPhylumClassOrderFamily.csv')

@@ -1,0 +1,965 @@
+name,type_name,parent,status,rank,address
+Chlorobi,Chlorobia,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/chlorobi
+Abditibacteriota,Abditibacteria,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/abditibacteriota
+Thermotogae,Thermotogae,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/thermotogae
+Gemmatimonadetes,Gemmatimonadetes,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/gemmatimonadetes
+Tenericutes,Mollicutes,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/tenericutes
+Caldiserica,Caldisericia,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/caldiserica
+Thermoprotei,Thermoprotei,Archaea,not validly published,phylum,https://lpsn.dsmz.de/phylum/crenarchaeota
+Chlamydiia,Chlamydiia,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/chlamydiae
+Chrysiogenetes,Chrysiogenetes,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/chrysiogenetes
+Actinobacteria,Actinobacteria,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/actinobacteria
+Chloroflexia,Chloroflexia,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/chloroflexi
+Firmicutes,Bacilli,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/firmicutes
+Thaumarchaeota,,Archaea,not validly published,phylum,https://lpsn.dsmz.de/phylum/thaumarchaeota
+Kiritimatiellaeota,Kiritimatiellae,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/kiritimatiellaeota
+Elusimicrobia,Elusimicrobia,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/elusimicrobia
+Bacteroidetes,Bacteroidia,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/bacteroidetes
+Calditrichaeota,Calditrichae,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/calditrichaeota
+Acidobacteriia,Acidobacteriia,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/acidobacteria
+Rhodothermaeota,Rhodothermia,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/rhodothermaeota
+Deinococcus-Thermus,Deinococci,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/deinococcus-thermus
+Armatimonadetes,Armatimonadia,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/armatimonadetes
+Planctomycetia,,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/planctomycetes
+Atribacterota,Atribacteria,Bacteria,correct name,phylum,https://lpsn.dsmz.de/phylum/atribacterota
+Thermodesulfobacteria,Thermodesulfobacteria,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/thermodesulfobacteria
+Spirochaetia,Spirochaetia,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/spirochaetes
+Nitrospirae,Nitrospira,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/nitrospirae
+Thermomicrobia,Thermomicrobia,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/thermomicrobia
+Cyanobacteria,,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/cyanobacteria
+Fusobacteriia,Fusobacteriia,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/fusobacteria
+Proteobacteria,Gammaproteobacteria,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/proteobacteria-2
+Fibrobacteres,Fibrobacteria,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/fibrobacteres
+Lentisphaerae,Lentisphaeria,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/lentisphaerae
+Coprothermobacterota,Coprothermobacteria,Bacteria,correct name,phylum,https://lpsn.dsmz.de/phylum/coprothermobacterota
+Euryarchaeota,Methanobacteria,Archaea,not validly published,phylum,https://lpsn.dsmz.de/phylum/euryarchaeota
+Aquificae,Aquificae,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/aquificae
+Deferribacteres,Deferribacteres,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/deferribacteres
+Verrucomicrobia,Verrucomicrobiae,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/verrucomicrobia
+Dictyoglomi,Dictyoglomia,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/dictyoglomi
+Balneolaeota,Balneolia,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/balneolaeota
+Synergistetes,Synergistia,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/synergistetes
+Nitrospinae,Nitrospinia,Bacteria,not validly published,phylum,https://lpsn.dsmz.de/phylum/nitrospinae
+Tissierellia,Tissierellales,Firmicutes,not validly published,class,https://lpsn.dsmz.de/class/tissierellia
+Clostridia,Eubacteriales,Firmicutes,correct name,class,https://lpsn.dsmz.de/class/clostridia
+Opitutae,Opitutales,Verrucomicrobia,correct name,class,https://lpsn.dsmz.de/class/opitutae
+Caldilineae,Caldilineales,Chloroflexia,orphaned class,class,https://lpsn.dsmz.de/class/caldilineae
+Tepidiformia,Tepidiformales,Chloroflexia,orphaned class,class,https://lpsn.dsmz.de/class/tepidiformia
+Chlamydiia,Chlamydiales,Chlamydiia,correct name,class,https://lpsn.dsmz.de/class/chlamydiia
+[Thermodesulfobacteria; not assigned to class],,Thermodesulfobacteria,placeholder name,class,https://lpsn.dsmz.de/class/thermodesulfobacteria-no-class
+Elusimicrobia,Elusimicrobiales,Elusimicrobia,correct name,class,https://lpsn.dsmz.de/class/elusimicrobia
+Chthonomonadetes,Chthonomonadales,Armatimonadetes,correct name,class,https://lpsn.dsmz.de/class/chthonomonadetes
+Methanopyri,Methanopyrales,Euryarchaeota,correct name,class,https://lpsn.dsmz.de/class/methanopyri
+Tichowtungiia,Tichowtungiales,Kiritimatiellaeota,correct name,class,https://lpsn.dsmz.de/class/tichowtungiia
+Abditibacteria,Abditibacteriales,Abditibacteriota,correct name,class,https://lpsn.dsmz.de/class/abditibacteria
+Synergistia,Synergistales,Synergistetes,correct name,class,https://lpsn.dsmz.de/class/synergistia
+Oligoflexia,Oligoflexales,Proteobacteria,correct name,class,https://lpsn.dsmz.de/class/oligoflexia
+[Verrucomicrobia; not assigned to class],,Verrucomicrobia,placeholder name,class,https://lpsn.dsmz.de/class/verrucomicrobia-no-class
+Chlorobia,Chlorobiales,Chlorobi,not validly published,class,https://lpsn.dsmz.de/class/chlorobia
+Thermoflexia,Thermoflexales,Chloroflexia,orphaned class,class,https://lpsn.dsmz.de/class/thermoflexia
+Longimicrobia,Longimicrobiales,Gemmatimonadetes,correct name,class,https://lpsn.dsmz.de/class/longimicrobia
+Nitrospira,Nitrospirales,Nitrospirae,not validly published,class,https://lpsn.dsmz.de/class/nitrospira
+Rubrobacteria,Rubrobacterales,Actinobacteria,correct name,class,https://lpsn.dsmz.de/class/rubrobacteria
+Cyanophyceae,,Cyanobacteria,correct name,class,https://lpsn.dsmz.de/class/cyanophyceae
+Actinobacteria,,Actinobacteria,in need of a replacement,class,https://lpsn.dsmz.de/class/actinobacteria
+Deinococci,Deinococcales,Deinococcus-Thermus,correct name,class,https://lpsn.dsmz.de/class/deinococci
+Gammaproteobacteria,Pseudomonadales,Proteobacteria,correct name,class,https://lpsn.dsmz.de/class/gammaproteobacteria
+Epsilonproteobacteria,Campylobacterales,Proteobacteria,correct name,class,https://lpsn.dsmz.de/class/epsilonproteobacteria
+Nitrospinia,Nitrospinales,Nitrospinae,not validly published,class,https://lpsn.dsmz.de/class/nitrospinia
+Caldisericia,Caldisericales,Caldiserica,correct name,class,https://lpsn.dsmz.de/class/caldisericia
+Bacteroidia,Bacteroidales,Bacteroidetes,correct name,class,https://lpsn.dsmz.de/class/bacteroidia
+Thermolithobacteria,Thermolithobacterales,Firmicutes,correct name,class,https://lpsn.dsmz.de/class/thermolithobacteria
+Acidimicrobiia,Acidimicrobiales,Actinobacteria,correct name,class,https://lpsn.dsmz.de/class/acidimicrobiia
+Chrysiogenetes,Chrysiogenales,Chrysiogenetes,correct name,class,https://lpsn.dsmz.de/class/chrysiogenetes
+Ardenticatenia,Ardenticatenales,Chloroflexia,orphaned class,class,https://lpsn.dsmz.de/class/ardenticatenia
+[Firmicutes; not assigned to class],,Firmicutes,placeholder name,class,https://lpsn.dsmz.de/class/firmicutes-no-class
+Thermoleophilia,Thermoleophilales,Actinobacteria,correct name,class,https://lpsn.dsmz.de/class/thermoleophilia
+Methanococci,Methanococcales,Euryarchaeota,correct name,class,https://lpsn.dsmz.de/class/methanococci
+Nitrososphaeria,Nitrososphaerales,Thaumarchaeota,correct name,class,https://lpsn.dsmz.de/class/nitrososphaeria
+Deltaproteobacteria,Myxococcales,Proteobacteria,correct name,class,https://lpsn.dsmz.de/class/deltaproteobacteria
+Chloroflexia,Chloroflexales,Chloroflexia,orphaned class,class,https://lpsn.dsmz.de/class/chloroflexia
+Dictyoglomia,Dictyoglomales,Dictyoglomi,correct name,class,https://lpsn.dsmz.de/class/dictyoglomia
+Planctomycetia,Planctomycetales,Planctomycetia,correct name,class,https://lpsn.dsmz.de/class/planctomycetia
+Alphaproteobacteria,Caulobacterales,Proteobacteria,correct name,class,https://lpsn.dsmz.de/class/alphaproteobacteria
+Cytophagia,Cytophagales,Bacteroidetes,correct name,class,https://lpsn.dsmz.de/class/cytophagia
+Acidobacteriia,Acidobacteriales,Acidobacteriia,not validly published,class,https://lpsn.dsmz.de/class/acidobacteriia
+Gemmatimonadetes,Gemmatimonadales,Gemmatimonadetes,correct name,class,https://lpsn.dsmz.de/class/gemmatimonadetes
+Zetaproteobacteria,Mariprofundales,Proteobacteria,not validly published,class,https://lpsn.dsmz.de/class/zetaproteobacteria
+Culicoidibacteria,Culicoidibacterales,Firmicutes,correct name,class,https://lpsn.dsmz.de/class/culicoidibacteria
+Fibrobacteria,Fibrobacterales,Fibrobacteres,correct name,class,https://lpsn.dsmz.de/class/fibrobacteria
+Thermoplasmata,Thermoplasmatales,Euryarchaeota,correct name,class,https://lpsn.dsmz.de/class/thermoplasmata
+Deferribacteres,Deferribacterales,Deferribacteres,correct name,class,https://lpsn.dsmz.de/class/deferribacteres
+Vicinamibacteria,Vicinamibacterales,Acidobacteriia,correct name,class,https://lpsn.dsmz.de/class/vicinamibacteria
+Hydrogenophilalia,Hydrogenophilales,Proteobacteria,correct name,class,https://lpsn.dsmz.de/class/hydrogenophilalia
+Thermoanaerobaculia,Thermoanaerobaculales,Acidobacteriia,correct name,class,https://lpsn.dsmz.de/class/thermoanaerobaculia
+Thermococci,Thermococcales,Euryarchaeota,correct name,class,https://lpsn.dsmz.de/class/thermococci
+Thermotogae,Thermotogales,Thermotogae,correct name,class,https://lpsn.dsmz.de/class/thermotogae
+[Calditrichaeota; not assigned to class],,Calditrichaeota,placeholder name,class,https://lpsn.dsmz.de/class/calditrichaeota-no-class
+Atribacteria,Atribacterales,Atribacterota,correct name,class,https://lpsn.dsmz.de/class/atribacteria
+Mollicutes,Mycoplasmatales,Tenericutes,correct name,class,https://lpsn.dsmz.de/class/mollicutes
+Calditrichae,Calditrichales,Calditrichaeota,not validly published,class,https://lpsn.dsmz.de/class/calditrichae
+Archaeoglobi,Archaeoglobales,Euryarchaeota,correct name,class,https://lpsn.dsmz.de/class/archaeoglobi
+Verrucomicrobiae,Verrucomicrobiales,Verrucomicrobia,correct name,class,https://lpsn.dsmz.de/class/verrucomicrobiae
+Methanomicrobia,Methanomicrobiales,Euryarchaeota,not validly published,class,https://lpsn.dsmz.de/class/methanomicrobia
+Aquificae,Aquificales,Aquificae,correct name,class,https://lpsn.dsmz.de/class/aquificae
+Lentisphaeria,Lentisphaerales,Lentisphaerae,correct name,class,https://lpsn.dsmz.de/class/lentisphaeria
+Fimbriimonadia,Fimbriimonadales,Armatimonadetes,correct name,class,https://lpsn.dsmz.de/class/fimbriimonadia
+Chitinivibrionia,Chitinivibrionales,Fibrobacteres,correct name,class,https://lpsn.dsmz.de/class/chitinivibrionia
+Methanobacteria,Methanobacteriales,Euryarchaeota,correct name,class,https://lpsn.dsmz.de/class/methanobacteria
+Limnochordia,Limnochordales,Firmicutes,correct name,class,https://lpsn.dsmz.de/class/limnochordia
+Methanonatronarchaeia,Methanonatronarchaeales,Euryarchaeota,correct name,class,https://lpsn.dsmz.de/class/methanonatronarchaeia
+Halobacteria,Halobacteriales,Euryarchaeota,correct name,class,https://lpsn.dsmz.de/class/halobacteria
+Chitinispirillia,Chitinispirillales,Fibrobacteres,correct name,class,https://lpsn.dsmz.de/class/chitinispirillia
+Blastocatellia,Blastocatellales,Acidobacteriia,correct name,class,https://lpsn.dsmz.de/class/blastocatellia
+Phycisphaerae,Phycisphaerales,Planctomycetia,correct name,class,https://lpsn.dsmz.de/class/phycisphaerae
+Ktedonobacteria,Ktedonobacterales,Chloroflexia,orphaned class,class,https://lpsn.dsmz.de/class/ktedonobacteria
+Dehalococcoidia,Dehalococcoidales,Chloroflexia,orphaned class,class,https://lpsn.dsmz.de/class/dehalococcoidia
+Ignavibacteria,Ignavibacteriales,Chlorobi,correct name,class,https://lpsn.dsmz.de/class/ignavibacteria
+Coriobacteriia,Coriobacteriales,Actinobacteria,correct name,class,https://lpsn.dsmz.de/class/coriobacteriia
+Nitriliruptoria,Nitriliruptorales,Actinobacteria,correct name,class,https://lpsn.dsmz.de/class/nitriliruptoria
+Spirochaetia,Spirochaetales,Spirochaetia,orphaned class,class,https://lpsn.dsmz.de/class/spirochaetia
+Acidithiobacillia,Acidithiobacillales,Proteobacteria,correct name,class,https://lpsn.dsmz.de/class/acidithiobacillia
+Kiritimatiellae,Kiritimatiellales,Kiritimatiellaeota,correct name,class,https://lpsn.dsmz.de/class/kiritimatiellae
+Armatimonadia,Armatimonadales,Armatimonadetes,correct name,class,https://lpsn.dsmz.de/class/armatimonadia
+Coprothermobacteria,Coprothermobacterales,Coprothermobacterota,correct name,class,https://lpsn.dsmz.de/class/coprothermobacteria
+Erysipelotrichia,Erysipelotrichales,Firmicutes,correct name,class,https://lpsn.dsmz.de/class/erysipelotrichia
+Terrimicrobia,Terrimicrobiales,Verrucomicrobia,correct name,class,https://lpsn.dsmz.de/class/terrimicrobia
+Rhodothermia,Rhodothermales,Rhodothermaeota,correct name,class,https://lpsn.dsmz.de/class/rhodothermia
+Betaproteobacteria,Burkholderiales,Proteobacteria,correct name,class,https://lpsn.dsmz.de/class/betaproteobacteria
+Thermoprotei,Thermoproteales,Thermoprotei,correct name,class,https://lpsn.dsmz.de/class/thermoprotei
+Fusobacteriia,Fusobacteriales,Fusobacteriia,correct name,class,https://lpsn.dsmz.de/class/fusobacteriia
+Flavobacteriia,Flavobacteriales,Bacteroidetes,correct name,class,https://lpsn.dsmz.de/class/flavobacteriia
+[Synergistetes; not assigned to class],,Synergistetes,placeholder name,class,https://lpsn.dsmz.de/class/synergistetes-no-class
+Bacilli,Caryophanales,Firmicutes,correct name,class,https://lpsn.dsmz.de/class/bacilli
+Thermomicrobia,Thermomicrobiales,Thermomicrobia,correct name,class,https://lpsn.dsmz.de/class/thermomicrobia
+Saprospiria,Saprospirales,Bacteroidetes,correct name,class,https://lpsn.dsmz.de/class/saprospiria
+Holophagae,Holophagales,Acidobacteriia,correct name,class,https://lpsn.dsmz.de/class/holophagae
+Chitinophagia,Chitinophagales,Bacteroidetes,correct name,class,https://lpsn.dsmz.de/class/chitinophagia
+Sphingobacteriia,Sphingobacteriales,Bacteroidetes,correct name,class,https://lpsn.dsmz.de/class/sphingobacteriia
+Balneolia,Balneolales,Balneolaeota,orphaned class,class,https://lpsn.dsmz.de/class/balneolia
+Thermodesulfobacteria,Thermodesulfobacteriales,Thermodesulfobacteria,correct name,class,https://lpsn.dsmz.de/class/thermodesulfobacteria
+Negativicutes,Selenomonadales,Firmicutes,correct name,class,https://lpsn.dsmz.de/class/negativicutes
+Oligosphaeria,Oligosphaerales,Lentisphaerae,correct name,class,https://lpsn.dsmz.de/class/oligosphaeria
+Anaerolineae,Anaerolineales,Chloroflexia,orphaned class,class,https://lpsn.dsmz.de/class/anaerolineae
+Endomicrobia,Endomicrobiales,Elusimicrobia,correct name,class,https://lpsn.dsmz.de/class/endomicrobia
+Trueperales,Trueperaceae,Deinococci,correct name,order,https://lpsn.dsmz.de/order/trueperales
+Mycoplasmoidales,Mycoplasmoidaceae,Mollicutes,correct name,order,https://lpsn.dsmz.de/order/mycoplasmoidales
+Chrysiogenales,Chrysiogenaceae,Chrysiogenetes,correct name,order,https://lpsn.dsmz.de/order/chrysiogenales
+Brachyspirales,Brachyspiraceae,Spirochaetia,correct name,order,https://lpsn.dsmz.de/order/brachyspirales
+Veillonellales,Veillonellaceae,Negativicutes,correct name,order,https://lpsn.dsmz.de/order/veillonellales
+Deferrisomatales,Deferrisomataceae,Deltaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/deferrisomatales
+Lentisphaerales,Lentisphaeraceae,Lentisphaeria,correct name,order,https://lpsn.dsmz.de/order/lentisphaerales
+Nitrosopumilales,Nitrosopumilaceae,Nitrososphaeria,correct name,order,https://lpsn.dsmz.de/order/nitrosopumilales
+Eggerthellales,,Coriobacteriia,correct name,order,https://lpsn.dsmz.de/order/eggerthellales
+Bacteriovoracales,Bacteriovoracaceae,Oligoflexia,correct name,order,https://lpsn.dsmz.de/order/bacteriovoracales
+Longimicrobiales,Longimicrobiaceae,Longimicrobia,correct name,order,https://lpsn.dsmz.de/order/longimicrobiales
+Armatimonadales,Armatimonadaceae,Armatimonadia,correct name,order,https://lpsn.dsmz.de/order/armatimonadales
+Emcibacterales,Emcibacteraceae,Alphaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/emcibacterales
+[Synergistetes; not assigned to order],,[Synergistetes; not assigned to class],placeholder name,order,https://lpsn.dsmz.de/order/synergistetes-no-order
+Thermodesulfobacteriales,Thermodesulfobacteriaceae,Thermodesulfobacteria,correct name,order,https://lpsn.dsmz.de/order/thermodesulfobacteriales
+Halanaerobiales,Halanaerobiaceae,Clostridia,correct name,order,https://lpsn.dsmz.de/order/halanaerobiales
+Dictyoglomales,Dictyoglomaceae,Dictyoglomia,correct name,order,https://lpsn.dsmz.de/order/dictyoglomales
+[Deltaproteobacteria; not assigned to order],,Deltaproteobacteria,placeholder name,order,https://lpsn.dsmz.de/order/deltaproteobacteria-no-order
+Desulfurellales,Desulfurellaceae,Deltaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/desulfurellales
+Catenulisporales,Catenulisporaceae,Actinobacteria,correct name,order,https://lpsn.dsmz.de/order/catenulisporales
+Atribacterales,Atribacteraceae,Atribacteria,correct name,order,https://lpsn.dsmz.de/order/atribacterales
+Thermotomaculales,Thermotomaculaceae,Holophagae,correct name,order,https://lpsn.dsmz.de/order/thermotomaculales
+Synergistales,Synergistaceae,Synergistia,correct name,order,https://lpsn.dsmz.de/order/synergistales
+Acidimicrobiales,Acidimicrobiaceae,Acidimicrobiia,correct name,order,https://lpsn.dsmz.de/order/acidimicrobiales
+Nitrososphaerales,Nitrososphaeraceae,Nitrososphaeria,correct name,order,https://lpsn.dsmz.de/order/nitrososphaerales
+Acanthopleuribacterales,Acanthopleuribacteraceae,Holophagae,correct name,order,https://lpsn.dsmz.de/order/acanthopleuribacterales
+Natrialbales,Natrialbaceae,Halobacteria,correct name,order,https://lpsn.dsmz.de/order/natrialbales
+Actinopolysporales,Actinopolysporaceae,Actinobacteria,correct name,order,https://lpsn.dsmz.de/order/actinopolysporales
+Thermomicrobiales,Thermomicrobiaceae,Thermomicrobia,correct name,order,https://lpsn.dsmz.de/order/thermomicrobiales
+Anaerolineales,Anaerolineaceae,Anaerolineae,correct name,order,https://lpsn.dsmz.de/order/anaerolineales
+Rhodocyclales,Rhodocyclaceae,Betaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/rhodocyclales
+Saprospirales,Saprospiraceae,Saprospiria,correct name,order,https://lpsn.dsmz.de/order/saprospirales
+Desulfurobacteriales,Desulfurobacteriaceae,Aquificae,correct name,order,https://lpsn.dsmz.de/order/desulfurobacteriales
+Balneolales,Balneolaceae,Balneolia,correct name,order,https://lpsn.dsmz.de/order/balneolales
+Chitinispirillales,Chitinispirillaceae,Chitinispirillia,correct name,order,https://lpsn.dsmz.de/order/chitinispirillales
+Propionibacteriales,Propionibacteriaceae,Actinobacteria,correct name,order,https://lpsn.dsmz.de/order/propionibacteriales
+Rubrobacterales,Rubrobacteraceae,Rubrobacteria,correct name,order,https://lpsn.dsmz.de/order/rubrobacterales
+Cellvibrionales,Cellvibrionaceae,Gammaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/cellvibrionales
+Aeromonadales,Aeromonadaceae,Gammaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/aeromonadales
+Arenicellales,Arenicellaceae,Gammaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/arenicellales
+Thiotrichales,Thiotrichaceae,Gammaproteobacteria,in need of a replacement,order,https://lpsn.dsmz.de/order/thiotrichales
+Caryophanales,Caryophanaceae,Bacilli,correct name,order,https://lpsn.dsmz.de/order/caryophanales
+Lysobacterales,Lysobacteraceae,Gammaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/lysobacterales
+Iodidimonadales,Iodidimonadaceae,Alphaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/iodidimonadales
+Erysipelotrichales,Erysipelotrichaceae,Erysipelotrichia,correct name,order,https://lpsn.dsmz.de/order/erysipelotrichales
+Ignavibacteriales,Ignavibacteriaceae,Ignavibacteria,correct name,order,https://lpsn.dsmz.de/order/ignavibacteriales
+Methanomassiliicoccales,Methanomassiliicoccaceae,Thermoplasmata,correct name,order,https://lpsn.dsmz.de/order/methanomassiliicoccales
+Caldisericales,Caldisericaceae,Caldisericia,correct name,order,https://lpsn.dsmz.de/order/caldisericales
+[Anaerolineae; not assigned to order],,Anaerolineae,placeholder name,order,https://lpsn.dsmz.de/order/anaerolineae-no-order
+Cardiobacteriales,Cardiobacteriaceae,Gammaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/cardiobacteriales
+Enterobacterales,Enterobacteriaceae,Gammaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/enterobacterales
+Acidobacteriales,Acidobacteriaceae,Acidobacteriia,in need of a replacement,order,https://lpsn.dsmz.de/order/acidobacteriales
+Gemmatimonadales,Gemmatimonadaceae,Gemmatimonadetes,correct name,order,https://lpsn.dsmz.de/order/gemmatimonadales
+Nitriliruptorales,Nitriliruptoraceae,Nitriliruptoria,correct name,order,https://lpsn.dsmz.de/order/nitriliruptorales
+Blastocatellales,Blastocatellaceae,Blastocatellia,correct name,order,https://lpsn.dsmz.de/order/blastocatellales
+Pasteurellales,Pasteurellaceae,Gammaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/pasteurellales
+Syntrophobacterales,Syntrophobacteraceae,Deltaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/syntrophobacterales
+Thermotogales,Thermotogaceae,Thermotogae,correct name,order,https://lpsn.dsmz.de/order/thermotogales
+Kineosporiales,Kineosporiaceae,Actinobacteria,correct name,order,https://lpsn.dsmz.de/order/kineosporiales
+Methanopyrales,Methanopyraceae,Methanopyri,correct name,order,https://lpsn.dsmz.de/order/methanopyrales
+Thermosediminibacterales,Thermosediminibacteraceae,Clostridia,correct name,order,https://lpsn.dsmz.de/order/thermosediminibacterales
+Myxococcales,Myxococcaceae,Deltaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/myxococcales
+Capsulimonadales,Capsulimonadaceae,Armatimonadia,correct name,order,https://lpsn.dsmz.de/order/capsulimonadales
+Actinomycetales,Actinomycetaceae,Actinobacteria,correct name,order,https://lpsn.dsmz.de/order/actinomycetales
+Sulfolobales,Sulfolobaceae,Thermoprotei,correct name,order,https://lpsn.dsmz.de/order/sulfolobales
+Ktedonobacterales,Ktedonobacteraceae,Ktedonobacteria,correct name,order,https://lpsn.dsmz.de/order/ktedonobacterales
+Chthonomonadales,Chthonomonadaceae,Chthonomonadetes,correct name,order,https://lpsn.dsmz.de/order/chthonomonadales
+Rhodothermales,Rhodothermaceae,Rhodothermia,correct name,order,https://lpsn.dsmz.de/order/rhodothermales
+Oligosphaerales,Oligosphaeraceae,Oligosphaeria,correct name,order,https://lpsn.dsmz.de/order/oligosphaerales
+Entomoplasmatales,Entomoplasmataceae,Mollicutes,correct name,order,https://lpsn.dsmz.de/order/entomoplasmatales
+Petrotogales,Petrotogaceae,Thermotogae,correct name,order,https://lpsn.dsmz.de/order/petrotogales
+Thermoplasmatales,Thermoplasmataceae,Thermoplasmata,correct name,order,https://lpsn.dsmz.de/order/thermoplasmatales
+Campylobacterales,Campylobacteraceae,Epsilonproteobacteria,correct name,order,https://lpsn.dsmz.de/order/campylobacterales
+Bradymonadales,Bradymonadaceae,Deltaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/bradymonadales
+Brevinematales,Brevinemataceae,Spirochaetia,correct name,order,https://lpsn.dsmz.de/order/brevinematales
+Streptosporangiales,Streptosporangiaceae,Actinobacteria,correct name,order,https://lpsn.dsmz.de/order/streptosporangiales
+Rhodobacterales,Rhodobacteraceae,Alphaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/rhodobacterales
+[Firmicutes; not assigned to order],,[Firmicutes; not assigned to class],placeholder name,order,https://lpsn.dsmz.de/order/firmicutes-no-order
+Aquificales,Aquificaceae,Aquificae,correct name,order,https://lpsn.dsmz.de/order/aquificales
+Mesoaciditogales,Mesoaciditogaceae,Thermotogae,correct name,order,https://lpsn.dsmz.de/order/mesoaciditogales
+Thermogemmatisporales,Thermogemmatisporaceae,Ktedonobacteria,correct name,order,https://lpsn.dsmz.de/order/thermogemmatisporales
+Nitrospinales,Nitrospinaceae,Nitrospinia,not validly published,order,https://lpsn.dsmz.de/order/nitrospinales
+Fibrobacterales,Fibrobacteraceae,Fibrobacteria,correct name,order,https://lpsn.dsmz.de/order/fibrobacterales
+Ardenticatenales,Ardenticatenaceae,Ardenticatenia,correct name,order,https://lpsn.dsmz.de/order/ardenticatenales
+Micropepsales,Micropepsaceae,Alphaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/micropepsales
+Neisseriales,Neisseriaceae,Betaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/neisseriales
+Anaeroplasmatales,Anaeroplasmataceae,Mollicutes,correct name,order,https://lpsn.dsmz.de/order/anaeroplasmatales
+Chlamydiales,Chlamydiaceae,Chlamydiia,correct name,order,https://lpsn.dsmz.de/order/chlamydiales
+Coprothermobacterales,Coprothermobacteraceae,Coprothermobacteria,correct name,order,https://lpsn.dsmz.de/order/coprothermobacterales
+Chromatiales,Chromatiaceae,Gammaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/chromatiales
+[Spirochaetia; not assigned to order],,Spirochaetia,placeholder name,order,https://lpsn.dsmz.de/order/spirochaetia-no-order
+Selenomonadales,Selenomonadaceae,Negativicutes,correct name,order,https://lpsn.dsmz.de/order/selenomonadales
+[Betaproteobacteria; not assigned to order],,Betaproteobacteria,placeholder name,order,https://lpsn.dsmz.de/order/betaproteobacteria-no-order
+Micromonosporales,Micromonosporaceae,Actinobacteria,correct name,order,https://lpsn.dsmz.de/order/micromonosporales
+Egicoccales,Egicoccaceae,Nitriliruptoria,correct name,order,https://lpsn.dsmz.de/order/egicoccales
+Coriobacteriales,Coriobacteriaceae,Coriobacteriia,correct name,order,https://lpsn.dsmz.de/order/coriobacteriales
+Fusobacteriales,Fusobacteriaceae,Fusobacteriia,correct name,order,https://lpsn.dsmz.de/order/fusobacteriales
+Fimbriimonadales,Fimbriimonadaceae,Fimbriimonadia,correct name,order,https://lpsn.dsmz.de/order/fimbriimonadales
+Puniceicoccales,Puniceicoccaceae,Opitutae,correct name,order,https://lpsn.dsmz.de/order/puniceicoccales
+Caldilineales,Caldilineaceae,Caldilineae,correct name,order,https://lpsn.dsmz.de/order/caldilineales
+Lactobacillales,Lactobacillaceae,Bacilli,correct name,order,https://lpsn.dsmz.de/order/lactobacillales
+Synechococcales,Synechococcaceae,Cyanophyceae,not validly published,order,https://lpsn.dsmz.de/order/synechococcales
+Culicoidibacterales,Culicoidibacteraceae,Culicoidibacteria,correct name,order,https://lpsn.dsmz.de/order/culicoidibacterales
+Pirellulales,Pirellulaceae,Planctomycetia,correct name,order,https://lpsn.dsmz.de/order/pirellulales
+Dissulfuribacterales,Dissulfuribacteraceae,Deltaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/dissulfuribacterales
+Bryobacterales,Bryobacteraceae,Acidobacteriia,orphaned order,order,https://lpsn.dsmz.de/order/bryobacterales
+Bifidobacteriales,Bifidobacteriaceae,Actinobacteria,correct name,order,https://lpsn.dsmz.de/order/bifidobacteriales
+Leptospirales,Leptospiraceae,Spirochaetia,correct name,order,https://lpsn.dsmz.de/order/leptospirales
+Kosmotogales,Kosmotogaceae,Thermotogae,correct name,order,https://lpsn.dsmz.de/order/kosmotogales
+[Calditrichaeota; not assigned to order],,[Calditrichaeota; not assigned to class],placeholder name,order,https://lpsn.dsmz.de/order/calditrichaeota-no-order
+Herpetosiphonales,Herpetosiphonaceae,Chloroflexia,correct name,order,https://lpsn.dsmz.de/order/herpetosiphonales
+Abditibacteriales,Abditibacteriaceae,Abditibacteria,correct name,order,https://lpsn.dsmz.de/order/abditibacteriales
+Nitrosomonadales,Nitrosomonadaceae,Betaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/nitrosomonadales
+Sneathiellales,Sneathiellaceae,Alphaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/sneathiellales
+Mariprofundales,Mariprofundaceae,Zetaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/mariprofundales
+Syntrophorhabdales,Syntrophorhabdaceae,Deltaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/syntrophorhabdales
+Rickettsiales,Rickettsiaceae,Alphaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/rickettsiales
+[Hydrogenophilalia; not assigned to order],,Hydrogenophilalia,placeholder name,order,https://lpsn.dsmz.de/order/hydrogenophilalia-no-order
+Elusimicrobiales,Elusimicrobiaceae,Elusimicrobia,correct name,order,https://lpsn.dsmz.de/order/elusimicrobiales
+Kiritimatiellales,Kiritimatiellaceae,Kiritimatiellae,correct name,order,https://lpsn.dsmz.de/order/kiritimatiellales
+Thermococcales,Thermococcaceae,Thermococci,correct name,order,https://lpsn.dsmz.de/order/thermococcales
+Thermoanaerobacterales,Thermoanaerobacteraceae,Clostridia,correct name,order,https://lpsn.dsmz.de/order/thermoanaerobacterales
+[Thermodesulfobacteria; not assigned to order],,[Thermodesulfobacteria; not assigned to class],placeholder name,order,https://lpsn.dsmz.de/order/thermodesulfobacteria-no-order
+Nakamurellales,Nakamurellaceae,Actinobacteria,correct name,order,https://lpsn.dsmz.de/order/nakamurellales
+Solirubrobacterales,Solirubrobacteraceae,Thermoleophilia,correct name,order,https://lpsn.dsmz.de/order/solirubrobacterales
+Chloroflexales,Chloroflexaceae,Chloroflexia,correct name,order,https://lpsn.dsmz.de/order/chloroflexales
+Opitutales,Opitutaceae,Opitutae,correct name,order,https://lpsn.dsmz.de/order/opitutales
+Sphingobacteriales,Sphingobacteriaceae,Sphingobacteriia,correct name,order,https://lpsn.dsmz.de/order/sphingobacteriales
+Pseudomonadales,Pseudomonadaceae,Gammaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/pseudomonadales
+Spirochaetales,Spirochaetaceae,Spirochaetia,correct name,order,https://lpsn.dsmz.de/order/spirochaetales
+Koleobacterales,Koleobacteraceae,Clostridia,correct name,order,https://lpsn.dsmz.de/order/koleobacterales
+Caulobacterales,Caulobacteraceae,Alphaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/caulobacterales
+Euzebyales,Euzebyaceae,Nitriliruptoria,correct name,order,https://lpsn.dsmz.de/order/euzebyales
+Kallotenuales,Kallotenuaceae,Chloroflexia,correct name,order,https://lpsn.dsmz.de/order/kallotenuales
+Methanobacteriales,Methanobacteriaceae,Methanobacteria,correct name,order,https://lpsn.dsmz.de/order/methanobacteriales
+Cryptosporangiales,Cryptosporangiaceae,Actinobacteria,correct name,order,https://lpsn.dsmz.de/order/cryptosporangiales
+Acidaminococcales,Acidaminococcaceae,Negativicutes,correct name,order,https://lpsn.dsmz.de/order/acidaminococcales
+Holosporales,Holosporaceae,Alphaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/holosporales
+Methanococcales,Methanococcaceae,Methanococci,correct name,order,https://lpsn.dsmz.de/order/methanococcales
+Bacteroidales,Bacteroidaceae,Bacteroidia,correct name,order,https://lpsn.dsmz.de/order/bacteroidales
+Thermoflexales,Thermoflexaceae,Thermoflexia,correct name,order,https://lpsn.dsmz.de/order/thermoflexales
+Orbales,Orbaceae,Gammaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/orbales
+Cytophagales,Cytophagaceae,Cytophagia,correct name,order,https://lpsn.dsmz.de/order/cytophagales
+Pseudonocardiales,Pseudonocardiaceae,Actinobacteria,correct name,order,https://lpsn.dsmz.de/order/pseudonocardiales
+Eubacteriales,Eubacteriaceae,Clostridia,correct name,order,https://lpsn.dsmz.de/order/eubacteriales
+Fervidicoccales,Fervidicoccaceae,Thermoprotei,correct name,order,https://lpsn.dsmz.de/order/fervidicoccales
+Streptomycetales,Streptomycetaceae,Actinobacteria,in need of a replacement,order,https://lpsn.dsmz.de/order/streptomycetales
+Immundisolibacterales,Immundisolibacteraceae,Gammaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/immundisolibacterales
+Flavobacteriales,Flavobacteriaceae,Flavobacteriia,correct name,order,https://lpsn.dsmz.de/order/flavobacteriales
+Egibacterales,Egibacteraceae,Nitriliruptoria,correct name,order,https://lpsn.dsmz.de/order/egibacterales
+Methanocellales,Methanocellaceae,Methanomicrobia,correct name,order,https://lpsn.dsmz.de/order/methanocellales
+Geodermatophilales,Geodermatophilaceae,Actinobacteria,correct name,order,https://lpsn.dsmz.de/order/geodermatophilales
+Legionellales,Legionellaceae,Gammaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/legionellales
+Haloferacales,Haloferacaceae,Halobacteria,correct name,order,https://lpsn.dsmz.de/order/haloferacales
+Sporichthyales,Sporichthyaceae,Actinobacteria,correct name,order,https://lpsn.dsmz.de/order/sporichthyales
+Acholeplasmatales,Acholeplasmataceae,Mollicutes,correct name,order,https://lpsn.dsmz.de/order/acholeplasmatales
+Desulfovibrionales,Desulfovibrionaceae,Deltaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/desulfovibrionales
+Frankiales,Frankiaceae,Actinobacteria,correct name,order,https://lpsn.dsmz.de/order/frankiales
+Thermolithobacterales,Thermolithobacteraceae,Thermolithobacteria,correct name,order,https://lpsn.dsmz.de/order/thermolithobacterales
+Thermoproteales,Thermoproteaceae,Thermoprotei,correct name,order,https://lpsn.dsmz.de/order/thermoproteales
+Glycomycetales,Glycomycetaceae,Actinobacteria,correct name,order,https://lpsn.dsmz.de/order/glycomycetales
+Phycisphaerales,Phycisphaeraceae,Phycisphaerae,correct name,order,https://lpsn.dsmz.de/order/phycisphaerales
+Deferribacterales,Deferribacteraceae,Deferribacteres,correct name,order,https://lpsn.dsmz.de/order/deferribacterales
+Tepidisphaerales,Tepidisphaeraceae,Phycisphaerae,correct name,order,https://lpsn.dsmz.de/order/tepidisphaerales
+Sphaerobacterales,Sphaerobacteraceae,Thermomicrobia,correct name,order,https://lpsn.dsmz.de/order/sphaerobacterales
+Chitinophagales,Chitinophagaceae,Chitinophagia,correct name,order,https://lpsn.dsmz.de/order/chitinophagales
+Natranaerobiales,Natranaerobiaceae,Clostridia,correct name,order,https://lpsn.dsmz.de/order/natranaerobiales
+Vibrionales,Vibrionaceae,Gammaproteobacteria,not validly published,order,https://lpsn.dsmz.de/order/vibrionales
+Hyphomicrobiales,Hyphomicrobiaceae,Alphaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/hyphomicrobiales
+Acidilobales,Acidilobaceae,Thermoprotei,correct name,order,https://lpsn.dsmz.de/order/acidilobales
+Thermoleophilales,Thermoleophilaceae,Thermoleophilia,correct name,order,https://lpsn.dsmz.de/order/thermoleophilales
+Isosphaerales,Isosphaeraceae,Planctomycetia,correct name,order,https://lpsn.dsmz.de/order/isosphaerales
+Thermoanaerobaculales,Thermoanaerobaculaceae,Thermoanaerobaculia,correct name,order,https://lpsn.dsmz.de/order/thermoanaerobaculales
+Desulfurococcales,Desulfurococcaceae,Thermoprotei,correct name,order,https://lpsn.dsmz.de/order/desulfurococcales
+Mycoplasmatales,Mycoplasmataceae,Mollicutes,correct name,order,https://lpsn.dsmz.de/order/mycoplasmatales
+Verrucomicrobiales,Verrucomicrobiaceae,Verrucomicrobiae,correct name,order,https://lpsn.dsmz.de/order/verrucomicrobiales
+Calditrichales,Calditrichaceae,Calditrichae,correct name,order,https://lpsn.dsmz.de/order/calditrichales
+Thermales,Thermaceae,Deinococci,correct name,order,https://lpsn.dsmz.de/order/thermales
+Mycobacteriales,Mycobacteriaceae,Actinobacteria,correct name,order,https://lpsn.dsmz.de/order/mycobacteriales
+Micrococcales,Micrococcaceae,Actinobacteria,correct name,order,https://lpsn.dsmz.de/order/micrococcales
+Sedimentisphaerales,Sedimentisphaeraceae,Phycisphaerae,correct name,order,https://lpsn.dsmz.de/order/sedimentisphaerales
+Terrimicrobiales,Terrimicrobiaceae,Terrimicrobia,correct name,order,https://lpsn.dsmz.de/order/terrimicrobiales
+Acidothermales,Acidothermaceae,Actinobacteria,correct name,order,https://lpsn.dsmz.de/order/acidothermales
+Nevskiales,Nevskiaceae,Gammaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/nevskiales
+Magnetococcales,Magnetococcaceae,Alphaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/magnetococcales
+Desulfobacterales,Desulfobacteraceae,Deltaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/desulfobacterales
+Sphingomonadales,Sphingomonadaceae,Alphaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/sphingomonadales
+Rhodospirillales,Rhodospirillaceae,Alphaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/rhodospirillales
+Holophagales,Holophagaceae,Holophagae,correct name,order,https://lpsn.dsmz.de/order/holophagales
+Deinococcales,Deinococcaceae,Deinococci,correct name,order,https://lpsn.dsmz.de/order/deinococcales
+Desulfarculales,Desulfarculaceae,Deltaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/desulfarculales
+Victivallales,Victivallaceae,Lentisphaeria,correct name,order,https://lpsn.dsmz.de/order/victivallales
+Nitrospirales,,Nitrospira,not validly published,order,https://lpsn.dsmz.de/order/nitrospirales
+Burkholderiales,Burkholderiaceae,Betaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/burkholderiales
+Gaiellales,Gaiellaceae,Thermoleophilia,correct name,order,https://lpsn.dsmz.de/order/gaiellales
+Chitinivibrionales,Chitinivibrionaceae,Chitinivibrionia,correct name,order,https://lpsn.dsmz.de/order/chitinivibrionales
+Oligoflexales,Oligoflexaceae,Oligoflexia,correct name,order,https://lpsn.dsmz.de/order/oligoflexales
+Jatrophihabitantales,Jatrophihabitantaceae,Actinobacteria,correct name,order,https://lpsn.dsmz.de/order/jatrophihabitantales
+Halobacteriales,Halobacteriaceae,Halobacteria,correct name,order,https://lpsn.dsmz.de/order/halobacteriales
+Tichowtungiales,Tichowtungiaceae,Tichowtungiia,correct name,order,https://lpsn.dsmz.de/order/tichowtungiales
+Acidiferrobacterales,Acidiferrobacteraceae,Gammaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/acidiferrobacterales
+Miltoncostaeales,Miltoncostaeaceae,Thermoleophilia,correct name,order,https://lpsn.dsmz.de/order/miltoncostaeales
+Alteromonadales,Alteromonadaceae,Gammaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/alteromonadales
+Nautiliales,Nautiliaceae,Epsilonproteobacteria,correct name,order,https://lpsn.dsmz.de/order/nautiliales
+Oceanospirillales,Oceanospirillaceae,Gammaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/oceanospirillales
+Aggregatilineales,Aggregatilineaceae,Anaerolineae,correct name,order,https://lpsn.dsmz.de/order/aggregatilineales
+Hydrogenophilales,Hydrogenophilaceae,Hydrogenophilalia,correct name,order,https://lpsn.dsmz.de/order/hydrogenophilales
+Planctomycetales,Planctomycetaceae,Planctomycetia,correct name,order,https://lpsn.dsmz.de/order/planctomycetales
+[Verrucomicrobia; not assigned to order],,[Verrucomicrobia; not assigned to class],placeholder name,order,https://lpsn.dsmz.de/order/verrucomicrobia-no-order
+Kordiimonadales,Temperatibacteraceae,Alphaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/kordiimonadales
+Parvularculales,Parvularculaceae,Alphaproteobacteria,not validly published,order,https://lpsn.dsmz.de/order/parvularculales
+Haloplasmatales,Haloplasmataceae,Mollicutes,correct name,order,https://lpsn.dsmz.de/order/haloplasmatales
+Desulfuromonadales,Desulfuromonadaceae,Deltaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/desulfuromonadales
+Methanomicrobiales,Methanomicrobiaceae,Methanomicrobia,correct name,order,https://lpsn.dsmz.de/order/methanomicrobiales
+Rhodothalassiales,Rhodothalassiaceae,Alphaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/rhodothalassiales
+Silvanigrellales,Silvanigrellaceae,Oligoflexia,correct name,order,https://lpsn.dsmz.de/order/silvanigrellales
+Chlorobiales,Chlorobiaceae,Chlorobia,orphaned order,order,https://lpsn.dsmz.de/order/chlorobiales
+Chroococcales,Chroococcaceae,Cyanophyceae,correct name,order,https://lpsn.dsmz.de/order/chroococcales
+Tepidiformales,Tepidiformaceae,Tepidiformia,correct name,order,https://lpsn.dsmz.de/order/tepidiformales
+Methanosarcinales,Methanosarcinaceae,Methanomicrobia,correct name,order,https://lpsn.dsmz.de/order/methanosarcinales
+Acidithiobacillales,Acidithiobacillaceae,Acidithiobacillia,correct name,order,https://lpsn.dsmz.de/order/acidithiobacillales
+Methylococcales,Methylococcaceae,Gammaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/methylococcales
+[Epsilonproteobacteria; not assigned to order],,Epsilonproteobacteria,placeholder name,order,https://lpsn.dsmz.de/order/epsilonproteobacteria-no-order
+[Gammaproteobacteria; not assigned to order],,Gammaproteobacteria,placeholder name,order,https://lpsn.dsmz.de/order/gammaproteobacteria-no-order
+Endomicrobiales,Endomicrobiaceae,Endomicrobia,correct name,order,https://lpsn.dsmz.de/order/endomicrobiales
+Spirulinales,Spirulinaceae,Cyanophyceae,correct name,order,https://lpsn.dsmz.de/order/spirulinales
+Minwuiales,Minwuiaceae,Alphaproteobacteria,correct name,order,https://lpsn.dsmz.de/order/minwuiales
+Archaeoglobales,Archaeoglobaceae,Archaeoglobi,correct name,order,https://lpsn.dsmz.de/order/archaeoglobales
+Methanonatronarchaeales,Methanonatronarchaeaceae,Methanonatronarchaeia,correct name,order,https://lpsn.dsmz.de/order/methanonatronarchaeales
+Vicinamibacterales,Vicinamibacteraceae,Vicinamibacteria,correct name,order,https://lpsn.dsmz.de/order/vicinamibacterales
+Jiangellales,Jiangellaceae,Actinobacteria,correct name,order,https://lpsn.dsmz.de/order/jiangellales
+Bdellovibrionales,Bdellovibrionaceae,Oligoflexia,correct name,order,https://lpsn.dsmz.de/order/bdellovibrionales
+Tissierellales,Tissierellaceae,Tissierellia,correct name,order,https://lpsn.dsmz.de/order/tissierellales
+Limnochordales,Limnochordaceae,Limnochordia,correct name,order,https://lpsn.dsmz.de/order/limnochordales
+Dehalococcoidales,Dehalococcoidaceae,Dehalococcoidia,correct name,order,https://lpsn.dsmz.de/order/dehalococcoidales
+Gemmatales,Gemmataceae,Planctomycetia,correct name,order,https://lpsn.dsmz.de/order/gemmatales
+Arenicellaceae,Arenicella,Arenicellales,correct name,family,https://lpsn.dsmz.de/family/arenicellaceae
+Ostreibacteriaceae,Ostreibacterium,Cardiobacteriales,correct name,family,https://lpsn.dsmz.de/family/ostreibacteriaceae
+Lentimicrobiaceae,Lentimicrobium,Bacteroidales,correct name,family,https://lpsn.dsmz.de/family/lentimicrobiaceae
+Methanoregulaceae,Methanoregula,Methanomicrobiales,correct name,family,https://lpsn.dsmz.de/family/methanoregulaceae
+Thioalkalispiraceae,Thioalkalispira,Chromatiales,correct name,family,https://lpsn.dsmz.de/family/thioalkalispiraceae
+Elusimicrobiaceae,Elusimicrobium,Elusimicrobiales,correct name,family,https://lpsn.dsmz.de/family/elusimicrobiaceae
+Pseudonocardiaceae,Pseudonocardia,Pseudonocardiales,correct name,family,https://lpsn.dsmz.de/family/pseudonocardiaceae
+Synergistaceae,Synergistes,Synergistales,correct name,family,https://lpsn.dsmz.de/family/synergistaceae
+Spirochaetaceae,Spirochaeta,Spirochaetales,correct name,family,https://lpsn.dsmz.de/family/spirochaetaceae
+Aquificaceae,Aquifex,Aquificales,correct name,family,https://lpsn.dsmz.de/family/aquificaceae
+Pseudomonadaceae,Pseudomonas,Pseudomonadales,correct name,family,https://lpsn.dsmz.de/family/pseudomonadaceae
+Aggregatilineaceae,Aggregatilinea,Aggregatilineales,correct name,family,https://lpsn.dsmz.de/family/aggregatilineaceae
+Kallotenuaceae,Kallotenue,Kallotenuales,correct name,family,https://lpsn.dsmz.de/family/kallotenuaceae
+Emcibacteraceae,Emcibacter,Emcibacterales,correct name,family,https://lpsn.dsmz.de/family/emcibacteraceae
+Acidithiobacillaceae,Acidithiobacillus,Acidithiobacillales,correct name,family,https://lpsn.dsmz.de/family/acidithiobacillaceae
+Antricoccaceae,Antricoccus,Geodermatophilales,correct name,family,https://lpsn.dsmz.de/family/antricoccaceae
+Turicibacteraceae,Turicibacter,Erysipelotrichales,correct name,family,https://lpsn.dsmz.de/family/turicibacteraceae
+Labilitrichaceae,Labilithrix,Myxococcales,correct name,family,https://lpsn.dsmz.de/family/labilitrichaceae
+Desulfuribacillaceae,Desulfuribacillus,Caryophanales,correct name,family,https://lpsn.dsmz.de/family/desulfuribacillaceae
+Rhodothermaceae,Rhodothermus,Rhodothermales,correct name,family,https://lpsn.dsmz.de/family/rhodothermaceae
+[Firmicutes; not assigned to family],,[Firmicutes; not assigned to order],placeholder name,family,https://lpsn.dsmz.de/family/firmicutes-no-family
+Rikenellaceae,Rikenella,Bacteroidales,correct name,family,https://lpsn.dsmz.de/family/rikenellaceae
+Hydrogenophilaceae,Hydrogenophilus,Hydrogenophilales,correct name,family,https://lpsn.dsmz.de/family/hydrogenophilaceae
+Lactobacillaceae,Lactobacillus,Lactobacillales,correct name,family,https://lpsn.dsmz.de/family/lactobacillaceae
+Deinococcaceae,Deinococcus,Deinococcales,correct name,family,https://lpsn.dsmz.de/family/deinococcaceae
+Cardiobacteriaceae,Cardiobacterium,Cardiobacteriales,correct name,family,https://lpsn.dsmz.de/family/cardiobacteriaceae
+Bogoriellaceae,Bogoriella,Micrococcales,correct name,family,https://lpsn.dsmz.de/family/bogoriellaceae
+Woeseiaceae,Woeseia,Chromatiales,correct name,family,https://lpsn.dsmz.de/family/woeseiaceae
+Rhodovibrionaceae,Rhodovibrio,Rhodospirillales,correct name,family,https://lpsn.dsmz.de/family/rhodovibrionaceae
+Marivirgaceae,Marivirga,Cytophagales,correct name,family,https://lpsn.dsmz.de/family/marivirgaceae
+Halomonadaceae,Halomonas,Oceanospirillales,correct name,family,https://lpsn.dsmz.de/family/halomonadaceae
+Cyclobacteriaceae,Cyclobacterium,Cytophagales,correct name,family,https://lpsn.dsmz.de/family/cyclobacteriaceae
+Ardenticatenaceae,Ardenticatena,Ardenticatenales,correct name,family,https://lpsn.dsmz.de/family/ardenticatenaceae
+Terasakiellaceae,Terasakiella,Rhodospirillales,correct name,family,https://lpsn.dsmz.de/family/terasakiellaceae
+Burkholderiaceae,Burkholderia,Burkholderiales,correct name,family,https://lpsn.dsmz.de/family/burkholderiaceae
+Mariprofundaceae,Mariprofundus,Mariprofundales,correct name,family,https://lpsn.dsmz.de/family/mariprofundaceae
+Amorphaceae,Amorphus,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/amorphaceae
+Solirubrobacteraceae,Solirubrobacter,Solirubrobacterales,correct name,family,https://lpsn.dsmz.de/family/solirubrobacteraceae
+Calditrichaceae,Caldithrix,Calditrichales,correct name,family,https://lpsn.dsmz.de/family/calditrichaceae
+Azospirillaceae,Azospirillum,Rhodospirillales,correct name,family,https://lpsn.dsmz.de/family/azospirillaceae
+Trueperaceae,Truepera,Trueperales,correct name,family,https://lpsn.dsmz.de/family/trueperaceae
+Psychromonadaceae,Psychromonas,Alteromonadales,correct name,family,https://lpsn.dsmz.de/family/psychromonadaceae
+Desulfobulbaceae,Desulfobulbus,Desulfobacterales,correct name,family,https://lpsn.dsmz.de/family/desulfobulbaceae
+Ktedonobacteraceae,Ktedonobacter,Ktedonobacterales,correct name,family,https://lpsn.dsmz.de/family/ktedonobacteraceae
+Micrococcaceae,Micrococcus,Micrococcales,correct name,family,https://lpsn.dsmz.de/family/micrococcaceae
+Holosporaceae,Holospora,Holosporales,correct name,family,https://lpsn.dsmz.de/family/holosporaceae
+Staphylococcaceae,Staphylococcus,Caryophanales,correct name,family,https://lpsn.dsmz.de/family/staphylococcaceae
+Pseudoxanthobacteraceae,Pseudoxanthobacter,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/pseudoxanthobacteraceae
+[Anaerolineae; not assigned to family],,[Anaerolineae; not assigned to order],placeholder name,family,https://lpsn.dsmz.de/family/anaerolineae-no-family
+Mooreiaceae,Mooreia,Cytophagales,correct name,family,https://lpsn.dsmz.de/family/mooreiaceae
+Beutenbergiaceae,Beutenbergia,Micrococcales,correct name,family,https://lpsn.dsmz.de/family/beutenbergiaceae
+Thalassospiraceae,Thalassospira,Rhodospirillales,correct name,family,https://lpsn.dsmz.de/family/thalassospiraceae
+Steroidobacteraceae,Steroidobacter,Nevskiales,correct name,family,https://lpsn.dsmz.de/family/steroidobacteraceae
+Anaerohalosphaeraceae,Anaerohalosphaera,Sedimentisphaerales,correct name,family,https://lpsn.dsmz.de/family/anaerohalosphaeraceae
+Thermaceae,Thermus,Thermales,correct name,family,https://lpsn.dsmz.de/family/thermaceae
+Chrysiogenaceae,Chrysiogenes,Chrysiogenales,correct name,family,https://lpsn.dsmz.de/family/chrysiogenaceae
+Nitratiruptoraceae,Nitratiruptor,[Epsilonproteobacteria; not assigned to order],correct name,family,https://lpsn.dsmz.de/family/nitratiruptoraceae
+Desulfurococcaceae,Desulfurococcus,Desulfurococcales,correct name,family,https://lpsn.dsmz.de/family/desulfurococcaceae
+[Gammaproteobacteria; not assigned to family],,[Gammaproteobacteria; not assigned to order],placeholder name,family,https://lpsn.dsmz.de/family/gammaproteobacteria-no-family
+Thiobacillaceae,Thiobacillus,Nitrosomonadales,correct name,family,https://lpsn.dsmz.de/family/thiobacillaceae
+Anaeroplasmataceae,Anaeroplasma,Anaeroplasmatales,correct name,family,https://lpsn.dsmz.de/family/anaeroplasmataceae
+Thermoproteaceae,Thermoproteus,Thermoproteales,correct name,family,https://lpsn.dsmz.de/family/thermoproteaceae
+[Thermoplasmatales; not assigned to family],,Thermoplasmatales,placeholder name,family,https://lpsn.dsmz.de/family/thermoplasmatales-no-family
+Blastocatellaceae,Blastocatella,Blastocatellales,correct name,family,https://lpsn.dsmz.de/family/blastocatellaceae
+Ectothiorhodospiraceae,Ectothiorhodospira,Chromatiales,correct name,family,https://lpsn.dsmz.de/family/ectothiorhodospiraceae
+Sulfolobaceae,Sulfolobus,Sulfolobales,correct name,family,https://lpsn.dsmz.de/family/sulfolobaceae
+Kangiellaceae,Kangiella,Oceanospirillales,correct name,family,https://lpsn.dsmz.de/family/kangiellaceae
+Neomegalonemataceae,Neomegalonema,Rhodobacterales,correct name,family,https://lpsn.dsmz.de/family/neomegalonemataceae
+Ichthyobacteriaceae,Ichthyobacterium,Flavobacteriales,correct name,family,https://lpsn.dsmz.de/family/ichthyobacteriaceae
+Pyrodictiaceae,Pyrodictium,Desulfurococcales,correct name,family,https://lpsn.dsmz.de/family/pyrodictiaceae
+Actinopolymorphaceae,Actinopolymorpha,Propionibacteriales,correct name,family,https://lpsn.dsmz.de/family/actinopolymorphaceae
+Desulfobacteraceae,Desulfobacter,Desulfobacterales,correct name,family,https://lpsn.dsmz.de/family/desulfobacteraceae
+Fulvivirgaceae,Fulvivirga,Cytophagales,correct name,family,https://lpsn.dsmz.de/family/fulvivirgaceae
+Defluviitaleaceae,Defluviitalea,Eubacteriales,correct name,family,https://lpsn.dsmz.de/family/defluviitaleaceae
+Minwuiaceae,Minwuia,Minwuiales,correct name,family,https://lpsn.dsmz.de/family/minwuiaceae
+Hydrogenimonadaceae,Hydrogenimonas,Campylobacterales,correct name,family,https://lpsn.dsmz.de/family/hydrogenimonadaceae
+Salinisphaeraceae,Salinisphaera,Nevskiales,correct name,family,https://lpsn.dsmz.de/family/salinisphaeraceae
+Barnesiellaceae,Barnesiella,Bacteroidales,correct name,family,https://lpsn.dsmz.de/family/barnesiellaceae
+Dehalococcoidaceae,Dehalococcoides,Dehalococcoidales,correct name,family,https://lpsn.dsmz.de/family/dehalococcoidaceae
+Nocardiopsaceae,Nocardiopsis,Streptosporangiales,correct name,family,https://lpsn.dsmz.de/family/nocardiopsaceae
+Sphaerochaetaceae,Sphaerochaeta,Spirochaetales,correct name,family,https://lpsn.dsmz.de/family/sphaerochaetaceae
+Halieaceae,Haliea,Cellvibrionales,correct name,family,https://lpsn.dsmz.de/family/halieaceae
+Jatrophihabitantaceae,Jatrophihabitans,Jatrophihabitantales,correct name,family,https://lpsn.dsmz.de/family/jatrophihabitantaceae
+Abditibacteriaceae,Abditibacterium,Abditibacteriales,correct name,family,https://lpsn.dsmz.de/family/abditibacteriaceae
+Thermococcaceae,Thermococcus,Thermococcales,correct name,family,https://lpsn.dsmz.de/family/thermococcaceae
+Conexibacteraceae,Conexibacter,Solirubrobacterales,correct name,family,https://lpsn.dsmz.de/family/conexibacteraceae
+[Micrococcales; not assigned to family],,Micrococcales,placeholder name,family,https://lpsn.dsmz.de/family/micrococcales-no-family
+Anaerolineaceae,Anaerolinea,Anaerolineales,correct name,family,https://lpsn.dsmz.de/family/anaerolineaceae
+Dictyobacteraceae,Dictyobacter,Ktedonobacterales,correct name,family,https://lpsn.dsmz.de/family/dictyobacteraceae
+Lichenibacteriaceae,Lichenibacterium,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/lichenibacteriaceae
+Cryomorphaceae,Cryomorpha,Flavobacteriales,correct name,family,https://lpsn.dsmz.de/family/cryomorphaceae
+Enterococcaceae,Enterococcus,Lactobacillales,correct name,family,https://lpsn.dsmz.de/family/enterococcaceae
+[Lysobacterales; not assigned to family],,Lysobacterales,placeholder name,family,https://lpsn.dsmz.de/family/lysobacterales-no-family
+Peptoniphilaceae,Peptoniphilus,Eubacteriales,correct name,family,https://lpsn.dsmz.de/family/peptoniphilaceae
+Thermoanaerobaculaceae,Thermoanaerobaculum,Thermoanaerobaculales,correct name,family,https://lpsn.dsmz.de/family/thermoanaerobaculaceae
+Paraconexibacteraceae,Paraconexibacter,Solirubrobacterales,correct name,family,https://lpsn.dsmz.de/family/paraconexibacteraceae
+Desulfurobacteriaceae,Desulfurobacterium,Desulfurobacteriales,correct name,family,https://lpsn.dsmz.de/family/desulfurobacteriaceae
+Halothiobacillaceae,Halothiobacillus,Chromatiales,correct name,family,https://lpsn.dsmz.de/family/halothiobacillaceae
+Idiomarinaceae,Idiomarina,Alteromonadales,correct name,family,https://lpsn.dsmz.de/family/idiomarinaceae
+Paenibacillaceae,Paenibacillus,Caryophanales,correct name,family,https://lpsn.dsmz.de/family/paenibacillaceae
+Thermoanaerobacteraceae,Thermoanaerobacter,Thermoanaerobacterales,correct name,family,https://lpsn.dsmz.de/family/thermoanaerobacteraceae
+Desulfuromonadaceae,Desulfuromonas,Desulfuromonadales,correct name,family,https://lpsn.dsmz.de/family/desulfuromonadaceae
+Thermotomaculaceae,Thermotomaculum,Thermotomaculales,correct name,family,https://lpsn.dsmz.de/family/thermotomaculaceae
+Nitriliruptoraceae,Nitriliruptor,Nitriliruptorales,correct name,family,https://lpsn.dsmz.de/family/nitriliruptoraceae
+Bartonellaceae,Bartonella,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/bartonellaceae
+Desulfitobacteriaceae,Desulfitobacterium,Eubacteriales,correct name,family,https://lpsn.dsmz.de/family/desulfitobacteriaceae
+Cryptosporangiaceae,Cryptosporangium,Cryptosporangiales,correct name,family,https://lpsn.dsmz.de/family/cryptosporangiaceae
+Ferroplasmaceae,Ferroplasma,Thermoplasmatales,correct name,family,https://lpsn.dsmz.de/family/ferroplasmaceae
+Thermofilaceae,Thermofilum,Thermoproteales,correct name,family,https://lpsn.dsmz.de/family/thermofilaceae
+Synechococcaceae,Synechococcus,Synechococcales,correct name,family,https://lpsn.dsmz.de/family/synechococcaceae
+Coprobacillaceae,Coprobacillus,Erysipelotrichales,correct name,family,https://lpsn.dsmz.de/family/coprobacillaceae
+Reticulibacteraceae,Reticulibacter,Ktedonobacterales,correct name,family,https://lpsn.dsmz.de/family/reticulibacteraceae
+Caedimonadaceae,Caedibacter,Holosporales,not validly published,family,https://lpsn.dsmz.de/family/caedimonadaceae
+Thermolithobacteraceae,Thermolithobacter,Thermolithobacterales,correct name,family,https://lpsn.dsmz.de/family/thermolithobacteraceae
+Usitatibacteraceae,Usitatibacter,Nitrosomonadales,correct name,family,https://lpsn.dsmz.de/family/usitatibacteraceae
+Acholeplasmataceae,Acholeplasma,Acholeplasmatales,correct name,family,https://lpsn.dsmz.de/family/acholeplasmataceae
+[Aquificales; not assigned to family],,Aquificales,placeholder name,family,https://lpsn.dsmz.de/family/aquificales-no-family
+Mycoplasmataceae,Mycoplasma,Mycoplasmatales,correct name,family,https://lpsn.dsmz.de/family/mycoplasmataceae
+Mangrovivirgaceae,Mangrovivirga,Cytophagales,correct name,family,https://lpsn.dsmz.de/family/mangrovivirgaceae
+Spirulinaceae,Spirulina,Spirulinales,correct name,family,https://lpsn.dsmz.de/family/spirulinaceae
+Streptomycetaceae,Streptomyces,Streptomycetales,correct name,family,https://lpsn.dsmz.de/family/streptomycetaceae
+Neisseriaceae,Neisseria,Neisseriales,correct name,family,https://lpsn.dsmz.de/family/neisseriaceae
+Miltoncostaeaceae,Miltoncostaea,Miltoncostaeales,correct name,family,https://lpsn.dsmz.de/family/miltoncostaeaceae
+Cuniculiplasmataceae,Cuniculiplasma,Thermoplasmatales,correct name,family,https://lpsn.dsmz.de/family/cuniculiplasmataceae
+Thalassobaculaceae,Thalassobaculum,Rhodospirillales,correct name,family,https://lpsn.dsmz.de/family/thalassobaculaceae
+Halanaerobiaceae,Halanaerobium,Halanaerobiales,correct name,family,https://lpsn.dsmz.de/family/halanaerobiaceae
+Pasteurellaceae,Pasteurella,Pasteurellales,correct name,family,https://lpsn.dsmz.de/family/pasteurellaceae
+Microscillaceae,Microscilla,Cytophagales,correct name,family,https://lpsn.dsmz.de/family/microscillaceae
+[Methylococcales; not assigned to family],,Methylococcales,placeholder name,family,https://lpsn.dsmz.de/family/methylococcales-no-family
+Picrophilaceae,Picrophilus,Thermoplasmatales,correct name,family,https://lpsn.dsmz.de/family/picrophilaceae
+Ferrimonadaceae,Ferrimonas,Alteromonadales,correct name,family,https://lpsn.dsmz.de/family/ferrimonadaceae
+Odoribacteraceae,Odoribacter,Bacteroidales,correct name,family,https://lpsn.dsmz.de/family/odoribacteraceae
+Propionibacteriaceae,Propionibacterium,Propionibacteriales,correct name,family,https://lpsn.dsmz.de/family/propionibacteriaceae
+Caulobacteraceae,Caulobacter,Caulobacterales,correct name,family,https://lpsn.dsmz.de/family/caulobacteraceae
+Salisaetaceae,Salisaeta,Rhodothermales,correct name,family,https://lpsn.dsmz.de/family/salisaetaceae
+Endozoicomonadaceae,Endozoicomonas,Oceanospirillales,correct name,family,https://lpsn.dsmz.de/family/endozoicomonadaceae
+Cesiribacteraceae,Cesiribacter,Cytophagales,correct name,family,https://lpsn.dsmz.de/family/cesiribacteraceae
+Petrotogaceae,Petrotoga,Petrotogales,correct name,family,https://lpsn.dsmz.de/family/petrotogaceae
+Symbiobacteriaceae,Symbiobacterium,Eubacteriales,correct name,family,https://lpsn.dsmz.de/family/symbiobacteriaceae
+Haloplasmataceae,Haloplasma,Haloplasmatales,correct name,family,https://lpsn.dsmz.de/family/haloplasmataceae
+Sulfuricellaceae,Sulfuricella,Nitrosomonadales,correct name,family,https://lpsn.dsmz.de/family/sulfuricellaceae
+Christensenellaceae,Christensenella,Eubacteriales,correct name,family,https://lpsn.dsmz.de/family/christensenellaceae
+Dermacoccaceae,Dermacoccus,Micrococcales,correct name,family,https://lpsn.dsmz.de/family/dermacoccaceae
+Egicoccaceae,Egicoccus,Egicoccales,correct name,family,https://lpsn.dsmz.de/family/egicoccaceae
+Dictyoglomaceae,Dictyoglomus,Dictyoglomales,correct name,family,https://lpsn.dsmz.de/family/dictyoglomaceae
+Cohaesibacteraceae,Cohaesibacter,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/cohaesibacteraceae
+Thermoactinomycetaceae,Thermoactinomyces,Caryophanales,correct name,family,https://lpsn.dsmz.de/family/thermoactinomycetaceae
+Caryophanaceae,Caryophanon,Caryophanales,correct name,family,https://lpsn.dsmz.de/family/caryophanaceae
+Natranaerobiaceae,Natranaerobius,Natranaerobiales,correct name,family,https://lpsn.dsmz.de/family/natranaerobiaceae
+Acidiferrobacteraceae,Acidiferrobacter,Acidiferrobacterales,correct name,family,https://lpsn.dsmz.de/family/acidiferrobacteraceae
+Flammeovirgaceae,Flammeovirga,Cytophagales,correct name,family,https://lpsn.dsmz.de/family/flammeovirgaceae
+Salinarimonadaceae,Salinarimonas,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/salinarimonadaceae
+Sutterellaceae,Sutterella,Burkholderiales,correct name,family,https://lpsn.dsmz.de/family/sutterellaceae
+Thermotogaceae,Thermotoga,Thermotogales,correct name,family,https://lpsn.dsmz.de/family/thermotogaceae
+Aeromonadaceae,Aeromonas,Aeromonadales,correct name,family,https://lpsn.dsmz.de/family/aeromonadaceae
+Natronospirillaceae,Natronospirillum,Oceanospirillales,correct name,family,https://lpsn.dsmz.de/family/natronospirillaceae
+Morganellaceae,Morganella,Enterobacterales,correct name,family,https://lpsn.dsmz.de/family/morganellaceae
+[Thermodesulfobacteria; not assigned to family],,[Thermodesulfobacteria; not assigned to order],placeholder name,family,https://lpsn.dsmz.de/family/thermodesulfobacteria-no-family
+Stappiaceae,Stappia,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/stappiaceae
+Methanococcaceae,Methanococcus,Methanococcales,correct name,family,https://lpsn.dsmz.de/family/methanococcaceae
+Peptostreptococcaceae,Peptostreptococcus,Eubacteriales,correct name,family,https://lpsn.dsmz.de/family/peptostreptococcaceae
+Porphyromonadaceae,Porphyromonas,Bacteroidales,correct name,family,https://lpsn.dsmz.de/family/porphyromonadaceae
+Syntrophorhabdaceae,Syntrophorhabdus,Syntrophorhabdales,correct name,family,https://lpsn.dsmz.de/family/syntrophorhabdaceae
+Schleiferiaceae,Schleiferia,Flavobacteriales,correct name,family,https://lpsn.dsmz.de/family/schleiferiaceae
+Leptotrichiaceae,Leptotrichia,Fusobacteriales,correct name,family,https://lpsn.dsmz.de/family/leptotrichiaceae
+Rubricoccaceae,Rubricoccus,Rhodothermales,correct name,family,https://lpsn.dsmz.de/family/rubricoccaceae
+Nitrospinaceae,Nitrospina,Nitrospinales,correct name,family,https://lpsn.dsmz.de/family/nitrospinaceae
+Chelatococcaceae,Chelatococcus,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/chelatococcaceae
+Pseudanabaenaceae,Pseudanabaena,Synechococcales,correct name,family,https://lpsn.dsmz.de/family/pseudanabaenaceae
+Coriobacteriaceae,Coriobacterium,Coriobacteriales,correct name,family,https://lpsn.dsmz.de/family/coriobacteriaceae
+Pyrinomonadaceae,Pyrinomonas,Blastocatellales,correct name,family,https://lpsn.dsmz.de/family/pyrinomonadaceae
+Caldisphaeraceae,Caldisphaera,Acidilobales,correct name,family,https://lpsn.dsmz.de/family/caldisphaeraceae
+Alcaligenaceae,Alcaligenes,Burkholderiales,correct name,family,https://lpsn.dsmz.de/family/alcaligenaceae
+Methanomassiliicoccaceae,Methanomassiliicoccus,Methanomassiliicoccales,correct name,family,https://lpsn.dsmz.de/family/methanomassiliicoccaceae
+Brucellaceae,Brucella,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/brucellaceae
+Methanospirillaceae,Methanospirillum,Methanomicrobiales,correct name,family,https://lpsn.dsmz.de/family/methanospirillaceae
+Microbacteriaceae,Microbacterium,Micrococcales,correct name,family,https://lpsn.dsmz.de/family/microbacteriaceae
+Nevskiaceae,Nevskia,Nevskiales,correct name,family,https://lpsn.dsmz.de/family/nevskiaceae
+Ruaniaceae,Ruania,Micrococcales,correct name,family,https://lpsn.dsmz.de/family/ruaniaceae
+Phaselicystidaceae,Phaselicystis,Myxococcales,correct name,family,https://lpsn.dsmz.de/family/phaselicystidaceae
+Methanothermaceae,Methanothermus,Methanobacteriales,correct name,family,https://lpsn.dsmz.de/family/methanothermaceae
+Vicinamibacteraceae,Vicinamibacter,Vicinamibacterales,correct name,family,https://lpsn.dsmz.de/family/vicinamibacteraceae
+[Burkholderiales; not assigned to family],,Burkholderiales,placeholder name,family,https://lpsn.dsmz.de/family/burkholderiales-no-family
+Methylobacteriaceae,Methylobacterium,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/methylobacteriaceae
+Nautiliaceae,Nautilia,Nautiliales,correct name,family,https://lpsn.dsmz.de/family/nautiliaceae
+Brachyspiraceae,Brachyspira,Brachyspirales,correct name,family,https://lpsn.dsmz.de/family/brachyspiraceae
+Zoogloeaceae,Zoogloea,Rhodocyclales,correct name,family,https://lpsn.dsmz.de/family/zoogloeaceae
+Actinopolysporaceae,Actinopolyspora,Actinopolysporales,correct name,family,https://lpsn.dsmz.de/family/actinopolysporaceae
+Alteromonadaceae,Alteromonas,Alteromonadales,correct name,family,https://lpsn.dsmz.de/family/alteromonadaceae
+Ehrlichiaceae,Ehrlichia,Rickettsiales,correct name,family,https://lpsn.dsmz.de/family/ehrlichiaceae
+Endomicrobiaceae,Endomicrobium,Endomicrobiales,correct name,family,https://lpsn.dsmz.de/family/endomicrobiaceae
+Aestuariivirgaceae,Aestuariivirga,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/aestuariivirgaceae
+Rubritaleaceae,Rubritalea,Verrucomicrobiales,correct name,family,https://lpsn.dsmz.de/family/rubritaleaceae
+Parvibaculaceae,Parvibaculum,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/parvibaculaceae
+Sedimentisphaeraceae,Sedimentisphaera,Sedimentisphaerales,correct name,family,https://lpsn.dsmz.de/family/sedimentisphaeraceae
+Thioprofundaceae,Thioprofundum,Chromatiales,correct name,family,https://lpsn.dsmz.de/family/thioprofundaceae
+Desulfomicrobiaceae,Desulfomicrobium,Desulfovibrionales,correct name,family,https://lpsn.dsmz.de/family/desulfomicrobiaceae
+Culicoidibacteraceae,Culicoidibacter,Culicoidibacterales,correct name,family,https://lpsn.dsmz.de/family/culicoidibacteraceae
+Breoghaniaceae,Breoghania,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/breoghaniaceae
+Oceanospirillaceae,Oceanospirillum,Oceanospirillales,correct name,family,https://lpsn.dsmz.de/family/oceanospirillaceae
+Desulfarculaceae,Desulfarculus,Desulfarculales,correct name,family,https://lpsn.dsmz.de/family/desulfarculaceae
+Campylobacteraceae,Campylobacter,Campylobacterales,correct name,family,https://lpsn.dsmz.de/family/campylobacteraceae
+Thermodesulfobiaceae,Thermodesulfobium,Thermoanaerobacterales,correct name,family,https://lpsn.dsmz.de/family/thermodesulfobiaceae
+Tepidiformaceae,Tepidiforma,Tepidiformales,correct name,family,https://lpsn.dsmz.de/family/tepidiformaceae
+Peredibacteraceae,Peredibacter,Bacteriovoracales,in need of a replacement,family,https://lpsn.dsmz.de/family/peredibacteraceae
+Rickettsiaceae,Rickettsia,Rickettsiales,correct name,family,https://lpsn.dsmz.de/family/rickettsiaceae
+Kytococcaceae,Kytococcus,Micrococcales,correct name,family,https://lpsn.dsmz.de/family/kytococcaceae
+Haloarculaceae,Haloarcula,Halobacteriales,correct name,family,https://lpsn.dsmz.de/family/haloarculaceae
+Lysobacteraceae,Lysobacter,Lysobacterales,correct name,family,https://lpsn.dsmz.de/family/lysobacteraceae
+Reichenbachiellaceae,Reichenbachiella,Cytophagales,correct name,family,https://lpsn.dsmz.de/family/reichenbachiellaceae
+Segniliparaceae,Segniliparus,Mycobacteriales,correct name,family,https://lpsn.dsmz.de/family/segniliparaceae
+Methermicoccaceae,Methermicoccus,Methanosarcinales,correct name,family,https://lpsn.dsmz.de/family/methermicoccaceae
+Nakamurellaceae,Nakamurella,Nakamurellales,correct name,family,https://lpsn.dsmz.de/family/nakamurellaceae
+Desulfonatronaceae,Desulfonatronum,Desulfovibrionales,correct name,family,https://lpsn.dsmz.de/family/desulfonatronaceae
+Hafniaceae,Hafnia,Enterobacterales,correct name,family,https://lpsn.dsmz.de/family/hafniaceae
+[Actinomycetales; not assigned to family],,Actinomycetales,placeholder name,family,https://lpsn.dsmz.de/family/actinomycetales-no-family
+Aerococcaceae,Aerococcus,Lactobacillales,correct name,family,https://lpsn.dsmz.de/family/aerococcaceae
+Methanomicrobiaceae,Methanomicrobium,Methanomicrobiales,correct name,family,https://lpsn.dsmz.de/family/methanomicrobiaceae
+Helicobacteraceae,Helicobacter,Campylobacterales,correct name,family,https://lpsn.dsmz.de/family/helicobacteraceae
+Prolixibacteraceae,Prolixibacter,Bacteroidales,correct name,family,https://lpsn.dsmz.de/family/prolixibacteraceae
+Saccharospirillaceae,Saccharospirillum,Oceanospirillales,correct name,family,https://lpsn.dsmz.de/family/saccharospirillaceae
+Methylothermaceae,Methylothermus,Methylococcales,correct name,family,https://lpsn.dsmz.de/family/methylothermaceae
+Nitrosomonadaceae,Nitrosomonas,Nitrosomonadales,correct name,family,https://lpsn.dsmz.de/family/nitrosomonadaceae
+Geminicoccaceae,Geminicoccus,Rhodospirillales,correct name,family,https://lpsn.dsmz.de/family/geminicoccaceae
+Treponemataceae,Treponema,Spirochaetales,correct name,family,https://lpsn.dsmz.de/family/treponemataceae
+Halorubraceae,Halorubrum,Haloferacales,correct name,family,https://lpsn.dsmz.de/family/halorubraceae
+Dietziaceae,Dietzia,Mycobacteriales,correct name,family,https://lpsn.dsmz.de/family/dietziaceae
+Methanopyraceae,Methanopyrus,Methanopyrales,correct name,family,https://lpsn.dsmz.de/family/methanopyraceae
+Opitutaceae,Opitutus,Opitutales,correct name,family,https://lpsn.dsmz.de/family/opitutaceae
+Egibacteraceae,Egibacter,Egibacterales,correct name,family,https://lpsn.dsmz.de/family/egibacteraceae
+Legionellaceae,Legionella,Legionellales,correct name,family,https://lpsn.dsmz.de/family/legionellaceae
+Immundisolibacteraceae,Immundisolibacter,Immundisolibacterales,correct name,family,https://lpsn.dsmz.de/family/immundisolibacteraceae
+Planctomycetaceae,Planctomyces,Planctomycetales,correct name,family,https://lpsn.dsmz.de/family/planctomycetaceae
+Zavarziniaceae,Zavarzinia,Rhodospirillales,correct name,family,https://lpsn.dsmz.de/family/zavarziniaceae
+[Deltaproteobacteria; not assigned to family],,[Deltaproteobacteria; not assigned to order],placeholder name,family,https://lpsn.dsmz.de/family/deltaproteobacteria-no-family
+Hyphomicrobiaceae,Hyphomicrobium,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/hyphomicrobiaceae
+Chitinivibrionaceae,Chitinivibrio,Chitinivibrionales,correct name,family,https://lpsn.dsmz.de/family/chitinivibrionaceae
+Patulibacteraceae,Patulibacter,Solirubrobacterales,correct name,family,https://lpsn.dsmz.de/family/patulibacteraceae
+Microbulbiferaceae,Microbulbifer,Cellvibrionales,correct name,family,https://lpsn.dsmz.de/family/microbulbiferaceae
+Balneatrichaceae,Balneatrix,Oceanospirillales,correct name,family,https://lpsn.dsmz.de/family/balneatrichaceae
+Aestuariirhabdaceae,Aestuariirhabdus,Oceanospirillales,correct name,family,https://lpsn.dsmz.de/family/aestuariirhabdaceae
+Fluviibacteraceae,Fluviibacter,Rhodocyclales,correct name,family,https://lpsn.dsmz.de/family/fluviibacteraceae
+Beijerinckiaceae,Beijerinckia,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/beijerinckiaceae
+Rhodothalassiaceae,Rhodothalassium,Rhodothalassiales,correct name,family,https://lpsn.dsmz.de/family/rhodothalassiaceae
+Raineyaceae,Raineya,Cytophagales,correct name,family,https://lpsn.dsmz.de/family/raineyaceae
+Methanocaldococcaceae,Methanocaldococcus,Methanococcales,correct name,family,https://lpsn.dsmz.de/family/methanocaldococcaceae
+Acanthopleuribacteraceae,Acanthopleuribacter,Acanthopleuribacterales,correct name,family,https://lpsn.dsmz.de/family/acanthopleuribacteraceae
+Listeriaceae,Listeria,Caryophanales,correct name,family,https://lpsn.dsmz.de/family/listeriaceae
+Spiroplasmataceae,Spiroplasma,Entomoplasmatales,correct name,family,https://lpsn.dsmz.de/family/spiroplasmataceae
+Oscillochloridaceae,Oscillochloris,Chloroflexales,correct name,family,https://lpsn.dsmz.de/family/oscillochloridaceae
+Oleiphilaceae,Oleiphilus,Oceanospirillales,correct name,family,https://lpsn.dsmz.de/family/oleiphilaceae
+Wenzhouxiangellaceae,Wenzhouxiangella,Chromatiales,correct name,family,https://lpsn.dsmz.de/family/wenzhouxiangellaceae
+Isosphaeraceae,Isosphaera,Isosphaerales,correct name,family,https://lpsn.dsmz.de/family/isosphaeraceae
+[Gemmatales; not assigned to family],,Gemmatales,placeholder name,family,https://lpsn.dsmz.de/family/gemmatales-no-family
+Deferrisomataceae,Deferrisoma,Deferrisomatales,correct name,family,https://lpsn.dsmz.de/family/deferrisomataceae
+Alicyclobacillaceae,Alicyclobacillus,Caryophanales,correct name,family,https://lpsn.dsmz.de/family/alicyclobacillaceae
+Rhodobacteraceae,Rhodobacter,Rhodobacterales,in need of a replacement,family,https://lpsn.dsmz.de/family/rhodobacteraceae
+Weeksellaceae,Weeksella,Flavobacteriales,correct name,family,https://lpsn.dsmz.de/family/weeksellaceae
+Nitrobacteraceae,Nitrobacter,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/nitrobacteraceae
+Thiofilaceae,Thiofilum,Thiotrichales,correct name,family,https://lpsn.dsmz.de/family/thiofilaceae
+Moraxellaceae,Moraxella,Pseudomonadales,correct name,family,https://lpsn.dsmz.de/family/moraxellaceae
+Kofleriaceae,Kofleria,Myxococcales,correct name,family,https://lpsn.dsmz.de/family/kofleriaceae
+Lawsonellaceae,Lawsonella,Mycobacteriales,correct name,family,https://lpsn.dsmz.de/family/lawsonellaceae
+Dissulfurirhabdaceae,Dissulfurirhabdus,[Deltaproteobacteria; not assigned to order],not validly published,family,https://lpsn.dsmz.de/family/dissulfurirhabdaceae
+Lacipirellulaceae,Lacipirellula,Pirellulales,correct name,family,https://lpsn.dsmz.de/family/lacipirellulaceae
+Waddliaceae,Waddlia,Chlamydiales,correct name,family,https://lpsn.dsmz.de/family/waddliaceae
+Reyranellaceae,Reyranella,Rhodospirillales,correct name,family,https://lpsn.dsmz.de/family/reyranellaceae
+Spirillaceae,Spirillum,Nitrosomonadales,correct name,family,https://lpsn.dsmz.de/family/spirillaceae
+Acidaminococcaceae,Acidaminococcus,Acidaminococcales,correct name,family,https://lpsn.dsmz.de/family/acidaminococcaceae
+Caldisericaceae,Caldisericum,Caldisericales,correct name,family,https://lpsn.dsmz.de/family/caldisericaceae
+Halobacteroidaceae,Halobacteroides,Halanaerobiales,correct name,family,https://lpsn.dsmz.de/family/halobacteroidaceae
+Temperatibacteraceae,Temperatibacter,Kordiimonadales,correct name,family,https://lpsn.dsmz.de/family/temperatibacteraceae
+Tichowtungiaceae,Tichowtungia,Tichowtungiales,correct name,family,https://lpsn.dsmz.de/family/tichowtungiaceae
+Catenulisporaceae,Catenulispora,Catenulisporales,correct name,family,https://lpsn.dsmz.de/family/catenulisporaceae
+Ignavibacteriaceae,Ignavibacterium,Ignavibacteriales,correct name,family,https://lpsn.dsmz.de/family/ignavibacteriaceae
+Actinomycetaceae,Actinomyces,Actinomycetales,correct name,family,https://lpsn.dsmz.de/family/actinomycetaceae
+Prevotellaceae,Prevotella,Bacteroidales,correct name,family,https://lpsn.dsmz.de/family/prevotellaceae
+Rhodanobacteraceae,Rhodanobacter,Lysobacterales,correct name,family,https://lpsn.dsmz.de/family/rhodanobacteraceae
+Granulosicoccaceae,Granulosicoccus,Chromatiales,correct name,family,https://lpsn.dsmz.de/family/granulosicoccaceae
+Spongiibacteraceae,Spongiibacter,Cellvibrionales,correct name,family,https://lpsn.dsmz.de/family/spongiibacteraceae
+Williamwhitmaniaceae,Williamwhitmania,Bacteroidales,correct name,family,https://lpsn.dsmz.de/family/williamwhitmaniaceae
+Zymomonadaceae,Zymomonas,Sphingomonadales,correct name,family,https://lpsn.dsmz.de/family/zymomonadaceae
+Methanosaetaceae,Methanosaeta,Methanosarcinales,in need of a replacement,family,https://lpsn.dsmz.de/family/methanosaetaceae
+Paludibacteraceae,Paludibacter,Bacteroidales,not validly published,family,https://lpsn.dsmz.de/family/paludibacteraceae
+Chlamydiaceae,Chlamydia,Chlamydiales,correct name,family,https://lpsn.dsmz.de/family/chlamydiaceae
+Thermoleophilaceae,Thermoleophilum,Thermoleophilales,correct name,family,https://lpsn.dsmz.de/family/thermoleophilaceae
+Algiphilaceae,Algiphilus,Nevskiales,correct name,family,https://lpsn.dsmz.de/family/algiphilaceae
+Atopobiaceae,Atopobium,Coriobacteriales,correct name,family,https://lpsn.dsmz.de/family/atopobiaceae
+[Caryophanales; not assigned to family],,Caryophanales,placeholder name,family,https://lpsn.dsmz.de/family/caryophanales-no-family
+Rhizobiaceae,Rhizobium,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/rhizobiaceae
+Dysgonomonadaceae,Dysgonomonas,Bacteroidales,correct name,family,https://lpsn.dsmz.de/family/dysgonomonadaceae
+Boseaceae,Bosea,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/boseaceae
+[Streptosporangiales; not assigned to family],,Streptosporangiales,placeholder name,family,https://lpsn.dsmz.de/family/streptosporangiales-no-family
+Carnobacteriaceae,Carnobacterium,Lactobacillales,correct name,family,https://lpsn.dsmz.de/family/carnobacteriaceae
+Syntrophobacteraceae,Syntrophobacter,Syntrophobacterales,correct name,family,https://lpsn.dsmz.de/family/syntrophobacteraceae
+Ventosimonadaceae,Ventosimonas,Pseudomonadales,correct name,family,https://lpsn.dsmz.de/family/ventosimonadaceae
+Kaistiaceae,Kaistia,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/kaistiaceae
+[Oceanospirillales; not assigned to family],,Oceanospirillales,placeholder name,family,https://lpsn.dsmz.de/family/oceanospirillales-no-family
+Akkermansiaceae,Akkermansia,Verrucomicrobiales,correct name,family,https://lpsn.dsmz.de/family/akkermansiaceae
+Bradymonadaceae,Bradymonas,Bradymonadales,correct name,family,https://lpsn.dsmz.de/family/bradymonadaceae
+[Thermoanaerobacterales; not assigned to family],,Thermoanaerobacterales,placeholder name,family,https://lpsn.dsmz.de/family/thermoanaerobacterales-no-family
+Thermogemmatisporaceae,Thermogemmatispora,Thermogemmatisporales,correct name,family,https://lpsn.dsmz.de/family/thermogemmatisporaceae
+Alcanivoracaceae,Alcanivorax,Oceanospirillales,correct name,family,https://lpsn.dsmz.de/family/alcanivoracaceae
+Melioribacteraceae,Melioribacter,Ignavibacteriales,correct name,family,https://lpsn.dsmz.de/family/melioribacteraceae
+Moritellaceae,Moritella,Alteromonadales,correct name,family,https://lpsn.dsmz.de/family/moritellaceae
+Tepidisphaeraceae,Tepidisphaera,Tepidisphaerales,correct name,family,https://lpsn.dsmz.de/family/tepidisphaeraceae
+Puniceicoccaceae,Puniceicoccus,Puniceicoccales,correct name,family,https://lpsn.dsmz.de/family/puniceicoccaceae
+Motilibacteraceae,Motilibacter,Frankiales,correct name,family,https://lpsn.dsmz.de/family/motilibacteraceae
+Balneicellaceae,Balneicella,Bacteroidales,correct name,family,https://lpsn.dsmz.de/family/balneicellaceae
+Longimicrobiaceae,Longimicrobium,Longimicrobiales,correct name,family,https://lpsn.dsmz.de/family/longimicrobiaceae
+Nitrosopumilaceae,Nitrosopumilus,Nitrosopumilales,correct name,family,https://lpsn.dsmz.de/family/nitrosopumilaceae
+Gordoniaceae,Gordonia,Mycobacteriales,correct name,family,https://lpsn.dsmz.de/family/gordoniaceae
+Kiloniellaceae,Kiloniella,Rhodospirillales,correct name,family,https://lpsn.dsmz.de/family/kiloniellaceae
+Mogibacteriaceae,Mogibacterium,Eubacteriales,not validly published,family,https://lpsn.dsmz.de/family/mogibacteriaceae
+Thermithiobacillaceae,Thermithiobacillus,Acidithiobacillales,correct name,family,https://lpsn.dsmz.de/family/thermithiobacillaceae
+Pirellulaceae,Pirellula,Pirellulales,correct name,family,https://lpsn.dsmz.de/family/pirellulaceae
+Devosiaceae,Devosia,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/devosiaceae
+Thioalkalibacteraceae,Thioalkalibacter,Chromatiales,correct name,family,https://lpsn.dsmz.de/family/thioalkalibacteraceae
+Prochloraceae,Prochloron,Synechococcales,correct name,family,https://lpsn.dsmz.de/family/prochloraceae
+Bryobacteraceae,Bryobacter,Bryobacterales,correct name,family,https://lpsn.dsmz.de/family/bryobacteraceae
+Vallicoccaceae,Vallicoccus,Frankiales,correct name,family,https://lpsn.dsmz.de/family/vallicoccaceae
+Aphanothecaceae,Aphanothece,Chroococcales,correct name,family,https://lpsn.dsmz.de/family/aphanothecaceae
+Koleobacteraceae,Koleobacter,Koleobacterales,correct name,family,https://lpsn.dsmz.de/family/koleobacteraceae
+Halobacteriaceae,Halobacterium,Halobacteriales,correct name,family,https://lpsn.dsmz.de/family/halobacteriaceae
+Methylocystaceae,Methylocystis,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/methylocystaceae
+Maricaulaceae,Maricaulis,Caulobacterales,correct name,family,https://lpsn.dsmz.de/family/maricaulaceae
+Azonexaceae,Azonexus,Rhodocyclales,correct name,family,https://lpsn.dsmz.de/family/azonexaceae
+Balneolaceae,Balneola,Balneolales,correct name,family,https://lpsn.dsmz.de/family/balneolaceae
+Chromatiaceae,Chromatium,Chromatiales,correct name,family,https://lpsn.dsmz.de/family/chromatiaceae
+Atribacteraceae,Atribacter,Atribacterales,correct name,family,https://lpsn.dsmz.de/family/atribacteraceae
+Dermatophilaceae,Dermatophilus,Micrococcales,correct name,family,https://lpsn.dsmz.de/family/dermatophilaceae
+Methanonatronarchaeaceae,Methanonatronarchaeum,Methanonatronarchaeales,correct name,family,https://lpsn.dsmz.de/family/methanonatronarchaeaceae
+Succinivibrionaceae,Succinivibrio,Aeromonadales,correct name,family,https://lpsn.dsmz.de/family/succinivibrionaceae
+Muribaculaceae,Muribaculum,Bacteroidales,correct name,family,https://lpsn.dsmz.de/family/muribaculaceae
+Rhodospirillaceae,Rhodospirillum,Rhodospirillales,correct name,family,https://lpsn.dsmz.de/family/rhodospirillaceae
+Oligoflexaceae,Oligoflexus,Oligoflexales,correct name,family,https://lpsn.dsmz.de/family/oligoflexaceae
+Crenotrichaceae,Crenothrix,Sphingobacteriales,correct name,family,https://lpsn.dsmz.de/family/crenotrichaceae
+Intrasporangiaceae,Intrasporangium,Micrococcales,correct name,family,https://lpsn.dsmz.de/family/intrasporangiaceae
+Methanosarcinaceae,Methanosarcina,Methanosarcinales,correct name,family,https://lpsn.dsmz.de/family/methanosarcinaceae
+Thorselliaceae,Thorsellia,[Gammaproteobacteria; not assigned to order],correct name,family,https://lpsn.dsmz.de/family/thorselliaceae
+Xanthobacteraceae,Xanthobacter,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/xanthobacteraceae
+Streptosporangiaceae,Streptosporangium,Streptosporangiales,correct name,family,https://lpsn.dsmz.de/family/streptosporangiaceae
+Ilumatobacteraceae,Ilumatobacter,Acidimicrobiales,correct name,family,https://lpsn.dsmz.de/family/ilumatobacteraceae
+Iamiaceae,Iamia,Acidimicrobiales,correct name,family,https://lpsn.dsmz.de/family/iamiaceae
+Pectobacteriaceae,Pectobacterium,Enterobacterales,correct name,family,https://lpsn.dsmz.de/family/pectobacteriaceae
+Thiotrichaceae,Thiothrix,Thiotrichales,in need of a replacement,family,https://lpsn.dsmz.de/family/thiotrichaceae
+Nocardiaceae,Nocardia,Mycobacteriales,correct name,family,https://lpsn.dsmz.de/family/nocardiaceae
+[Eubacteriales; not assigned to family],,Eubacteriales,placeholder name,family,https://lpsn.dsmz.de/family/eubacteriales-no-family
+Rhodobiaceae,Rhodobium,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/rhodobiaceae
+Salinibacteraceae,Salinibacter,Rhodothermales,correct name,family,https://lpsn.dsmz.de/family/salinibacteraceae
+Desulfurellaceae,Desulfurella,Desulfurellales,correct name,family,https://lpsn.dsmz.de/family/desulfurellaceae
+Vallitaleaceae,Vallitalea,Eubacteriales,correct name,family,https://lpsn.dsmz.de/family/vallitaleaceae
+Erysipelotrichaceae,Erysipelothrix,Erysipelotrichales,correct name,family,https://lpsn.dsmz.de/family/erysipelotrichaceae
+[Calditrichaeota; not assigned to family],,[Calditrichaeota; not assigned to order],placeholder name,family,https://lpsn.dsmz.de/family/calditrichaeota-no-family
+Gemmataceae,Gemmata,Gemmatales,correct name,family,https://lpsn.dsmz.de/family/gemmataceae
+Beggiatoaceae,Beggiatoa,Thiotrichales,correct name,family,https://lpsn.dsmz.de/family/beggiatoaceae
+Syntrophaceae,Syntrophus,Syntrophobacterales,correct name,family,https://lpsn.dsmz.de/family/syntrophaceae
+[Hydrogenophilalia; not assigned to family],,[Hydrogenophilalia; not assigned to order],placeholder name,family,https://lpsn.dsmz.de/family/hydrogenophilalia-no-family
+Comamonadaceae,Comamonas,Burkholderiales,correct name,family,https://lpsn.dsmz.de/family/comamonadaceae
+Roseiflexaceae,Roseiflexus,Chloroflexales,correct name,family,https://lpsn.dsmz.de/family/roseiflexaceae
+Silvanigrellaceae,Silvanigrella,Silvanigrellales,correct name,family,https://lpsn.dsmz.de/family/silvanigrellaceae
+Syntrophomonadaceae,Syntrophomonas,Eubacteriales,correct name,family,https://lpsn.dsmz.de/family/syntrophomonadaceae
+Gemmatimonadaceae,Gemmatimonas,Gemmatimonadales,correct name,family,https://lpsn.dsmz.de/family/gemmatimonadaceae
+Celerinatantimonadaceae,Celerinatantimonas,Alteromonadales,correct name,family,https://lpsn.dsmz.de/family/celerinatantimonadaceae
+Anaeromyxobacteraceae,Anaeromyxobacter,Myxococcales,correct name,family,https://lpsn.dsmz.de/family/anaeromyxobacteraceae
+Marinilabiliaceae,Marinilabilia,Bacteroidales,correct name,family,https://lpsn.dsmz.de/family/marinilabiliaceae
+Sphingobacteriaceae,Sphingobacterium,Sphingobacteriales,correct name,family,https://lpsn.dsmz.de/family/sphingobacteriaceae
+Sandaracinaceae,Sandaracinus,Myxococcales,correct name,family,https://lpsn.dsmz.de/family/sandaracinaceae
+Metamycoplasmataceae,Metamycoplasma,Mycoplasmoidales,correct name,family,https://lpsn.dsmz.de/family/metamycoplasmataceae
+Bacteroidaceae,Bacteroides,Bacteroidales,correct name,family,https://lpsn.dsmz.de/family/bacteroidaceae
+Phycisphaeraceae,Phycisphaera,Phycisphaerales,correct name,family,https://lpsn.dsmz.de/family/phycisphaeraceae
+Capsulimonadaceae,Capsulimonas,Capsulimonadales,correct name,family,https://lpsn.dsmz.de/family/capsulimonadaceae
+Oligosphaeraceae,Oligosphaera,Oligosphaerales,correct name,family,https://lpsn.dsmz.de/family/oligosphaeraceae
+Proteinivoraceae,Proteinivorax,Eubacteriales,correct name,family,https://lpsn.dsmz.de/family/proteinivoraceae
+Gracilibacteraceae,Gracilibacter,Eubacteriales,correct name,family,https://lpsn.dsmz.de/family/gracilibacteraceae
+Herpetosiphonaceae,Herpetosiphon,Herpetosiphonales,correct name,family,https://lpsn.dsmz.de/family/herpetosiphonaceae
+Methylophilaceae,Methylophilus,Nitrosomonadales,correct name,family,https://lpsn.dsmz.de/family/methylophilaceae
+Eggerthellaceae,Eggerthella,Eggerthellales,correct name,family,https://lpsn.dsmz.de/family/eggerthellaceae
+Ornithinimicrobiaceae,Ornithinimicrobium,Micrococcales,correct name,family,https://lpsn.dsmz.de/family/ornithinimicrobiaceae
+Blattabacteriaceae,Blattabacterium,Flavobacteriales,correct name,family,https://lpsn.dsmz.de/family/blattabacteriaceae
+Filobacteriaceae,Filobacterium,Sphingobacteriales,correct name,family,https://lpsn.dsmz.de/family/filobacteriaceae
+Thermosynergistaceae,Thermosynergistes,[Synergistetes; not assigned to order],correct name,family,https://lpsn.dsmz.de/family/thermosynergistaceae
+Sphaerobacteraceae,Sphaerobacter,Sphaerobacterales,correct name,family,https://lpsn.dsmz.de/family/sphaerobacteraceae
+Afifellaceae,Afifella,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/afifellaceae
+Sporolactobacillaceae,Sporolactobacillus,Caryophanales,correct name,family,https://lpsn.dsmz.de/family/sporolactobacillaceae
+Chromobacteriaceae,Chromobacterium,Neisseriales,correct name,family,https://lpsn.dsmz.de/family/chromobacteriaceae
+Enterobacteriaceae,Escherichia,Enterobacterales,correct name,family,https://lpsn.dsmz.de/family/enterobacteriaceae
+Chroococcaceae,Chroococcus,Chroococcales,correct name,family,https://lpsn.dsmz.de/family/chroococcaceae
+Acetobacteraceae,Acetobacter,Rhodospirillales,correct name,family,https://lpsn.dsmz.de/family/acetobacteraceae
+Fervidicoccaceae,Fervidicoccus,Fervidicoccales,correct name,family,https://lpsn.dsmz.de/family/fervidicoccaceae
+Chloroflexaceae,Chloroflexus,Chloroflexales,correct name,family,https://lpsn.dsmz.de/family/chloroflexaceae
+Phreatobacteraceae,Phreatobacter,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/phreatobacteraceae
+Jiangellaceae,Jiangella,Jiangellales,correct name,family,https://lpsn.dsmz.de/family/jiangellaceae
+Rubrobacteraceae,Rubrobacter,Rubrobacterales,correct name,family,https://lpsn.dsmz.de/family/rubrobacteraceae
+Zhaonellaceae,Zhaonella,Thermoanaerobacterales,correct name,family,https://lpsn.dsmz.de/family/zhaonellaceae
+Myxococcaceae,Myxococcus,Myxococcales,correct name,family,https://lpsn.dsmz.de/family/myxococcaceae
+Hymenobacteraceae,Hymenobacter,Cytophagales,correct name,family,https://lpsn.dsmz.de/family/hymenobacteraceae
+Veillonellaceae,Veillonella,Veillonellales,correct name,family,https://lpsn.dsmz.de/family/veillonellaceae
+Lichenihabitantaceae,Lichenihabitans,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/lichenihabitantaceae
+Jonesiaceae,Jonesia,Micrococcales,correct name,family,https://lpsn.dsmz.de/family/jonesiaceae
+Kiritimatiellaceae,Kiritimatiella,Kiritimatiellales,correct name,family,https://lpsn.dsmz.de/family/kiritimatiellaceae
+Cellvibrionaceae,Cellvibrio,Cellvibrionales,correct name,family,https://lpsn.dsmz.de/family/cellvibrionaceae
+Parachlamydiaceae,Parachlamydia,Chlamydiales,correct name,family,https://lpsn.dsmz.de/family/parachlamydiaceae
+Lewinellaceae,Lewinella,Saprospirales,correct name,family,https://lpsn.dsmz.de/family/lewinellaceae
+Acidilobaceae,Acidilobus,Acidilobales,correct name,family,https://lpsn.dsmz.de/family/acidilobaceae
+Thermoplasmataceae,Thermoplasma,Thermoplasmatales,correct name,family,https://lpsn.dsmz.de/family/thermoplasmataceae
+Geodermatophilaceae,Geodermatophilus,Geodermatophilales,correct name,family,https://lpsn.dsmz.de/family/geodermatophilaceae
+Fastidiosibacteraceae,Fastidiosibacter,Thiotrichales,correct name,family,https://lpsn.dsmz.de/family/fastidiosibacteraceae
+Thermonemataceae,Thermonema,Cytophagales,correct name,family,https://lpsn.dsmz.de/family/thermonemataceae
+Thermomonosporaceae,Thermomonospora,Streptosporangiales,correct name,family,https://lpsn.dsmz.de/family/thermomonosporaceae
+Colwelliaceae,Colwellia,Alteromonadales,correct name,family,https://lpsn.dsmz.de/family/colwelliaceae
+Stellaceae,Stella,Rhodospirillales,correct name,family,https://lpsn.dsmz.de/family/stellaceae
+Lachnospiraceae,Lachnospira,Eubacteriales,correct name,family,https://lpsn.dsmz.de/family/lachnospiraceae
+Leuconostocaceae,Leuconostoc,Lactobacillales,correct name,family,https://lpsn.dsmz.de/family/leuconostocaceae
+Pontiellaceae,Pontiella,Kiritimatiellales,correct name,family,https://lpsn.dsmz.de/family/pontiellaceae
+Yersiniaceae,Yersinia,Enterobacterales,correct name,family,https://lpsn.dsmz.de/family/yersiniaceae
+Archangiaceae,Archangium,Myxococcales,correct name,family,https://lpsn.dsmz.de/family/archangiaceae
+Acidothermaceae,Acidothermus,Acidothermales,correct name,family,https://lpsn.dsmz.de/family/acidothermaceae
+Acidimicrobiaceae,Acidimicrobium,Acidimicrobiales,correct name,family,https://lpsn.dsmz.de/family/acidimicrobiaceae
+Pleomorphomonadaceae,Pleomorphomonas,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/pleomorphomonadaceae
+Dissulfuribacteraceae,Dissulfuribacter,Dissulfuribacterales,correct name,family,https://lpsn.dsmz.de/family/dissulfuribacteraceae
+Victivallaceae,Victivallis,Victivallales,correct name,family,https://lpsn.dsmz.de/family/victivallaceae
+Porticoccaceae,Porticoccus,Cellvibrionales,correct name,family,https://lpsn.dsmz.de/family/porticoccaceae
+Ahrensiaceae,Ahrensia,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/ahrensiaceae
+Sphingomonadaceae,Sphingomonas,Sphingomonadales,correct name,family,https://lpsn.dsmz.de/family/sphingomonadaceae
+Acidobacteriaceae,Acidobacterium,Acidobacteriales,correct name,family,https://lpsn.dsmz.de/family/acidobacteriaceae
+Budviciaceae,Budvicia,Enterobacterales,correct name,family,https://lpsn.dsmz.de/family/budviciaceae
+Thermoflexaceae,Thermoflexus,Thermoflexales,correct name,family,https://lpsn.dsmz.de/family/thermoflexaceae
+Sphingosinicellaceae,Sphingosinicella,Sphingomonadales,correct name,family,https://lpsn.dsmz.de/family/sphingosinicellaceae
+Segnochrobactraceae,Segnochrobactrum,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/segnochrobactraceae
+Tsukamurellaceae,Tsukamurella,Mycobacteriales,correct name,family,https://lpsn.dsmz.de/family/tsukamurellaceae
+Glycomycetaceae,Glycomyces,Glycomycetales,correct name,family,https://lpsn.dsmz.de/family/glycomycetaceae
+Verrucomicrobiaceae,Verrucomicrobium,Verrucomicrobiales,correct name,family,https://lpsn.dsmz.de/family/verrucomicrobiaceae
+Bacillaceae,Bacillus,Caryophanales,correct name,family,https://lpsn.dsmz.de/family/bacillaceae
+Soortiaceae,Soortia,Balneolales,correct name,family,https://lpsn.dsmz.de/family/soortiaceae
+Methanobacteriaceae,Methanobacterium,Methanobacteriales,correct name,family,https://lpsn.dsmz.de/family/methanobacteriaceae
+[Betaproteobacteria; not assigned to family],,[Betaproteobacteria; not assigned to order],placeholder name,family,https://lpsn.dsmz.de/family/betaproteobacteria-no-family
+Sterolibacteriaceae,Sterolibacterium,Nitrosomonadales,correct name,family,https://lpsn.dsmz.de/family/sterolibacteriaceae
+Blastochloridaceae,Blastochloris,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/blastochloridaceae
+Mesoaciditogaceae,Mesoaciditoga,Mesoaciditogales,correct name,family,https://lpsn.dsmz.de/family/mesoaciditogaceae
+Cytophagaceae,Cytophaga,Cytophagales,correct name,family,https://lpsn.dsmz.de/family/cytophagaceae
+Magnetococcaceae,Magnetococcus,Magnetococcales,correct name,family,https://lpsn.dsmz.de/family/magnetococcaceae
+Hydrogenothermaceae,Hydrogenothermus,Aquificales,correct name,family,https://lpsn.dsmz.de/family/hydrogenothermaceae
+Pseudobacteriovoracaceae,Pseudobacteriovorax,Oligoflexales,correct name,family,https://lpsn.dsmz.de/family/pseudobacteriovoracaceae
+Archaeoglobaceae,Archaeoglobus,Archaeoglobales,correct name,family,https://lpsn.dsmz.de/family/archaeoglobaceae
+Rhodocyclaceae,Rhodocyclus,Rhodocyclales,correct name,family,https://lpsn.dsmz.de/family/rhodocyclaceae
+Desulfosudaceae,Desulfosudis,Desulfobacterales,correct name,family,https://lpsn.dsmz.de/family/desulfosudaceae
+Tenuifilaceae,Tenuifilum,Bacteroidales,correct name,family,https://lpsn.dsmz.de/family/tenuifilaceae
+Natrialbaceae,Natrialba,Natrialbales,correct name,family,https://lpsn.dsmz.de/family/natrialbaceae
+Saprospiraceae,Saprospira,Saprospirales,correct name,family,https://lpsn.dsmz.de/family/saprospiraceae
+Clostridiaceae,Clostridium,Eubacteriales,correct name,family,https://lpsn.dsmz.de/family/clostridiaceae
+Deferribacteraceae,Deferribacter,Deferribacterales,correct name,family,https://lpsn.dsmz.de/family/deferribacteraceae
+Methanocalculaceae,Methanocalculus,Methanomicrobiales,correct name,family,https://lpsn.dsmz.de/family/methanocalculaceae
+Micropepsaceae,Micropepsis,Micropepsales,correct name,family,https://lpsn.dsmz.de/family/micropepsaceae
+Terrimicrobiaceae,Terrimicrobium,Terrimicrobiales,correct name,family,https://lpsn.dsmz.de/family/terrimicrobiaceae
+Shewanellaceae,Shewanella,Alteromonadales,correct name,family,https://lpsn.dsmz.de/family/shewanellaceae
+[Verrucomicrobia; not assigned to family],,[Verrucomicrobia; not assigned to order],placeholder name,family,https://lpsn.dsmz.de/family/verrucomicrobia-no-family
+[Alteromonadales; not assigned to family],,Alteromonadales,placeholder name,family,https://lpsn.dsmz.de/family/alteromonadales-no-family
+Dermabacteraceae,Dermabacter,Micrococcales,correct name,family,https://lpsn.dsmz.de/family/dermabacteraceae
+Euzebyaceae,Euzebya,Euzebyales,correct name,family,https://lpsn.dsmz.de/family/euzebyaceae
+Piscirickettsiaceae,Piscirickettsia,Thiotrichales,correct name,family,https://lpsn.dsmz.de/family/piscirickettsiaceae
+Rarobacteraceae,Rarobacter,Micrococcales,correct name,family,https://lpsn.dsmz.de/family/rarobacteraceae
+Ancalomicrobiaceae,Ancalomicrobium,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/ancalomicrobiaceae
+Nitrososphaeraceae,Nitrososphaera,Nitrososphaerales,correct name,family,https://lpsn.dsmz.de/family/nitrososphaeraceae
+Chthonomonadaceae,Chthonomonas,Chthonomonadales,correct name,family,https://lpsn.dsmz.de/family/chthonomonadaceae
+Bifidobacteriaceae,Bifidobacterium,Bifidobacteriales,correct name,family,https://lpsn.dsmz.de/family/bifidobacteriaceae
+Arenimicrobiaceae,Arenimicrobium,Blastocatellales,correct name,family,https://lpsn.dsmz.de/family/arenimicrobiaceae
+Bacteriovoracaceae,Bacteriovorax,Bacteriovoracales,correct name,family,https://lpsn.dsmz.de/family/bacteriovoracaceae
+Hahellaceae,Hahella,Oceanospirillales,correct name,family,https://lpsn.dsmz.de/family/hahellaceae
+Thermoguttaceae,Thermogutta,Pirellulales,correct name,family,https://lpsn.dsmz.de/family/thermoguttaceae
+Syntrophotaleaceae,Syntrophotalea,Desulfuromonadales,correct name,family,https://lpsn.dsmz.de/family/syntrophotaleaceae
+Selenomonadaceae,Selenomonas,Selenomonadales,correct name,family,https://lpsn.dsmz.de/family/selenomonadaceae
+Kribbellaceae,Kribbella,Propionibacteriales,correct name,family,https://lpsn.dsmz.de/family/kribbellaceae
+Mycoplasmoidaceae,Mycoplasmoides,Mycoplasmoidales,correct name,family,https://lpsn.dsmz.de/family/mycoplasmoidaceae
+Ktedonosporobacteraceae,Ktedonosporobacter,Ktedonobacterales,correct name,family,https://lpsn.dsmz.de/family/ktedonosporobacteraceae
+Holophagaceae,Holophaga,Holophagales,correct name,family,https://lpsn.dsmz.de/family/holophagaceae
+Tannerellaceae,Tannerella,Bacteroidales,not validly published,family,https://lpsn.dsmz.de/family/tannerellaceae
+Catalimonadaceae,Catalinimonas,Cytophagales,correct name,family,https://lpsn.dsmz.de/family/catalimonadaceae
+[Synergistetes; not assigned to family],,[Synergistetes; not assigned to order],placeholder name,family,https://lpsn.dsmz.de/family/synergistetes-no-family
+Nocardioidaceae,Nocardioides,Propionibacteriales,correct name,family,https://lpsn.dsmz.de/family/nocardioidaceae
+Caldilineaceae,Caldilinea,Caldilineales,correct name,family,https://lpsn.dsmz.de/family/caldilineaceae
+Marinifilaceae,Marinifilum,Bacteroidales,correct name,family,https://lpsn.dsmz.de/family/marinifilaceae
+Streptococcaceae,Streptococcus,Lactobacillales,correct name,family,https://lpsn.dsmz.de/family/streptococcaceae
+Crocinitomicaceae,Crocinitomix,Flavobacteriales,correct name,family,https://lpsn.dsmz.de/family/crocinitomicaceae
+Spirosomaceae,Spirosoma,Cytophagales,correct name,family,https://lpsn.dsmz.de/family/spirosomaceae
+Flavobacteriaceae,Flavobacterium,Flavobacteriales,correct name,family,https://lpsn.dsmz.de/family/flavobacteriaceae
+Arcobacteraceae,Arcobacter,Campylobacterales,correct name,family,https://lpsn.dsmz.de/family/arcobacteraceae
+Corynebacteriaceae,Corynebacterium,Mycobacteriales,correct name,family,https://lpsn.dsmz.de/family/corynebacteriaceae
+Coxiellaceae,Coxiella,Legionellales,correct name,family,https://lpsn.dsmz.de/family/coxiellaceae
+Roseivirgaceae,Roseivirga,Cytophagales,correct name,family,https://lpsn.dsmz.de/family/roseivirgaceae
+Thermoflexibacteraceae,Thermoflexibacter,Cytophagales,correct name,family,https://lpsn.dsmz.de/family/thermoflexibacteraceae
+Xylanivirgaceae,Xylanivirga,Eubacteriales,correct name,family,https://lpsn.dsmz.de/family/xylanivirgaceae
+[Halanaerobiales; not assigned to family],,Halanaerobiales,placeholder name,family,https://lpsn.dsmz.de/family/halanaerobiales-no-family
+Phyllobacteriaceae,Phyllobacterium,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/phyllobacteriaceae
+Simkaniaceae,Simkania,Chlamydiales,correct name,family,https://lpsn.dsmz.de/family/simkaniaceae
+Thermodesulfobacteriaceae,Thermodesulfobacterium,Thermodesulfobacteriales,correct name,family,https://lpsn.dsmz.de/family/thermodesulfobacteriaceae
+Tissierellaceae,Tissierella,Tissierellales,correct name,family,https://lpsn.dsmz.de/family/tissierellaceae
+Psittacicellaceae,Psittacicella,Pasteurellales,correct name,family,https://lpsn.dsmz.de/family/psittacicellaceae
+Thermomicrobiaceae,Thermomicrobium,Thermomicrobiales,correct name,family,https://lpsn.dsmz.de/family/thermomicrobiaceae
+Parviterribacteraceae,Parviterribacter,Solirubrobacterales,correct name,family,https://lpsn.dsmz.de/family/parviterribacteraceae
+Kineosporiaceae,Kineosporia,Kineosporiales,correct name,family,https://lpsn.dsmz.de/family/kineosporiaceae
+[Cytophagales; not assigned to family],,Cytophagales,placeholder name,family,https://lpsn.dsmz.de/family/cytophagales-no-family
+Chlorobiaceae,Chlorobium,Chlorobiales,correct name,family,https://lpsn.dsmz.de/family/chlorobiaceae
+Frankiaceae,Frankia,Frankiales,correct name,family,https://lpsn.dsmz.de/family/frankiaceae
+Entomoplasmataceae,Entomoplasma,Entomoplasmatales,correct name,family,https://lpsn.dsmz.de/family/entomoplasmataceae
+Rhabdaerophilaceae,Rhabdaerophilum,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/rhabdaerophilaceae
+Oscillospiraceae,Oscillospira,Eubacteriales,correct name,family,https://lpsn.dsmz.de/family/oscillospiraceae
+Methanocellaceae,Methanocella,Methanocellales,correct name,family,https://lpsn.dsmz.de/family/methanocellaceae
+Sporomusaceae,Sporomusa,Selenomonadales,correct name,family,https://lpsn.dsmz.de/family/sporomusaceae
+Promicromonosporaceae,Promicromonospora,Micrococcales,correct name,family,https://lpsn.dsmz.de/family/promicromonosporaceae
+Methanocorpusculaceae,Methanocorpusculum,Methanomicrobiales,correct name,family,https://lpsn.dsmz.de/family/methanocorpusculaceae
+Baekduiaceae,Baekduia,Solirubrobacterales,correct name,family,https://lpsn.dsmz.de/family/baekduiaceae
+Limnochordaceae,Limnochorda,Limnochordales,correct name,family,https://lpsn.dsmz.de/family/limnochordaceae
+Armatimonadaceae,Armatimonas,Armatimonadales,correct name,family,https://lpsn.dsmz.de/family/armatimonadaceae
+Heliobacteriaceae,Heliobacterium,Eubacteriales,correct name,family,https://lpsn.dsmz.de/family/heliobacteriaceae
+Sneathiellaceae,Sneathiella,Sneathiellales,correct name,family,https://lpsn.dsmz.de/family/sneathiellaceae
+Casimicrobiaceae,Casimicrobium,[Betaproteobacteria; not assigned to order],correct name,family,https://lpsn.dsmz.de/family/casimicrobiaceae
+Geobacteraceae,Geobacter,Desulfuromonadales,correct name,family,https://lpsn.dsmz.de/family/geobacteraceae
+Eubacteriaceae,Eubacterium,Eubacteriales,correct name,family,https://lpsn.dsmz.de/family/eubacteriaceae
+Methylococcaceae,Methylococcus,Methylococcales,correct name,family,https://lpsn.dsmz.de/family/methylococcaceae
+Micromonosporaceae,Micromonospora,Micromonosporales,correct name,family,https://lpsn.dsmz.de/family/micromonosporaceae
+Alsobacteraceae,Alsobacter,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/alsobacteraceae
+Parvularculaceae,Parvularcula,Parvularculales,not validly published,family,https://lpsn.dsmz.de/family/parvularculaceae
+Tepidanaerobacteraceae,Tepidanaerobacter,Thermosediminibacterales,correct name,family,https://lpsn.dsmz.de/family/tepidanaerobacteraceae
+Tepidamorphaceae,Tepidamorphus,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/tepidamorphaceae
+Hyphomonadaceae,Hyphomonas,Caulobacterales,correct name,family,https://lpsn.dsmz.de/family/hyphomonadaceae
+Iodidimonadaceae,Iodidimonas,Iodidimonadales,correct name,family,https://lpsn.dsmz.de/family/iodidimonadaceae
+Aurantimonadaceae,Aurantimonas,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/aurantimonadaceae
+Sporichthyaceae,Sporichthya,Sporichthyales,correct name,family,https://lpsn.dsmz.de/family/sporichthyaceae
+[Hyphomicrobiales; not assigned to family],,Hyphomicrobiales,placeholder name,family,https://lpsn.dsmz.de/family/hyphomicrobiales-no-family
+Roseiarcaceae,Roseiarcus,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/roseiarcaceae
+Halobacteriovoraceae,Halobacteriovorax,Bacteriovoracales,correct name,family,https://lpsn.dsmz.de/family/halobacteriovoraceae
+Orbaceae,Orbus,Orbales,correct name,family,https://lpsn.dsmz.de/family/orbaceae
+Pasteuriaceae,Pasteuria,Caryophanales,correct name,family,https://lpsn.dsmz.de/family/pasteuriaceae
+Desulfohalobiaceae,Desulfohalobium,Desulfovibrionales,correct name,family,https://lpsn.dsmz.de/family/desulfohalobiaceae
+Brevibacteriaceae,Brevibacterium,Micrococcales,correct name,family,https://lpsn.dsmz.de/family/brevibacteriaceae
+Polyangiaceae,Polyangium,Myxococcales,correct name,family,https://lpsn.dsmz.de/family/polyangiaceae
+Bernardetiaceae,Bernardetia,Cytophagales,correct name,family,https://lpsn.dsmz.de/family/bernardetiaceae
+Flexibacteraceae,Flexibacter,Cytophagales,correct name,family,https://lpsn.dsmz.de/family/flexibacteraceae
+Oxalobacteraceae,Oxalobacter,Burkholderiales,correct name,family,https://lpsn.dsmz.de/family/oxalobacteraceae
+Actinospicaceae,Actinospica,Catenulisporales,correct name,family,https://lpsn.dsmz.de/family/actinospicaceae
+Vibrionaceae,Vibrio,Vibrionales,correct name,family,https://lpsn.dsmz.de/family/vibrionaceae
+Pseudoalteromonadaceae,Pseudoalteromonas,Alteromonadales,correct name,family,https://lpsn.dsmz.de/family/pseudoalteromonadaceae
+Thermosediminibacteraceae,Thermosediminibacter,Thermosediminibacterales,correct name,family,https://lpsn.dsmz.de/family/thermosediminibacteraceae
+Erythrobacteraceae,Erythrobacter,Sphingomonadales,correct name,family,https://lpsn.dsmz.de/family/erythrobacteraceae
+Halococcaceae,Halococcus,Halobacteriales,correct name,family,https://lpsn.dsmz.de/family/halococcaceae
+Bdellovibrionaceae,Bdellovibrio,Bdellovibrionales,in need of a replacement,family,https://lpsn.dsmz.de/family/bdellovibrionaceae
+Nannocystaceae,Nannocystis,Myxococcales,correct name,family,https://lpsn.dsmz.de/family/nannocystaceae
+Fibrobacteraceae,Fibrobacter,Fibrobacterales,correct name,family,https://lpsn.dsmz.de/family/fibrobacteraceae
+Nitrospiraceae,,Nitrospirales,not validly published,family,https://lpsn.dsmz.de/family/nitrospiraceae
+Fervidobacteriaceae,Fervidobacterium,Thermotogales,correct name,family,https://lpsn.dsmz.de/family/fervidobacteriaceae
+Leptospiraceae,Leptospira,Leptospirales,correct name,family,https://lpsn.dsmz.de/family/leptospiraceae
+Desulfovibrionaceae,Desulfovibrio,Desulfovibrionales,correct name,family,https://lpsn.dsmz.de/family/desulfovibrionaceae
+Salinivirgaceae,Salinivirga,Bacteroidales,correct name,family,https://lpsn.dsmz.de/family/salinivirgaceae
+Persicobacteraceae,Persicobacter,Cytophagales,correct name,family,https://lpsn.dsmz.de/family/persicobacteraceae
+Natranaerofabaceae,Natranaerofaba,Natranaerobiales,correct name,family,https://lpsn.dsmz.de/family/natranaerofabaceae
+Demequinaceae,Demequina,Micrococcales,correct name,family,https://lpsn.dsmz.de/family/demequinaceae
+Erwiniaceae,Erwinia,Enterobacterales,correct name,family,https://lpsn.dsmz.de/family/erwiniaceae
+Kosmotogaceae,Kosmotoga,Kosmotogales,correct name,family,https://lpsn.dsmz.de/family/kosmotogaceae
+Coprothermobacteraceae,Coprothermobacter,Coprothermobacterales,correct name,family,https://lpsn.dsmz.de/family/coprothermobacteraceae
+Borreliaceae,Borrelia,Spirochaetales,correct name,family,https://lpsn.dsmz.de/family/borreliaceae
+Caldicoprobacteraceae,Caldicoprobacter,Eubacteriales,correct name,family,https://lpsn.dsmz.de/family/caldicoprobacteraceae
+Gaiellaceae,Gaiella,Gaiellales,correct name,family,https://lpsn.dsmz.de/family/gaiellaceae
+Cellulomonadaceae,Cellulomonas,Micrococcales,correct name,family,https://lpsn.dsmz.de/family/cellulomonadaceae
+Fusobacteriaceae,Fusobacterium,Fusobacteriales,correct name,family,https://lpsn.dsmz.de/family/fusobacteriaceae
+Peptococcaceae,Peptococcus,Eubacteriales,correct name,family,https://lpsn.dsmz.de/family/peptococcaceae
+Francisellaceae,Francisella,Thiotrichales,correct name,family,https://lpsn.dsmz.de/family/francisellaceae
+Treboniaceae,Trebonia,Streptosporangiales,correct name,family,https://lpsn.dsmz.de/family/treboniaceae
+Zooshikellaceae,Zooshikella,Oceanospirillales,correct name,family,https://lpsn.dsmz.de/family/zooshikellaceae
+Chitinispirillaceae,Chitinispirillum,Chitinispirillales,correct name,family,https://lpsn.dsmz.de/family/chitinispirillaceae
+Haloferacaceae,Haloferax,Haloferacales,correct name,family,https://lpsn.dsmz.de/family/haloferacaceae
+Gallionellaceae,Gallionella,Nitrosomonadales,correct name,family,https://lpsn.dsmz.de/family/gallionellaceae
+[Spirochaetia; not assigned to family],,[Spirochaetia; not assigned to order],placeholder name,family,https://lpsn.dsmz.de/family/spirochaetia-no-family
+Notoacmeibacteraceae,Notoacmeibacter,Hyphomicrobiales,correct name,family,https://lpsn.dsmz.de/family/notoacmeibacteraceae
+Thiolineaceae,Thiolinea,Thiotrichales,correct name,family,https://lpsn.dsmz.de/family/thiolineaceae
+Vulgatibacteraceae,Vulgatibacter,Myxococcales,correct name,family,https://lpsn.dsmz.de/family/vulgatibacteraceae
+Mycobacteriaceae,Mycobacterium,Mycobacteriales,correct name,family,https://lpsn.dsmz.de/family/mycobacteriaceae
+Gottschalkiaceae,Gottschalkia,Tissierellales,correct name,family,https://lpsn.dsmz.de/family/gottschalkiaceae
+Brevinemataceae,Brevinema,Brevinematales,correct name,family,https://lpsn.dsmz.de/family/brevinemataceae
+Thermosporotrichaceae,Thermosporothrix,Ktedonobacterales,correct name,family,https://lpsn.dsmz.de/family/thermosporotrichaceae
+Fimbriimonadaceae,Fimbriimonas,Fimbriimonadales,correct name,family,https://lpsn.dsmz.de/family/fimbriimonadaceae
+Chitinophagaceae,Chitinophaga,Chitinophagales,correct name,family,https://lpsn.dsmz.de/family/chitinophagaceae
+Litoricolaceae,Litoricola,Oceanospirillales,correct name,family,https://lpsn.dsmz.de/family/litoricolaceae
+Lentisphaeraceae,Lentisphaera,Lentisphaerales,correct name,family,https://lpsn.dsmz.de/family/lentisphaeraceae
+[Acidimicrobiales; not assigned to family],,Acidimicrobiales,placeholder name,family,https://lpsn.dsmz.de/family/acidimicrobiales-no-family
