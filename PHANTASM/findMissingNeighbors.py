@@ -191,8 +191,14 @@ def getRelatives(paramD:dict, lpsnD:dict) -> list:
         # create a new object for the missing species (internal by default)
         newTaxon = Taxonomy(taxid, speciesName, 'species')
 
-        # add the newTaxon to the existing object
-        taxO._importExistingSubTax(newTaxon, lpsnD)
+        # try to add the newTaxon to the existing object
+        try:
+            taxO._importExistingSubTax(newTaxon, lpsnD)
+        
+        # if import fails, then skip the newTaxon
+        # should really only happen if the newTaxon is in a different domain
+        except:
+            continue
 
         # make sure taxO is still referencing the root!
         taxO = taxO.getRoot()
