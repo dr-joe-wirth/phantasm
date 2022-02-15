@@ -3426,8 +3426,14 @@ class Taxonomy:
                         
                         # if the sibling doesn't have a type species
                         if sibling.numDescendantsAtRank('species') < 1:
-                            # this is a faux sibling, add it to the set
-                            fauxSiblings.add(sibling)
+                            # try to populate the sibling first
+                            sibling._initializeDescendants(maxDepth='species')
+                            sibling._addLpsnData(lpsnD, removeEmptyTaxa=False)
+
+                            # check again
+                            if sibling.numDescendantsAtRank('species') < 1:
+                                # this is a faux sibling, add it to the set
+                                fauxSiblings.add(sibling)
                         
                         # otherwise, mark the sibling as external
                         else:
