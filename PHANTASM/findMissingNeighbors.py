@@ -1,4 +1,4 @@
-import sys, os, re, glob
+import sys, os, re, glob, copy, random
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
 from PHANTASM.rRNA.runRnaBlast import __makeOutfmtString
 from PHANTASM.utilities import parseCsv, ncbiIdsFromSearchTerm, ncbiSummaryFromIdList, ncbiELinkFromIdList, extractIdsFromELink, removeFileExtension
@@ -250,6 +250,33 @@ def getRelatives(paramD:dict, lpsnD:dict) -> list:
         # otherwise, the list is sorted; it is safe to stop looping
         else: break
 
+    # it is possible that too many relatives were selected in the previous step
+    # if this is the case, then we need to select a subset of them
+    if len(relatives) > maxNumSeqs:
+        # copy relatives and then empty the list
+        previousRelatives = copy.deepcopy(relatives)
+        relatives = list()
+
+        # reverse the indices for on-the-fly popping
+        indices = list(range(len(previousRelatives)))
+        indices.reverse()
+
+        # go through the indices (in reverse order)
+        for prIdx in indices:
+            # extract the current relative
+            relative:Taxonomy = previousRelatives[prIdx]
+
+            # if the current relative is type material ...
+            if relative.parent.typeMaterial == relative:
+                # ... then pop it from the old and add to relatives
+                relatives.append(previousRelatives.pop(prIdx))
+ 
+        # determine number of sequences that need to be picked
+        numRemaining = maxNumSeqs - len(relatives)
+
+        # randomly pick sequences from the remaining previous relatives
+        relatives += random.sample(previousRelatives, numRemaining)
+        
     # the current index can be used to remove the already processed genera
     generaSortedL = generaSortedL[idx:]
     
