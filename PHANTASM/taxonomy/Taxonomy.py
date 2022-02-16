@@ -3264,8 +3264,30 @@ class Taxonomy:
                 the first is the up-to-date handle of the calling object and
                 the second is the outgroup itself.
         """
-        # retrieve the outgroup
-        outgroup = self.__pickOutgroupWrapper(lpsnD)
+        # constants
+        BACT_NAME = "Bacteria"
+        ARCH_NAME = "Archaea"
+
+        # attempt to retrieve the outgroup
+        try:
+            outgroup = self.__pickOutgroupWrapper(lpsnD)
+
+        # if this fails, then we must pick from another domain
+        except:
+            # navigate to the root of the object
+            root = self.getRoot()
+
+            # pick a bacterial outgroup if self is archaeal
+            if root.sciName == ARCH_NAME:
+                outgroup = Taxonomy.__outgroupFromDiffDomain(BACT_NAME, lpsnD)
+            
+            # pick an archaeal outgroup if self is bacterial
+            elif root.sciName == BACT_NAME:
+                outgroup = Taxonomy.__outgroupFromDiffDomain(ARCH_NAME, lpsnD)
+            
+            # raise an error if the root isn't at a domain (should not happen)
+            else:
+                raise RuntimeError("Could not find an outgroup")
 
         # get the root
         root = self.getRoot()
@@ -3319,9 +3341,20 @@ class Taxonomy:
             # mark the root, and all its descendants, as external
             root.__setAsExternal()
 
-            # get a set of the phyla that are siblings to the original children
+            # get a set of the siblings
             allSiblings:set = root.getChildren(set)
-            allSiblings.difference_update(children)
+
+            # get a set of the taxids in allSiblings
+            allSiblingTaxids = {sib.taxid for sib in allSiblings}
+
+            # get a set of the taxids in children
+            childrenTaxids = {kid.taxid for kid in children}
+
+            # only keep the taxids not present in children
+            allSiblingTaxids.difference_update(childrenTaxids)
+
+            # revise allSiblings to reflect those in allSiblingTaxids
+            allSiblings = {sib for sib in allSiblings if sib.taxid in allSiblingTaxids}
 
             # nest each of the original children back into the root object
             for child in children:
@@ -3549,6 +3582,67 @@ class Taxonomy:
                     return outgroup
                 
         return None
+
+
+    def __outgroupFromDiffDomain(name:str, lpsnD:dict) -> Taxonomy:
+        """ outgroupFromDiffDomain:
+                Accepts one of two domain names ('Bacteria' or 'Archaea') and 
+                the lpsnD dictionary as inputs. Randomly selects an order from
+                the requested domain that contains at least one type species
+                with an assembly available. Returns one of the species from th-
+                at order as a Taxonomy object.
+        """
+        # constants
+        SEARCH_SUFFIX = " AND superkingdom[RANK]"
+        DATABASE = 'taxonomy'
+        ORDER = 'order'
+
+        # determine the taxid ny searching NCBI
+        result = ncbiIdsFromSearchTerm(name + SEARCH_SUFFIX, DATABASE)
+        taxid  = result.pop()
+        
+        # initialize the descendants to the order
+        taxO = Taxonomy(taxid, name, Taxonomy.DOMAIN)
+        taxO._initializeDescendants(maxDepth=ORDER)
+
+        # get a list of all the orders
+        allOrders = taxO.getDescendantsAtRank(ORDER, list)
+
+        # get a shuffled list of indices
+        indices = list(range(len(allOrders)))
+        random.shuffle(indices)
+
+        # initialize a boolean to handle failed attempts
+        found = False
+
+        # go through the list of shuffled indices
+        for idx in indices:
+            # extract the order from the list and make it a root
+            order:Taxonomy = allOrders[idx]
+            order.parent = None
+
+            # import the lpsn data and the assembly data
+            order._addLpsnData(lpsnD, removeEmptyTaxa=False)
+            order._importAssemblies()
+
+            # if there is an assembly available, then we're done searching
+            if len(order.getAllSpeciesWithAssemblies()) > 0:
+                found = True
+                break
+        
+        # if an assembly was not found, then raise an error
+        if not found:
+            raise RuntimeError("Could not find an outgroup")
+        
+        # set the order as external
+        order.__setAsExternal()
+
+        # pick an outgroup
+        # All species are external and at least one assembly is present
+        # because of this, we can just call the recursive helper
+        outgroup = order.__pickOutgroupRecursiveHelper()
+
+        return outgroup
 
 
     def _pickIngroup(self, maxNumSeqs:int) -> list:
