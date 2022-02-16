@@ -1,4 +1,4 @@
-import sys, os, re, glob, copy, random
+import sys, os, re, glob, copy
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
 from PHANTASM.rRNA.runRnaBlast import __makeOutfmtString
 from PHANTASM.utilities import parseCsv, ncbiIdsFromSearchTerm, ncbiSummaryFromIdList, ncbiELinkFromIdList, extractIdsFromELink, removeFileExtension
@@ -197,8 +197,7 @@ def getRelatives(paramD:dict, lpsnD:dict) -> list:
         
         # if import fails, then skip the newTaxon
         # should really only happen if the newTaxon is in a different domain
-        except:
-            continue
+        except: continue
 
         # make sure taxO is still referencing the root!
         taxO = taxO.getRoot()
@@ -245,7 +244,7 @@ def getRelatives(paramD:dict, lpsnD:dict) -> list:
             genus = taxO.getDescendantBySciName(genusName)
 
             # add all of the species with assemblies to the relatives list
-            relatives += genus.getAllSpeciesWithAssemblies(list)
+            relatives.extend(genus.getAllSpeciesWithAssemblies(list))
         
         # otherwise, the list is sorted; it is safe to stop looping
         else: break
@@ -254,28 +253,29 @@ def getRelatives(paramD:dict, lpsnD:dict) -> list:
     # if this is the case, then we need to select a subset of them
     if len(relatives) > maxNumSeqs:
         # copy relatives and then empty the list
-        previousRelatives = copy.deepcopy(relatives)
+        speciesToPickL = copy.deepcopy(relatives)
         relatives = list()
 
         # reverse the indices for on-the-fly popping
-        indices = list(range(len(previousRelatives)))
-        indices.reverse()
+        speIndicesL = list(range(len(speciesToPickL)))
+        speIndicesL.reverse()
 
         # go through the indices (in reverse order)
-        for prIdx in indices:
+        for speIdx in speIndicesL:
             # extract the current relative
-            relative:Taxonomy = previousRelatives[prIdx]
+            relative:Taxonomy = speciesToPickL[speIdx]
 
             # if the current relative is type material ...
             if relative.parent.typeMaterial == relative:
                 # ... then pop it from the old and add to relatives
-                relatives.append(previousRelatives.pop(prIdx))
- 
-        # determine number of sequences that need to be picked
-        numRemaining = maxNumSeqs - len(relatives)
-
-        # randomly pick sequences from the remaining previous relatives
-        relatives += random.sample(previousRelatives, numRemaining)
+                relatives.append(speciesToPickL.pop(speIdx))
+        
+        # next, begin adding all species from the related genera
+        # speciesToPickL is already in order from closest genus to furthest
+        # speciesToPickL will not have any overlap in relatives
+        while len(relatives) < maxNumSeqs and len(speciesToPickL) > 0:
+            # this will functionally loop through the remaining species
+            relatives.append(speciesToPickL.pop(0))
         
     # the current index can be used to remove the already processed genera
     generaSortedL = generaSortedL[idx:]
