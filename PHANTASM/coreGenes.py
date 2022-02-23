@@ -35,7 +35,9 @@ def xenogiInterfacer_1(taxO:Taxonomy, queryGbff:str, paramD:dict) -> str:
     print(DONE)
 
     # make a symlink to the user's input file
-    os.symlink(os.path.abspath(queryGbff), os.path.join(gbffDir, queryGbff))
+    oldFN = os.path.abspath(queryGbff)
+    newFN = os.path.join(gbffDir, os.path.basename(queryGbff))
+    os.symlink(oldFN, newFN)
 
     # add the query to the human map file
     humanMapStr = __makeHumanMapString(USER_INPUT, queryGbff)
