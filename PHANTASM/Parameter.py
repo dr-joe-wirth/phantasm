@@ -18,7 +18,7 @@ class Parameters:
     # private member variables for automated object creation
 
     # these paths need to be nested within the working directory
-    __genbankFilePath = os.path.join('wgs', '*.gbff')
+    __genbankFilePath = os.path.join('wgs', '*')
     __fileNameMapFN = 'wgsHumanMap.txt'
     __fastaFilePath = os.path.join('fasta', '*.fa')
     __strainInfoFN = 'strainInfo.txt'
