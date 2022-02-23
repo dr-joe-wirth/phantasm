@@ -1,5 +1,7 @@
 # PHANTASM: PHylogenomic ANalyses for the TAxonomy and Systematics of Microbes
 
+## A docker image for this software can be found at https://hub.docker.com/r/jwirth/phantasm
+
 ## Running the software
 ### To run the software, perform the following steps:
   * Make a working directory containing an input gbff file
