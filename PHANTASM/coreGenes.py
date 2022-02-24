@@ -20,8 +20,6 @@ def xenogiInterfacer_1(taxO:Taxonomy, queryGbff:str, paramD:dict) -> str:
     """
     # constants
     USER_INPUT = "user_input"
-    PRINT_1 = 'Downloading genbank files from NCBI ... '
-    DONE = 'Done.'
 
     # extract relevant data from paramD
     gbffFN = paramD['genbankFilePath']
@@ -29,10 +27,8 @@ def xenogiInterfacer_1(taxO:Taxonomy, queryGbff:str, paramD:dict) -> str:
 
     gbffDir = os.path.dirname(gbffFN)
 
-    # download gbff files from NCBI
-    print(PRINT_1, end='', flush=True)
+    # identify and download gbff files from NCBI
     outgroup:Taxonomy = downloadGbffsForRootTaxonomy(taxO, paramD)
-    print(DONE)
 
     # make a symlink to the user's input file
     oldFN = os.path.abspath(queryGbff)
@@ -40,7 +36,7 @@ def xenogiInterfacer_1(taxO:Taxonomy, queryGbff:str, paramD:dict) -> str:
     os.symlink(oldFN, newFN)
 
     # add the query to the human map file
-    humanMapStr = __makeHumanMapString(USER_INPUT, queryGbff)
+    humanMapStr = __makeHumanMapString(USER_INPUT, os.path.basename(queryGbff))
     filehandle = open(humanMapFN, "a")
     filehandle.write(humanMapStr)
     filehandle.close()
@@ -68,7 +64,6 @@ def allVsAllBlast(paramD:dict) -> None:
             command of xenoGI. Does not return.
     """
     # constants
-    
     PRINT = 'Running all pairwise blastp comparisons ... '
     DONE = 'Done.'
 

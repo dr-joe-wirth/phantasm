@@ -1,4 +1,4 @@
-import re, os
+import re, os, glob
 from PHANTASM.utilities import downloadFileFromFTP, removeFileExtension, decompressGZ
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
 from PHANTASM.taxonomy.taxonomyConstruction import __getLpsnData
@@ -11,6 +11,11 @@ def downloadGbffsForRootTaxonomy(taxO:Taxonomy, paramD:dict) -> Taxonomy:
             and then downloads those assemblies. Returns the outgroup as a Tax-
             onomy object.
     """
+    # constants
+    PRINT_1 = 'Identifying a suitable set of whole genome sequences ... '
+    PRINT_2 = 'Downloading genbank files from NCBI ... '
+    DONE = 'Done.'
+
     maxNumSeqs = paramD['maxNumTreeLeaves'] - 2  # user_input + outgroup = 2
     humanMapFN = paramD['fileNameMapFN']
     gbffFN = paramD['genbankFilePath']
@@ -21,10 +26,14 @@ def downloadGbffsForRootTaxonomy(taxO:Taxonomy, paramD:dict) -> Taxonomy:
     lpsnD = __getLpsnData()
 
     # get a list of species for phylogenetic anlayses
+    print(PRINT_1, end='', flush=True)
     speciesList = __selectSpeciesFromTaxonomyObject(taxO, maxNumSeqs, lpsnD)
+    print(DONE)
 
     # download the genomes
+    print(PRINT_2, end='', flush=True)
     __downloadGbffFromSpeciesList(speciesList, humanMapFN, gbffDir)
+    print(DONE)
 
     # outgroup is always the last element of speciesList; return it
     return speciesList[-1]
