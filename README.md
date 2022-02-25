@@ -2,6 +2,8 @@
 
 ## A docker image for this software can be found at https://hub.docker.com/r/jwirth/phantasm
 
+## If you use this software, please email me at jwirth \<at> g \<dot> hmc \<dot> edu
+
 ## Running the software
 ### To run the software, perform the following steps:
   * Make a working directory containing an input gbff file
