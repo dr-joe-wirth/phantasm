@@ -202,7 +202,7 @@ def __updateQuerySubjectNames(existingFile:str, newFile:str, \
     """
     # constants
     DELIM = "\t"
-    GREP_FIND = r"^\d+_.+-([^-]+)$"
+    GREP_FIND = r"^\d+_[^-]+-(\S+)$"
     GREP_REPL = r"\1"
     QRY_COL = 0
     SBJ_COL = 1
