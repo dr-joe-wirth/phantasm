@@ -39,15 +39,6 @@ def overallGenomeRelatedIndices(paramD:dict) -> None:
     print(SAVE_PRINT + aaiFN)
     __saveOgriMatrix(aaiD, aaiFN)
 
-    # calculate ANI
-    # print(PRINT_2, end='', flush=True)
-    # aniD = _calculateANI(paramD)
-    # print(DONE)
-
-    # # save the result to file
-    # print(SAVE_PRINT + aniFN)
-    # __saveOgriMatrix(aniD, aniFN)
-
 
 def __saveOgriMatrix(ogriD:dict, filename:str) -> None:
     """ saveOgriMatrix:

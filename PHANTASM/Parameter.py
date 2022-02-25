@@ -49,11 +49,6 @@ class Parameters:
     __alignCoverThresh = 0.65
     __percIdentThresh = 0.35
     __aabrhHardCoreGeneTreeFileStem = 'aabrhHardCoreFam'
-
-    # stuff needed for calcScores (not necessary for phantasm)
-    __gapOpen = 12
-    __gapExtend = 1
-    __matrix = 'parasail.blosum62'
     
 
     def __init__(self, email:str, workdir:str, blastExecutDirPath:str, \
@@ -108,11 +103,6 @@ class Parameters:
         self.alignCoverThresh = Parameters.__alignCoverThresh
         self.percIdentThresh = Parameters.__percIdentThresh
         self.aabrhHardCoreGeneTreeFileStem = Parameters.__aabrhHardCoreGeneTreeFileStem
-
-        # stuff required for making calcscores work
-        # self.gapOpen = Parameters.__gapOpen
-        # self.gapExtend = Parameters.__gapExtend
-        # self.matrix = Parameters.__matrix
 
 
     def __repr__(self) -> str:

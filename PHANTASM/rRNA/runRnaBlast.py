@@ -348,13 +348,6 @@ def __runRnaBlast(queryFna:str, blastdb:str, outFile:str, \
     print(DONE)
 
 
-
-    
-
-
-
-
-
 def __makeOutfmtString(outfmt:str, headers:list) -> str:
     """ makeOutfmtString:
             Accepts an outfmt number (as a string) and a list of headers to be
@@ -394,23 +387,4 @@ def __makeHeaderString(headers:list) -> str:
         outStr += "\t"
     return outStr
 
-
-# def __addHeadersToBlastTable(headerStr:str, blastFile:str) -> None:
-#     """ addHeadersToBlast:
-#             Accepts a tab-delimited header string and the path to a file con-
-#             taining the blastn results. Constructs and executes a bash command 
-#             to append the string to the top of the blastn file. Does not 
-#             return. The bash command has the following structure:
-#                 echo "headerStr" | cat - blastFile > temp && mv temp blastFile
-#     """
-#     # Construct the bash command
-#     command = 'echo "'
-#     command += headerStr
-#     command += '" | cat - '
-#     command += blastFile
-#     command += ' > temp && mv temp '
-#     command += blastFile
-
-#     # Execute the bash command
-#     os.system(command)
 
