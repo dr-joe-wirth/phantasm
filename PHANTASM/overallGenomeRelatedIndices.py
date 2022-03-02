@@ -135,7 +135,7 @@ def makeAaiHeatmap(paramD:dict, outgroup:str) -> None:
             return.
     """
     # get the filename of the R script and source it
-    rScript = os.path.join(PHANTASM_DIR, "Phantasm", "aaiHeatmap.R")
+    rScript = os.path.join(PHANTASM_DIR, "PHANTASM", "aaiHeatmap.R")
     robjects.r['source'](rScript)
 
     # extract data from paramD
