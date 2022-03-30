@@ -4,6 +4,8 @@ from PHANTASM.rRNA.runRnaBlast import __makeOutfmtString
 from PHANTASM.utilities import parseCsv, ncbiIdsFromSearchTerm, ncbiSummaryFromIdList, ncbiELinkFromIdList, extractIdsFromELink, removeFileExtension
 from PHANTASM.downloadGbff import __downloadGbffFromSpeciesList, __makeHumanMapString
 from Bio import Entrez, SeqIO, SeqFeature
+from Bio.SeqRecord import SeqRecord
+from Bio.SeqIO.FastaIO import FastaIterator
 from Bio.Blast.Applications import NcbiblastpCommandline
 from param import XENOGI_DIR
 sys.path.insert(0,os.path.join(sys.path[0],XENOGI_DIR))
@@ -12,16 +14,15 @@ import xenoGI.genomes, Bio.Entrez.Parser
 
 
 ###############################################################################
-def phyloMarkerBlastRunner(locusTag:str, queryGbff:str, paramD:dict) -> None:
+def phyloMarkerBlastRunner(geneNum:int, paramD:dict) -> None:
     """ phyloMarkerBlastRunner:
-            Accepts an integer indicating a xenoGI gene number, a string indic-
-            ating the query gbff filename, and the parameter dictionary as inp-
-            uts. Creates an amino acid fasta file (faa) for the CDS in the que-
-            ry genome corresponding to the provided gene number. Uses the fasta
-            file to run a blastp against NCBI's nr database. If that blastp was
-            not successful (often due to exceeding CPU limit), then it tries to
-            run a blastp against NCBI's refseq_protein database. Does not retu-
-            rn.
+            Accepts an integer indicating a xenoGI gene number and the paramet-
+            er dictionary as inputs. Creates an amino acid fasta file (faa) for
+            the CDS in the query genome corresponding to the provided gene num-
+            ber. Uses the fasta file to run a blastp against NCBI's nr databa-
+            se. If that blastp was not successful (often due to exceeding CPU
+            limit), then it tries to run a blastp against NCBI's refseq_protein
+            database. Does not return.
     """
     # constants
     PRINT_1 = 'Using the phylogenetic marker to search for closely-related genomes ... '
@@ -38,7 +39,7 @@ def phyloMarkerBlastRunner(locusTag:str, queryGbff:str, paramD:dict) -> None:
     blastExecutDirPath = paramD['blastExecutDirPath']
     
     # get a SeqRecord object for the protein
-    seqRec = __getSeqRecordFromLocusTag(locusTag, queryGbff)
+    seqRec = __getSeqRecordFromGeneNum(geneNum, paramD)
 
     # save the file as a fasta
     SeqIO.write(seqRec, faaFN, FORMAT)
@@ -59,14 +60,23 @@ def phyloMarkerBlastRunner(locusTag:str, queryGbff:str, paramD:dict) -> None:
     print(DONE)
 
 
-def _geneNumToLocusTag(geneNum:int, geneInfoFN:str) -> str:
-    """ geneNumToLocusTag:
-            Accepts an integer indicating a xenoGI gene number and a string in-
-            dicating the gene info filename as inputs. Retrieves and returns a
-            locus tag for the provided gene number as a string.
+def __getSeqRecordFromGeneNum(geneNum:int, paramD:dict) -> SeqRecord:
+    """ getSeqRecordFromGeneNum:
+            Accepts an integer indicating a xenoGI gene number and the paramet-
+            er dictionary as inputs. Retrieves and returns a SeqRecord object
+            for the desired gene.
     """
     # constants
-    LOCUS_TAG_IDX = 2
+    GENE_NAME_IDX = 0
+    FASTA_FN = "user_input_prot.fa"
+    FORMAT = "fasta"
+
+    # get the necessary data from paramD
+    geneInfoFN = paramD['geneInfoFN']
+    fastaDir = os.path.dirname(paramD["fastaFilePath"])
+
+    # identify the path to the user_input fasta file
+    fastaFN = os.path.join(fastaDir, FASTA_FN)
 
     # load the genesO object
     genesO = xenoGI.genomes.genes(geneInfoFN)
@@ -75,9 +85,43 @@ def _geneNumToLocusTag(geneNum:int, geneInfoFN:str) -> str:
     # make sure gene num is an integer (allows strings as input)
     geneNum = int(geneNum)
 
-    # get the locus tag for the provided gene and return it
+    # get the name for the provided gene
     geneInfo = genesO.numToGeneInfo(geneNum)
-    return geneInfo[LOCUS_TAG_IDX]
+    geneName = geneInfo[GENE_NAME_IDX]
+    
+    # read the fasta file
+    parsed:FastaIterator = SeqIO.parse(fastaFN, FORMAT)
+
+    # identify and return the desired record
+    record:SeqRecord
+    for record in parsed.records:
+        if record.name == geneName:
+            return record
+    
+    # if record was not found, then raise an exception
+    raise Exception("invalid gene number provided")
+
+
+def _locusTagToGeneNum(locusTag:str, geneInfoFN:str) -> int:
+    """ geneNumToLocusTag:
+            Accepts an string indicating a locus tag and a string indicating
+            the gene info filename as inputs. Retrieves and returns a xenoGI
+            gene number for the provided locus tag as an integer.
+    """
+    # constants
+    LOCUS_TAG_IDX = 2
+
+    # load the genesO object
+    genesO = xenoGI.genomes.genes(geneInfoFN)
+    genesO.initializeGeneInfoD(geneInfoFN)
+
+    # get the gene number for the provided gene and return it
+    for geneNum in genesO.geneInfoD.keys():
+        if genesO.geneInfoD[geneNum][LOCUS_TAG_IDX] == locusTag:
+            return geneNum
+    
+    # if a number was not found then raise an exception
+    raise Exception("Invalid locus tag provided")
 
 
 def __getSeqRecordFromLocusTag(locusTag:str, genbankFN:str) -> SeqIO.SeqRecord:

@@ -18,10 +18,10 @@ def runPt1(queryGbff:str, paramD:dict) -> None:
     findPhylogeneticMarkersWrapper(outgroupSciName, paramD)
 
 
-def runPt2(locusTag:str, queryGbff:str, paramD_1:dict, paramD_2:dict) -> None:
+def runPt2(geneNum:int, queryGbff:str, paramD_1:dict, paramD_2:dict) -> None:
     """ run the entire second portion from start to finish
     """
-    outgroupSciName = findMissingRelativesWrapper(locusTag, queryGbff, paramD_1, paramD_2)
+    outgroupSciName = findMissingRelativesWrapper(geneNum, queryGbff, paramD_1, paramD_2)
     coreGenesWrapper_2(paramD_1, paramD_2)
     finalAnalysesWrapper(outgroupSciName, paramD_2)
 
@@ -65,14 +65,14 @@ def findPhylogeneticMarkersWrapper(outgroupSciName:str, paramD_1:dict) -> None:
     rankPhylogeneticMarkers(paramD_1)
 
 
-def findMissingRelativesWrapper(locusTag:str, queryGenbank:str, paramD_1:dict,\
+def findMissingRelativesWrapper(geneNum:int, queryGenbank:str, paramD_1:dict,\
                                                          paramD_2:dict) -> str:
     """ uses blastp to find missing relatives, downloads a new set of genomes,
         and makes the new human map file. returns the outgroup species as a str
         (scientific name).
     """
     lpsnD = __getLpsnData()
-    phyloMarkerBlastRunner(locusTag, queryGenbank, paramD_1)
+    phyloMarkerBlastRunner(geneNum, paramD_1)
     outgroupSciName = xenogiInterfacer_2(queryGenbank, paramD_1, paramD_2, lpsnD)
 
     return outgroupSciName

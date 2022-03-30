@@ -1,6 +1,6 @@
 from PHANTASM.Parameter import Parameters
 from PHANTASM.main import runPt1, runPt2
-from PHANTASM.findMissingNeighbors import _geneNumToLocusTag
+from PHANTASM.findMissingNeighbors import _locusTagToGeneNum
 from PHANTASM.utilities import validEmailAddress, getParamD_1, getParamD_2
 import sys
 
@@ -63,17 +63,15 @@ if __name__ == "__main__":
             paramD_2 = getParamD_2(email)
 
             if flag == "--locus_tag":
-                locusTag = gene
+                geneNum = _locusTagToGeneNum(gene, paramD_1['geneInfoFN'])
             
             elif flag == "--gene_num":
-                geneNum = sys.argv[3]
-                geneInfoFN = paramD_1['geneInfoFN']
-                locusTag = _geneNumToLocusTag(gene, geneInfoFN)
+                geneNum = gene
             
             else:
                 raise ValueError("Invalid flag: " + flag)
             
-            runPt2(locusTag, gbffFN, paramD_1, paramD_2)
+            runPt2(geneNum, gbffFN, paramD_1, paramD_2)
         
         else:
             raise ValueError("Invalid task: " + job + "\ntype '<path>/phantasm.py help' for information.")
