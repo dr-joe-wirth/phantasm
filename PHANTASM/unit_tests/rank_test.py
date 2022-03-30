@@ -1,3 +1,5 @@
+# Author: Joseph S. Wirth
+
 import unittest, os, random, time, copy
 from PHANTASM.taxonomy.TaxRank import TaxRank
 

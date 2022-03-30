@@ -1,4 +1,6 @@
-import re, os, glob
+# Author: Joseph S. Wirth
+
+import re, os
 from PHANTASM.utilities import downloadFileFromFTP, removeFileExtension, decompressGZ
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
 from PHANTASM.taxonomy.taxonomyConstruction import __getLpsnData

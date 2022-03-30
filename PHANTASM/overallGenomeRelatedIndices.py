@@ -1,3 +1,5 @@
+# Author: Joseph S. Wirth
+
 import glob, math, os, sys
 import rpy2.robjects as robjects
 from Bio.Blast.Applications import NcbiblastnCommandline

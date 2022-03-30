@@ -1,3 +1,5 @@
+# Author: Joseph S. Wirth
+
 from __future__ import annotations
 import re, copy, random, textdistance
 from Bio.Entrez import Parser

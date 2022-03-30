@@ -1,3 +1,5 @@
+# Author: Joseph S. Wirth
+
 from __future__ import annotations
 import sys, os, re, glob, scipy.stats, csv
 from PHANTASM.utilities import parseCsv

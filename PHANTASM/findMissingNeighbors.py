@@ -1,3 +1,5 @@
+# Author: Joseph S. Wirth
+
 import sys, os, re, glob, copy
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
 from PHANTASM.rRNA.runRnaBlast import __makeOutfmtString

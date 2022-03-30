@@ -1,3 +1,5 @@
+# Author: Joseph S. Wirth
+
 import unittest, os, random, time, copy, re
 from PHANTASM.taxonomy.taxonomyConstruction import constructTaxonomy
 from PHANTASM.taxonomy.processLpsn import makeLpsnD

@@ -1,3 +1,5 @@
+# Author: Joseph S. Wirth
+
 from PHANTASM.utilities import extractFilenameFromPath, downloadFileFromFTP, extractContentsFromGZ, removeFileExtension, changeFileExtension
 from pathlib import Path
 from Bio.Blast.Applications import NcbimakeblastdbCommandline, NcbiblastnCommandline

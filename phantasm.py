@@ -1,3 +1,5 @@
+# Author: Joseph S. Wirth
+
 from PHANTASM.Parameter import Parameters
 from PHANTASM.main import runPt1, runPt2
 from PHANTASM.findMissingNeighbors import _locusTagToGeneNum

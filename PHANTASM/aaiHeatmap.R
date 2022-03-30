@@ -1,3 +1,5 @@
+# Author: Joseph S. Wirth
+
 heatmapRunner <- function(treeFN=NULL, aaiFN=NULL, rootsVec=NULL, pdfOutFN=NULL, pruneRoot=TRUE, numDecimals=0, numColors=16, height=32, width=32){
 	prepTreeFN <- prepareTree(treeFN, rootsVec, pruneRoot)
 	

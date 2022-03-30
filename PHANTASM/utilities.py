@@ -1,3 +1,5 @@
+# Author: Joseph S. Wirth
+
 import csv, re, ftplib, gzip, os, math, shutil
 from Bio import Entrez
 from Bio.Entrez import Parser

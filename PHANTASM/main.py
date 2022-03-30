@@ -1,3 +1,4 @@
+# Author: Joseph S. Wirth
 
 from PHANTASM.rRNA.runRnaBlast import rnaBlastRunner
 from PHANTASM.rRNA.processRnaBlast import getTaxIdsFromRnaBlast

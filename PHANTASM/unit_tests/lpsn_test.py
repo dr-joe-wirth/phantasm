@@ -1,3 +1,5 @@
+# Author: Joseph S. Wirth
+
 import unittest
 from PHANTASM.taxonomy.processLpsn import makeLpsnD
 from PHANTASM.taxonomy.TaxRank import TaxRank

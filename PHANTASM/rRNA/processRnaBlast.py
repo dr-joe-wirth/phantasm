@@ -1,3 +1,5 @@
+# Author: Joseph S. Wirth
+
 import re
 from PHANTASM.utilities import ncbiIdsFromSearchTerm, isFloat, parseCsv
 

@@ -1,3 +1,5 @@
+# Author: Joseph S. Wirth
+
 from PHANTASM.taxonomy.Taxonomy import *
 from PHANTASM.taxonomy.processLpsn import makeLpsnD
 from PHANTASM.utilities import getParentalTaxIds
