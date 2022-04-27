@@ -1,7 +1,7 @@
 # Author: Joseph S. Wirth
 
 from __future__ import annotations
-import re, copy, random, textdistance
+import re, copy, random, textdistance, os
 from Bio.Entrez import Parser
 from PHANTASM.taxonomy.TaxRank import TaxRank
 from PHANTASM. utilities import ncbiEfetchById, ncbiIdsFromSearchTerm, \
@@ -46,6 +46,7 @@ class Taxonomy:
         self.isExternal:bool = isExternal
         self.ncbiNameIsCorrect:bool = True
         self.assemblyFtp:str = None
+        self.assemblyAccn:str = None
         self.refSeqCategory:str = None
         self.assCoverage:float = 0.0
         self.assIsComplete:bool = False
@@ -462,14 +463,15 @@ class Taxonomy:
                         'isExternal':        4,
                         'ncbiNameIsCorrect': 5,
                         'assemblyFtp':       6,
-                        'refSeqCategory':    7,
-                        'assCoverage':       8,
-                        'assIsComplete':     9,
-                        'allAssIds':         10,
-                        'typeMaterial':      11,
-                        'taxidSynonyms':     12,
-                        'parentTaxid':       13,
-                        'isTypeMat':         14}
+                        'assemblyAccn':      7,
+                        'refSeqCategory':    8,
+                        'assCoverage':       9,
+                        'assIsComplete':     10,
+                        'allAssIds':         11,
+                        'typeMaterial':      12,
+                        'taxidSynonyms':     13,
+                        'parentTaxid':       14,
+                        'isTypeMat':         15}
         
         EMPTY_ROW = [None] * len(VAR_TO_INDEX)
 
@@ -586,14 +588,15 @@ class Taxonomy:
                         4:  'isExternal',
                         5:  'ncbiNameIsCorrect',
                         6:  'assemblyFtp',
-                        7:  'refSeqCategory',
-                        8:  'assCoverage',
-                        9:  'assIsComplete',
-                        10: 'allAssIds',
-                        11: 'typeMaterial',
-                        12: 'taxidSynonyms',
-                        13: 'parentTaxid',
-                        14: 'isTypeMat'}
+                        7:  'assemblyAccn',
+                        8:  'refSeqCategory',
+                        9:  'assCoverage',
+                        10:  'assIsComplete',
+                        11: 'allAssIds',
+                        12: 'typeMaterial',
+                        13: 'taxidSynonyms',
+                        14: 'parentTaxid',
+                        15: 'isTypeMat'}
 
         SEP_CHAR_1 = "|~|"
 
@@ -3178,12 +3181,16 @@ class Taxonomy:
 
         # get the ftp path
         ftpPath = Taxonomy.__getFtpPathFromAssSummary(assSummary)
+
+        # get the accession number
+        accn = Taxonomy.__getAccessionFromFtpPath(ftpPath)
     
         # get the coverage as a float
         coverage = Taxonomy.__coverageToFloat(assSummary[COVERAGE])
 
         # populate member variables from data inside the summary
         self.assemblyFtp = ftpPath
+        self.assemblyAccn = accn
         self.refSeqCategory = assSummary[REF_SEQ]
         self.allAssIds.append(assId)
         self.assCoverage = coverage
@@ -3222,6 +3229,28 @@ class Taxonomy:
         ftpPath += FTP_SUFFIX
 
         return ftpPath
+
+
+    def __getAccessionFromFtpPath(ftpPath:str) -> str:
+        """ getAccessionFromFtpPath:
+                Accepts a string indicating the ftp path for the assembly as
+                input. Returns a string corresponding to the accession number.
+        """
+        # expected pattern for the accession number's format
+        EXPECT_GREP = r'^GC[AF]_\d{9}$'
+
+        # get the file name of the assembly
+        accession = os.path.basename(ftpPath)
+
+        # keep removing "extensions"
+        while "." in accession:
+            accession = os.path.splitext(accession)[0]
+        
+        # make sure that the accession has the expected format
+        if not re.match(EXPECT_GREP, accession):
+            raise RuntimeError('incorrect accession number')
+
+        return accession
 
 
     def __coverageToFloat(coverage:str) -> float:
