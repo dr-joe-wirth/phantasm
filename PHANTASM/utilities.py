@@ -255,7 +255,7 @@ def ncbiSummaryFromIdList(idList:list, database:str, email:str=None):
         ### it's not worth resolving since the try-except works
         try:
             # append the results if they are returned as lists
-            result += nextResult
+            result.extend(nextResult)
         except:
             # append the results if they are returned as dicts
             result[RESULT_K1][RESULT_K2] += nextResult[RESULT_K1][RESULT_K2]
