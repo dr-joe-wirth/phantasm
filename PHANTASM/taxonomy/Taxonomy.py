@@ -47,6 +47,8 @@ class Taxonomy:
         self.ncbiNameIsCorrect:bool = True
         self.assemblyFtp:str = None
         self.assemblyAccn:str = None
+        self.assemblyFromType:bool = False
+        self.assemblyStrain:str = None
         self.refSeqCategory:str = None
         self.assCoverage:float = 0.0
         self.assIsComplete:bool = False
@@ -464,14 +466,16 @@ class Taxonomy:
                         'ncbiNameIsCorrect': 5,
                         'assemblyFtp':       6,
                         'assemblyAccn':      7,
-                        'refSeqCategory':    8,
-                        'assCoverage':       9,
-                        'assIsComplete':     10,
-                        'allAssIds':         11,
-                        'typeMaterial':      12,
-                        'taxidSynonyms':     13,
-                        'parentTaxid':       14,
-                        'isTypeMat':         15}
+                        'assemblyFromType':  8,
+                        'assemblyStrain':    9,
+                        'refSeqCategory':    10,
+                        'assCoverage':       11,
+                        'assIsComplete':     12,
+                        'allAssIds':         13,
+                        'typeMaterial':      14,
+                        'taxidSynonyms':     15,
+                        'parentTaxid':       16,
+                        'isTypeMat':         17}
         
         EMPTY_ROW = [None] * len(VAR_TO_INDEX)
 
@@ -589,14 +593,16 @@ class Taxonomy:
                         5:  'ncbiNameIsCorrect',
                         6:  'assemblyFtp',
                         7:  'assemblyAccn',
-                        8:  'refSeqCategory',
-                        9:  'assCoverage',
-                        10:  'assIsComplete',
-                        11: 'allAssIds',
-                        12: 'typeMaterial',
-                        13: 'taxidSynonyms',
-                        14: 'parentTaxid',
-                        15: 'isTypeMat'}
+                        8:  'assemblyFromType',
+                        9:  'assemblyStrain',
+                        10: 'refSeqCategory',
+                        11: 'assCoverage',
+                        12: 'assIsComplete',
+                        13: 'allAssIds',
+                        14: 'typeMaterial',
+                        15: 'taxidSynonyms',
+                        16: 'parentTaxid',
+                        17: 'isTypeMat'}
 
         SEP_CHAR_1 = "|~|"
 
@@ -2942,15 +2948,6 @@ class Taxonomy:
                 adds the information to the correct species (linked by taxonomy
                 id). Does not return.
         """
-        # constants
-        STRN_F1 = 'Biosource'
-        STRN_F2_A = 'InfraspeciesList'
-        STRN_F2_B = 'Isolate'
-        STRN_F3 = 'Sub_value'
-        TAX_F1 = 'OtherNames'
-        TAX_F2 = 'Synonym'
-        TAX_F3 = 'ScientificName'
-
         # if no species available, then nothing to do
         if self.numDescendantsAtRank(Taxonomy.SPECIES) < 1:
             return
@@ -2967,61 +2964,18 @@ class Taxonomy:
         for assSum in allAssSums:
             # look up the species
             species = self.getDescendantByTaxId(assSum['Taxid'])
-            checkTaxDbForStrn = False
 
             # if the species was not found, then try a different field
             if not species:
                 # this handles atypical taxonomy structures in NCBI
                 # (sometimes strains are the entries within a species)
                 species = self.getDescendantByTaxId(assSum['SpeciesTaxid'])
-                checkTaxDbForStrn = True
 
             # only proceed if a species in the object matches the assSum
             if species:
-                # make sure it has a type strain
-                if species.typeMaterial is not None:
-                    # extract the strain name from the assembly
-                    strainIsType = False
-                    for strains in assSum[STRN_F1][STRN_F2_A]:
-                        strain = strains[STRN_F3]
-                        
-                        # done if a type strain was identified
-                        if strain in species.typeMaterial:
-                            strainIsType = True
-                            break
-                    
-                    # check if the strain info is saved in a different field
-                    if not strainIsType:
-                        # grab strain from alternate field and compare it
-                        strain = assSum[STRN_F1][STRN_F2_B]
-                        if strain in species.typeMaterial:
-                            strainIsType = True
-                        
-                    # if still not found and 'SpeciesTaxid' was required
-                    if checkTaxDbForStrn and not strainIsType:
-                        # query NCBI taxonomy for the full entry
-                        taxRecord = ncbiEfetchById(assSum['Taxid'], 'taxonomy')
+                strain, strainIsType = species.__getStrainDataFromSummary(assSum)
 
-                        # only examine one record
-                        taxRecord = taxRecord[0]
-                        
-                        # parse strain name from the record
-                        try:
-                            # if 'OtherNames' field exists, parse it
-                            strains = taxRecord[TAX_F1][TAX_F2]
-                        except KeyError:
-                            # otherwise, try the 'ScientificName' field
-                            strains = list(taxRecord[TAX_F3])
-
-                        for strain in strains:
-                            # remove the species name from the front of the str
-                            strain = re.sub(species.sciName + ' ', '', strain)
-
-                            # check if the strain is type material
-                            if strain in species.typeMaterial:
-                                strainIsType = True
-                                break
-
+                if strain is not None:                    
                     # only save if the strain is type material
                     if strainIsType:
                         species._updateAssemblyInfo(assSum)
@@ -3124,6 +3078,83 @@ class Taxonomy:
         return result[RES_F1][RES_F2]
     
 
+    def __getStrainDataFromSummary(self, assSum:Parser.DictionaryElement) \
+                                                                      -> tuple:
+        """ getStrainDataFromSummary:
+                Accepts an assembly summary result (Entrez.esummary) as input.
+                Extracts the type strain information for a given assembly summ-
+                ary. Returns a tuple composed of the strain name (str) and a
+                boolean indicating whether or not the strain is type material.
+
+                This function should only ever be called on a species object.
+
+                Because strain information is not stored in a consistent manner
+                this function will be conservative and only extract strain data
+                if the strain found matches one of the type strains stored in
+                self.typeMaterial. 
+        """
+        # constants
+        ERR_MSG = 'calling object is not a species'
+        STRN_F1 = 'Biosource'
+        STRN_F2_A = 'InfraspeciesList'
+        STRN_F2_B = 'Isolate'
+        STRN_F3 = 'Sub_value'
+        TAX_F1 = 'OtherNames'
+        TAX_F2 = 'Synonym'
+        TAX_F3 = 'ScientificName'
+
+        # ensure that this function has been called on a species object
+        if self.rank != Taxonomy.SPECIES:
+            raise Exception(ERR_MSG)
+
+        if self.typeMaterial is not None:
+            # extract the strain name from the assembly
+            strainIsType = False
+            for strains in assSum[STRN_F1][STRN_F2_A]:
+                strain = strains[STRN_F3]
+                
+                # done if a type strain was identified
+                if strain in self.typeMaterial:
+                    strainIsType = True
+                    return str(strain), strainIsType
+        
+        # if a type strain was not found
+        if not strainIsType:
+            # grab strain from alternate field and compare it
+            strain = assSum[STRN_F1][STRN_F2_B]
+            if strain in self.typeMaterial:
+                strainIsType = True
+                return str(strain), strainIsType
+            
+        # if still not found
+        if not strainIsType:
+            # query NCBI taxonomy for the full entry
+            taxRecord = ncbiEfetchById(assSum['Taxid'], 'taxonomy')
+
+            # only examine one record
+            taxRecord = taxRecord[0]
+            
+            # parse strain name from the record
+            try:
+                # if 'OtherNames' field exists, parse it
+                strains = taxRecord[TAX_F1][TAX_F2]
+            except KeyError:
+                # otherwise, try the 'ScientificName' field
+                strains = list(taxRecord[TAX_F3])
+
+            for strain in strains:
+                # remove the species name from the front of the str
+                strain = re.sub(self.sciName + ' ', '', strain)
+
+                # check if the strain is type material
+                if strain in self.typeMaterial:
+                    strainIsType = True
+                    return str(strain), strainIsType
+        
+        # if we reach this point, then return the null result
+        return None, False
+
+
     def _updateAssemblyInfo(self, assSummary:Parser.DictionaryElement) -> None:
         """ updateAssemblyInfo:
                 Accepts an assembly summary result (Entrez.esummary) as input.
@@ -3159,8 +3190,7 @@ class Taxonomy:
             self.__populateAssemblyVars(assSummary)
 
 
-    def __populateAssemblyVars(self, assSummary:Parser.DictionaryElement) \
-                                                                       -> None:
+    def __populateAssemblyVars(self, assSum:Parser.DictionaryElement) -> None:
         """ populateAssemblyVars:
                 Accepts an assembly summary result (Entrez.esummary) as input.
                 Uses it to populate the assembly-related member variables of 
@@ -3173,29 +3203,34 @@ class Taxonomy:
         COVERAGE = 'Coverage'
 
         # get the assembly database's uid
-        assId = copy.deepcopy(assSummary.attributes['uid'])
+        assId = copy.deepcopy(assSum.attributes['uid'])
         
         # remove all of Bio.Entrez's custom classes
         # this absolutely necessary to maintain copy functionality
-        assSummary = coerceEntrezToNormal(assSummary)
+        assSum = coerceEntrezToNormal(assSum)
 
         # get the ftp path
-        ftpPath = Taxonomy.__getFtpPathFromAssSummary(assSummary)
+        ftpPath = Taxonomy.__getFtpPathFromAssSummary(assSum)
 
         # get the accession number
         accn = Taxonomy.__getAccessionFromFtpPath(ftpPath)
     
         # get the coverage as a float
-        coverage = Taxonomy.__coverageToFloat(assSummary[COVERAGE])
+        coverage = Taxonomy.__coverageToFloat(assSum[COVERAGE])
 
-        # populate member variables from data inside the summary
+        # get the strain information from the summary
+        strain, strainIsType = self.__getStrainDataFromSummary(assSum)
+
+        # populate member variables with assembly data
         self.assemblyFtp = ftpPath
         self.assemblyAccn = accn
-        self.refSeqCategory = assSummary[REF_SEQ]
+        self.assemblyStrain = str(strain)
+        self.assemblyFromType = strainIsType
+        self.refSeqCategory = assSum[REF_SEQ]
         self.allAssIds.append(assId)
         self.assCoverage = coverage
 
-        if assSummary[STATUS] == COMPLETE:
+        if assSum[STATUS] == COMPLETE:
             self.assIsComplete = True
 
 
