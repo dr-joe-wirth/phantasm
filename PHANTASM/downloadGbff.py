@@ -139,17 +139,22 @@ def __downloadGbff(ftpPath:str, gbffDir:str) -> str:
 
 def __makeHumanMapString(speciesO:Taxonomy, filename:str) -> str:
     """ makeHumanMapString:
-            Accepts a Taxonomy object (or a string) and a string indicating the
-            filename of the genome for that object (or string) as inputs. Cons-
-            tructs and returns the string for the human map file.
+            Accepts a Taxonomy object and a string indicating the filename of
+            the genome for that object as inputs. Constructs and returns the
+            string for the human map file.
     """
-    # if the speciesO is a string, then use that string as the species name
+    INVALID_TAX = ' (invalid name)'
+    INVALID_STR = '__invalid'
+    TYPE_SUFFIX = "_T"
+    SEP = "|"
+
+    # if the speciesO is a string, then raise exception
     if type(speciesO) is str:
-        speciesName = speciesO
+        raise Exception("input must be Taxonomy; strings no longer supported")
 
     # otherwise if the species name is invalid, then reflect this in the name
-    elif ' (invalid name)' in speciesO.sciName:
-        speciesName = speciesO.ncbiName + '__invalid'
+    elif INVALID_TAX in speciesO.sciName:
+        speciesName = speciesO.ncbiName + INVALID_STR
     
     # otherwise, use the scientific name as the species name
     else:
@@ -158,7 +163,21 @@ def __makeHumanMapString(speciesO:Taxonomy, filename:str) -> str:
     # replace any spaces in the species name with underscores
     speciesName = re.sub(' ', '_', speciesName)
 
+    # get the strain information and remove spaces
+    strainName = speciesO.assemblyStrain
+    strainName = re.sub(' ', '_', strainName)
+
+    # determine if the genome is a type strain
+    if speciesO.assemblyFromType:
+        strainName += TYPE_SUFFIX
+
+    # get the accession number
+    accnNum = speciesO.assemblyAccn
+
+    # make the human name for the genome
+    taxonName = speciesName + SEP + strainName + SEP + accnNum
+
     # combine inputs to make map string and return it
-    return filename + '\t' + speciesName + '\n'
+    return filename + '\t' + taxonName + '\n'
 
 
