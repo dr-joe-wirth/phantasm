@@ -296,6 +296,9 @@ def makeSpeciesTree(paramD:dict, outgroupSciName:str) -> None:
     # concatenate the alignments
     __concatenateAlignments(speTreWorkDir, catAlnFN, keyFN)
 
+    # print alignment summary
+    __printSummary(paramD)
+
     # run fasttree on the concatenated alignment
     print(PRINT_2, end='', flush=True)
     command = fastTree + " -quiet -out " + speTreeFN + " " + catAlnFN
@@ -417,6 +420,56 @@ def __concatenateAlignments(speciesTreeWorkDir:str, alnOutFN:str, keyFN:str) \
     
     # write the file in fasta format
     SeqIO.write(allConcatenatedRecords, alnOutFN, FORMAT)
+
+
+def __printSummary(paramD:dict) -> None:
+    """ printSummary:
+            Accepts the parameter dictionary as input. Prints the number of co-
+            re genes used to generate the alignment and and the sequence length
+            of each concatenated alignment. Does not return.
+    """
+    # constants
+    PRINT_1 = "Number of core genes used to construct the tree: "
+    PRINT_2 = "Sequence length for each concatenated alignment: "
+
+    # extract data on the alignment
+    numCoreGenes, lenAlignment = __getSummary(paramD)
+
+    # print the data
+    print(PRINT_1 + str(numCoreGenes))
+    print(PRINT_2 + str(lenAlignment))
+
+
+def __getSummary(paramD:dict) -> tuple:
+    """ getSummary:
+            Accepts the parameter dictionary as input. Uses existing files to
+            determine the number of core genes used to construct the concatena-
+            ted alignment and the sequence length of each individual alignment.
+            Returns the values as a tuple.
+    """
+    # get the filename for core genes file
+    coreGenesFN = paramD["aabrhFN"]
+
+    # te the filename for the concatenated alignment
+    concatAlnFN = paramD["concatenatedAlignmentFN"]
+    
+    # get the number of core genes (nrow of coreGenesFN)
+    parsed = parseCsv(coreGenesFN, delim="\t")
+    numCoreGenes = len(parsed)
+
+    # parse the concatenated alignment
+    parsed = SeqIO.parse(concatAlnFN, 'fasta')
+
+    # begin iterating through the records
+    record:SeqRecord
+    for record in parsed:
+        # get the length of the first aligned sequence in the file
+        lenAlignment = len(record.seq)
+
+        # all other sequences will be the same length, so no need to check them
+        break
+    
+    return numCoreGenes, lenAlignment
 
 
 def __rootTree(treeFN, outGroupTaxaL) -> None:
