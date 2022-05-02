@@ -732,7 +732,7 @@ def __refineAssemblySelection(assmD:dict) -> None:
 
 ###############################################################################
 def xenogiInterfacer_2(queryGbff:str, oldParamD:dict, newParamD:dict, \
-                                                            lpsnD:dict) -> str:
+                                                       lpsnD:dict) -> Taxonomy:
     """ xenogiInterfacer_2:
             Accepts a string indicating the filename of the query genbank, the
             parameter dictionary for the first analysis, the parameter diction-
@@ -740,7 +740,7 @@ def xenogiInterfacer_2(queryGbff:str, oldParamD:dict, newParamD:dict, \
             the phylogenetic marker's blastp results to determine which genomes
             to download. Downloads (or makes symlinks for) these genomes and
             makes the human map file in the process. Returns the outgroup as a
-            string (scientific name). 
+            Taxonomy object. 
     """
     # constants
     QUERY_STR = 'user_input'
@@ -848,4 +848,4 @@ def xenogiInterfacer_2(queryGbff:str, oldParamD:dict, newParamD:dict, \
     filehandle.write(humanMapStr)
     filehandle.close()
 
-    return outgroup.sciName
+    return outgroup

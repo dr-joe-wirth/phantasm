@@ -9,6 +9,8 @@ sys.path.insert(0,os.path.join(sys.path[0],XENOGI_DIR))
 import xenoGI.xenoGI, xenoGI.analysis
 from PHANTASM.rRNA.runRnaBlast import __makeblastdbFromFna, __makeOutfmtString
 from PHANTASM.utilities import parseCsv
+from PHANTASM.taxonomy.Taxonomy import Taxonomy
+from PHANTASM.coreGenes import __makeTaxonName
 
 
 ###############################################################################
@@ -130,7 +132,7 @@ def _calculateAAI(paramD:dict) -> dict:
                                              evalThresh)
 
 
-def makeAaiHeatmap(paramD:dict, outgroup:str) -> None:
+def makeAaiHeatmap(paramD:dict, outgroup:Taxonomy) -> None:
     """ makeAaiHeatmap:
             Accepts the parameter dictionary and an outgroup as inputs. Calls a
             custom R-script to generate a heatmap of the AAI values. Does not
@@ -148,8 +150,11 @@ def makeAaiHeatmap(paramD:dict, outgroup:str) -> None:
     # create the python function that can call the R function
     heatmapRunner = robjects.globalenv['heatmapRunner']
 
+    # get the taxon name for the outgroup
+    outgroupTaxonName = __makeTaxonName(outgroup)
+
     # make the outgroup an R vector
-    outgroupVec = robjects.StrVector([outgroup])
+    outgroupVec = robjects.StrVector([outgroupTaxonName])
 
     # call the function to generate the heatmap
     heatmapRunner(treeFN, aaiFN, outgroupVec, pdfOutFN)
@@ -344,6 +349,9 @@ def __aniBlastnPrep(paramD:dict) -> None:
         base = os.path.basename(gbkFN)
         
         # use the filename to look up the human name
+        if base == 'AH-928-D05.gbk':
+            print('debug')
+
         humanName = humanMapD[base]
 
         # add the working directory to the human name

@@ -5,20 +5,20 @@ import sys, os, re, glob, scipy.stats, csv
 from PHANTASM.utilities import parseCsv
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
-from PHANTASM.downloadGbff import downloadGbffsForRootTaxonomy, __makeHumanMapString
+from PHANTASM.downloadGbff import downloadGbffsForRootTaxonomy, __makeHumanMapString, __makeTaxonName
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
 from param import XENOGI_DIR
 sys.path.insert(0,os.path.join(sys.path[0], XENOGI_DIR))
 import xenoGI.xenoGI, xenoGI.scores, xenoGI.Tree, xenoGI.genomes, xenoGI.trees
 
 
-def xenogiInterfacer_1(taxO:Taxonomy, queryGbff:str, paramD:dict) -> str:
+def xenogiInterfacer_1(taxO:Taxonomy, queryGbff:str, paramD:dict) -> Taxonomy:
     """ xenogiInterfacer_1:
             Accepts a Taxonomy object, a string indicating the path to the qu-
             ery genbank, and the parameter dictionary as inputs. Downloads the
             ingroup and outgroup sequences and puts them into a file structure
             that is expected by xenoGI. Creates the human map file required by 
-            xenoGI. Returns the scientific name of the outgroup as a string.
+            xenoGI. Returns the outgroup species as a Taxonomy object
     """
     # constants
     USER_INPUT = "user_input"
@@ -43,7 +43,7 @@ def xenogiInterfacer_1(taxO:Taxonomy, queryGbff:str, paramD:dict) -> str:
     filehandle.write(humanMapStr)
     filehandle.close()
 
-    return outgroup.sciName
+    return outgroup
 
 
 def parseGenbank(paramD:dict) -> None:
@@ -266,16 +266,14 @@ def calculateCoreGenes(paramD) -> None:
     print('Done.')
 
 
-def makeSpeciesTree(paramD:dict, outgroupSciName:str) -> None:
+def makeSpeciesTree(paramD:dict, outgroup:Taxonomy) -> None:
     """ makeSpeciesTree:
-            Accepts the parameters dictionary and an outgroup (string) as inpu-
-            ts. Uses xenoGI to make a species tree, and then builds another tr-
-            ee based on the concatenated alignments of the hardcore genes and
+            Accepts the parameters dictionary and an outgroup (Taxonomy) as in-
+            puts. Uses xenoGI to make a species tree, and then builds another
+            tree based on the concatenated alignments of the hardcore genes and
             roots the tree on the specified outgroup. Does not return.
     """
     # constants
-    INVALID_STR__TAX = ' (invalid name)'
-    INVALID_STR__TREE = '__invalid'
     PRINT_1 = 'Aligning core genes and making gene trees ... '
     PRINT_2 = 'Making the species tree from a concatenated alignment ' + \
                                                        'of the core genes ... '
@@ -290,11 +288,12 @@ def makeSpeciesTree(paramD:dict, outgroupSciName:str) -> None:
     speTreWorkDir = paramD['makeSpeciesTreeWorkingDir']
     catAlnFN = paramD['concatenatedAlignmentFN']
     keyFN = paramD['famToGeneKeyFN']
+    wgsFN = paramD['fileNameMapFN']
     fastTree = paramD['fastTreePath']
     speTreeFN = paramD['speciesTreeFN']
 
     # concatenate the alignments
-    __concatenateAlignments(speTreWorkDir, catAlnFN, keyFN)
+    __concatenateAlignments(speTreWorkDir, catAlnFN, keyFN, wgsFN)
 
     # print alignment summary
     __printSummary(paramD)
@@ -305,15 +304,10 @@ def makeSpeciesTree(paramD:dict, outgroupSciName:str) -> None:
     os.system(command)
 
     # replace the invalid string for Taxonomy objects with that of trees
-    if INVALID_STR__TAX in outgroupSciName:
-        outgroupSciName = outgroupSciName[:-len(INVALID_STR__TAX)]
-        outgroupSciName += INVALID_STR__TREE
-
-    # replace spaces with underscores
-    outgroupSciName = re.sub(" ", "_", outgroupSciName)
+    outgroupTaxonName = __makeTaxonName(outgroup)
 
     # root the tree on the specified outgroup
-    __rootTree(speTreeFN, [outgroupSciName])
+    __rootTree(speTreeFN, [outgroupTaxonName])
 
     print(DONE)
 
@@ -351,13 +345,14 @@ def __makeGeneTreesWrapper(paramD) -> None:
     xenoGI.trees.makeGeneTrees(paramD,True,genesO,workDir,gtFileStem,newAabrhHardCoreL)
 
 
-def __concatenateAlignments(speciesTreeWorkDir:str, alnOutFN:str, keyFN:str) \
-                                                                       -> None:
+def __concatenateAlignments(speciesTreeWorkDir:str, alnOutFN:str, keyFN:str, wgsMapFN:str) -> None:
     """ concatenateAlignments:
-            Accepts a string indiccating the make species tree working directo-
-            ry and a string indicating the output filename as inputs. Concaten-
-            ates the alignments of all the hardcore genes and then saves the
-            concatenated alignment in fasta format. Does not return.
+            Accepts a string indicating the make species tree working director-
+            y, a string indicating the output filename, a string indicating the
+            famToGeneKey filename, and a string indicating the wgsHumanMap fil-
+            ename as inputs. Concatenates the alignments of all the hardcore
+            genes and then saves the concatenated alignment in fasta format.
+            Does not return.
     """
     # constants
     FILE_NAME_PATTERN = 'align*afa'
@@ -411,11 +406,27 @@ def __concatenateAlignments(speciesTreeWorkDir:str, alnOutFN:str, keyFN:str) \
     # close the key file
     filehandle.close()
 
+    # load the wgsHumanMap file into memory
+    wgsMapL = parseCsv(wgsMapFN)
+
     # convert the dictionary to a list of SeqRecord objects
     allConcatenatedRecords = list()
     for key in seqD.keys():
         rec = SeqRecord(seqD[key])
-        rec.id = key
+
+        # find the name that contains the key
+        for row in wgsMapL:
+            # taxon name is the second column
+            taxonName = row[1]
+
+            # if the key is within the taxon name
+            if key in taxonName:
+                # then use this as the id
+                rec.id = taxonName
+                break
+            
+        # description field should be empty
+        rec.description = ""
         allConcatenatedRecords.append(rec)
     
     # write the file in fasta format

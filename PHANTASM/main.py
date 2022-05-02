@@ -2,7 +2,7 @@
 
 from PHANTASM.rRNA.runRnaBlast import rnaBlastRunner
 from PHANTASM.rRNA.processRnaBlast import getTaxIdsFromRnaBlast
-from PHANTASM.taxonomy.taxonomyConstruction import constructTaxonomy, __getLpsnData
+from PHANTASM.taxonomy.taxonomyConstruction import Taxonomy, constructTaxonomy, __getLpsnData
 from PHANTASM.coreGenes import rankPhylogeneticMarkers, xenogiInterfacer_1, \
                         parseGenbank, allVsAllBlast, copyExistingBlastFiles, \
                         calculateCoreGenes, makeSpeciesTree
@@ -14,22 +14,22 @@ from Bio import Entrez
 def runPt1(queryGbff:str, paramD:dict) -> None:
     """ run the entire first portion from start to finish
     """
-    outgroupSciName = taxonomyWrapper(queryGbff, paramD)
+    outgroup = taxonomyWrapper(queryGbff, paramD)
     coreGenesWrapper_1(paramD)
-    findPhylogeneticMarkersWrapper(outgroupSciName, paramD)
+    findPhylogeneticMarkersWrapper(outgroup, paramD)
 
 
 def runPt2(geneNum:int, queryGbff:str, paramD_1:dict, paramD_2:dict) -> None:
     """ run the entire second portion from start to finish
     """
-    outgroupSciName = findMissingRelativesWrapper(geneNum, queryGbff, paramD_1, paramD_2)
+    outgroup = findMissingRelativesWrapper(geneNum, queryGbff, paramD_1, paramD_2)
     coreGenesWrapper_2(paramD_1, paramD_2)
-    finalAnalysesWrapper(outgroupSciName, paramD_2)
+    finalAnalysesWrapper(outgroup, paramD_2)
 
 
-def taxonomyWrapper(queryGenbank:str, paramD_1:dict) -> str:
+def taxonomyWrapper(queryGenbank:str, paramD_1:dict) -> Taxonomy:
     """ creates a Taxonomy object, downloads gbffs, and makes the human map.
-        returns the outgroup species as a string (scientific name).
+        returns the outgroup species as a Taxonomy object.
     """
     # set the entrez email address
     Entrez.email = paramD_1['email']
@@ -44,9 +44,9 @@ def taxonomyWrapper(queryGenbank:str, paramD_1:dict) -> str:
     taxO = constructTaxonomy(taxids, saveTax=True, dir=paramD_1['workdir'])
 
     # make/download all files required for the first pass of xenoGI
-    outgroupSciName = xenogiInterfacer_1(taxO, queryGenbank, paramD_1)
+    outgroup = xenogiInterfacer_1(taxO, queryGenbank, paramD_1)
 
-    return outgroupSciName
+    return outgroup
 
 
 def coreGenesWrapper_1(paramD_1:dict) -> None:
@@ -58,25 +58,25 @@ def coreGenesWrapper_1(paramD_1:dict) -> None:
     calculateCoreGenes(paramD_1)
 
 
-def findPhylogeneticMarkersWrapper(outgroupSciName:str, paramD_1:dict) -> None:
+def findPhylogeneticMarkersWrapper(outgroup:Taxonomy, paramD_1:dict) -> None:
     """ makes the first species tree and ranks the core genes as phylogenetic
         markers.
     """
-    makeSpeciesTree(paramD_1, outgroupSciName)
+    makeSpeciesTree(paramD_1, outgroup)
     rankPhylogeneticMarkers(paramD_1)
 
 
 def findMissingRelativesWrapper(geneNum:int, queryGenbank:str, paramD_1:dict,\
-                                                         paramD_2:dict) -> str:
+                                                    paramD_2:dict) -> Taxonomy:
     """ uses blastp to find missing relatives, downloads a new set of genomes,
         and makes the new human map file. returns the outgroup species as a str
         (scientific name).
     """
     lpsnD = __getLpsnData()
     phyloMarkerBlastRunner(geneNum, paramD_1)
-    outgroupSciName = xenogiInterfacer_2(queryGenbank, paramD_1, paramD_2, lpsnD)
+    outgroup = xenogiInterfacer_2(queryGenbank, paramD_1, paramD_2, lpsnD)
 
-    return outgroupSciName
+    return outgroup
 
 
 def coreGenesWrapper_2(paramD_1:dict, paramD_2:dict) -> None:
@@ -89,12 +89,12 @@ def coreGenesWrapper_2(paramD_1:dict, paramD_2:dict) -> None:
     calculateCoreGenes(paramD_2)
 
 
-def finalAnalysesWrapper(outgroupSciName:str, paramD_2:dict) -> None:
+def finalAnalysesWrapper(outgroup:Taxonomy, paramD_2:dict) -> None:
     """ makes the second species tree and calculates OGRIs.
     """
-    makeSpeciesTree(paramD_2, outgroupSciName)
+    makeSpeciesTree(paramD_2, outgroup)
     overallGenomeRelatedIndices(paramD_2)
-    makeAaiHeatmap(paramD_2, outgroupSciName)
+    makeAaiHeatmap(paramD_2, outgroup)
 
 
 

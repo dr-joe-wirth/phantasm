@@ -143,16 +143,35 @@ def __makeHumanMapString(speciesO:Taxonomy, filename:str) -> str:
             filename of the genome for that object as inputs. Constructs and
             returns the string for the human map file.
     """
+    # constant
+    ERR_MSG = "invalid input"
+
+    # if a string was provided, then just use it
+    # this functionality allows for 'user_input' humanMap
+    if type(speciesO) is str:
+        taxonName = speciesO
+
+    elif type(speciesO) is Taxonomy:
+        taxonName = __makeTaxonName(speciesO)
+
+    else:
+        raise Exception(ERR_MSG)
+
+    # combine inputs to make map string and return it
+    return filename + '\t' + taxonName + '\n'
+
+
+def __makeTaxonName(speciesO:Taxonomy) -> str:
+    """ makeTaxonName:
+            Accepts a Taxonomy object as input. Constructs the name used in
+            the human map file, the concatenated alignment, and the species
+            tree. Returns the newly constructed name as a string.
+    """
     # constants
     INVALID_TAX = ' (invalid name)'
     INVALID_STR = '__invalid'
     TYPE_SUFFIX = "_T"
     SEP = "|"
-
-    # if a string was provided, then just use it
-    # this functionality allows for 'user_input' humanMap
-    if type(speciesO) is str:
-        return filename + '\t' + speciesO + '\n'
 
     # otherwise if the species name is invalid, then reflect this in the name
     if INVALID_TAX in speciesO.sciName:
@@ -176,10 +195,5 @@ def __makeHumanMapString(speciesO:Taxonomy, filename:str) -> str:
     # get the accession number
     accnNum = speciesO.assemblyAccn
 
-    # make the human name for the genome
-    taxonName = speciesName + SEP + strainName + SEP + accnNum
-
-    # combine inputs to make map string and return it
-    return filename + '\t' + taxonName + '\n'
-
-
+    # make and return the human name for the genome
+    return speciesName + SEP + strainName + SEP + accnNum
