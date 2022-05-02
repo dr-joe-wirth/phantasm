@@ -139,21 +139,23 @@ def __downloadGbff(ftpPath:str, gbffDir:str) -> str:
 
 def __makeHumanMapString(speciesO:Taxonomy, filename:str) -> str:
     """ makeHumanMapString:
-            Accepts a Taxonomy object and a string indicating the filename of
-            the genome for that object as inputs. Constructs and returns the
-            string for the human map file.
+            Accepts a Taxonomy object (or string) and a string indicating the
+            filename of the genome for that object as inputs. Constructs and
+            returns the string for the human map file.
     """
+    # constants
     INVALID_TAX = ' (invalid name)'
     INVALID_STR = '__invalid'
     TYPE_SUFFIX = "_T"
     SEP = "|"
 
-    # if the speciesO is a string, then raise exception
+    # if a string was provided, then just use it
+    # this functionality allows for 'user_input' humanMap
     if type(speciesO) is str:
-        raise Exception("input must be Taxonomy; strings no longer supported")
+        return filename + '\t' + speciesO + '\n'
 
     # otherwise if the species name is invalid, then reflect this in the name
-    elif INVALID_TAX in speciesO.sciName:
+    if INVALID_TAX in speciesO.sciName:
         speciesName = speciesO.ncbiName + INVALID_STR
     
     # otherwise, use the scientific name as the species name
