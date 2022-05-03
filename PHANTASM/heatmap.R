@@ -1,9 +1,9 @@
 # Author: Joseph S. Wirth
 
-heatmapRunner <- function(treeFN=NULL, aaiFN=NULL, rootsVec=NULL, pdfOutFN=NULL, pruneRoot=TRUE, numDecimals=0, numColors=16, height=32, width=32){
+heatmapRunner <- function(treeFN=NULL, axiFN=NULL, rootsVec=NULL, pdfOutFN=NULL, pruneRoot=TRUE, numDecimals=0, numColors=16, height=32, width=32){
 	prepTreeFN <- prepareTree(treeFN, rootsVec, pruneRoot)
 	
-	generateHeatmap(prepTreeFN, aaiFN, pdfOutFN, numDecimals, numColors, height, width)
+	generateHeatmap(prepTreeFN, axiFN, pdfOutFN, numDecimals, numColors, height, width)
 }
 
 
@@ -52,7 +52,7 @@ meanSquareMatrix <- function(squareMat){
 }
 
 
-generateHeatmap <- function(treeFN=NULL, aaiFN=NULL, pdfOutFN=NULL, numDecimals=0, numColors=16, height=32, width=32){
+generateHeatmap <- function(treeFN=NULL, axiFN=NULL, pdfOutFN=NULL, numDecimals=0, numColors=16, height=32, width=32){
 	# dependencies
 	require(ape)
 	require(gplots)
@@ -61,40 +61,40 @@ generateHeatmap <- function(treeFN=NULL, aaiFN=NULL, pdfOutFN=NULL, numDecimals=
 	
 	# import files
 	tree <- ReadDendrogram(treeFN, internalLabels=FALSE)
-	aai.df <- read.delim(aaiFN, row.names=1)
+	axi.df <- read.delim(axiFN, row.names=1)
 	
-	# convert all underscores to spaces in aai.df
-	rownames(aai.df) <- gsub("_", " ", rownames(aai.df))
-	colnames(aai.df) <- gsub("_", " ", colnames(aai.df))
+	# convert all underscores to spaces in axi.df
+	rownames(axi.df) <- gsub("_", " ", rownames(axi.df))
+	colnames(axi.df) <- gsub("_", " ", colnames(axi.df))
 	
-	# remove double spaces from aai.df and tip names
-	rownames(aai.df) <- gsub("  ", " ", rownames(aai.df))
-	colnames(aai.df) <- gsub("  ", " ", colnames(aai.df))
+	# remove double spaces from axi.df and tip names
+	rownames(axi.df) <- gsub("  ", " ", rownames(axi.df))
+	colnames(axi.df) <- gsub("  ", " ", colnames(axi.df))
 	labels(tree) <- gsub("  ", " ", labels(tree))
 	
-	# make an AAI matrix with only the taxa present in the tree
-	aai.mx <- as.matrix(aai.df[which(rownames(aai.df) %in% labels(tree)), which(colnames(aai.df) %in% labels(tree))])
+	# make a matrix with only the taxa present in the tree
+	axi.mx <- as.matrix(axi.df[which(rownames(axi.df) %in% labels(tree)), which(colnames(axi.df) %in% labels(tree))])
 	
 	# order the matrix so that the rows and columns match the order of the tips in the tree
-	aai.mx <- aai.mx[order(match(rownames(aai.mx), labels(tree))), order(match(colnames(aai.mx), labels(tree)))]
+	axi.mx <- axi.mx[order(match(rownames(axi.mx), labels(tree))), order(match(colnames(axi.mx), labels(tree)))]
 	
 	# get the mean of all forward/reverse comparisons
-	aai.mx <- meanSquareMatrix(aai.mx)
+	axi.mx <- meanSquareMatrix(axi.mx)
 	
 	# remove all self-self comparisons from the table
-	for(i in 1:nrow(aai.mx)){
-		aai.mx[i,i] <- NA
+	for(i in 1:nrow(axi.mx)){
+		axi.mx[i,i] <- NA
 	}
 	
 	# get the cell values for the matrix (rounded)
-	aai.cells <- round(aai.mx, digits=numDecimals)
+	axi.cells <- round(axi.mx, digits=numDecimals)
 	
 	# get the heat map colors
 	colors <- colorRampPalette(colors=c("purple", "red", "yellow", "white"))(numColors)
 	
 	# generate the plot and write to file
 	pdf(file=pdfOutFN, height=height, width=width)
-	heatmap.2(aai.mx, Rowv=FALSE, Colv=FALSE, col=colors, cellnote=aai.cells, trace="none", notecol="black", notecex=1, margins=c(12,20), cexRow=1, cexCol=1, lhei=c(1,8), lwid=c(1,8), dendrogram='none')
+	heatmap.2(axi.mx, Rowv=FALSE, Colv=FALSE, col=colors, cellnote=axi.cells, trace="none", notecol="black", notecex=1, margins=c(12,20), cexRow=1, cexCol=1, lhei=c(1,8), lwid=c(1,8), dendrogram='none')
 	dev.off()
 }
 
