@@ -4,7 +4,7 @@ import sys, os, re, glob, copy
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
 from PHANTASM.rRNA.runRnaBlast import __makeOutfmtString
 from PHANTASM.utilities import parseCsv, ncbiIdsFromSearchTerm, ncbiSummaryFromIdList, ncbiELinkFromIdList, extractIdsFromELink, removeFileExtension
-from PHANTASM.downloadGbff import __downloadGbffFromSpeciesList, __makeHumanMapString
+from PHANTASM.downloadGbff import __downloadGbffFromSpeciesList, _makeHumanMapString
 from Bio import Entrez, SeqIO, SeqFeature
 from Bio.SeqRecord import SeqRecord
 from Bio.SeqIO.FastaIO import FastaIterator
