@@ -407,7 +407,7 @@ def __concatenateAlignments(speciesTreeWorkDir:str, alnOutFN:str, keyFN:str, wgs
     filehandle.close()
 
     # load the wgsHumanMap file into memory
-    wgsMapL = parseCsv(wgsMapFN)
+    wgsMapL = parseCsv(wgsMapFN, delim="\t")
 
     # convert the dictionary to a list of SeqRecord objects
     allConcatenatedRecords = list()
