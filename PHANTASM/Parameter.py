@@ -40,6 +40,7 @@ class Parameters:
     __aaiFN = 'aai_matrix.txt'
     __aaiHeatmapFN = 'aai_heatmap.pdf'
     __aniFN = 'ani_matrix.txt'
+    __aniHeatmapFN = 'ani_heatmap.pdf'
     __aniWorkDir = 'aniWorkdir'
     __aniBlastFilePath = os.path.join(__aniWorkDir, 'blast', '*.blastn')
 
@@ -94,6 +95,7 @@ class Parameters:
         self.aaiFN = os.path.join(workdir, Parameters.__aaiFN)
         self.aaiHeatmapFN = os.path.join(workdir, Parameters.__aaiHeatmapFN)
         self.aniFN = os.path.join(workdir, Parameters.__aniFN)
+        self.aniHeatmapFN = os.path.join(workdir, Parameters.__aniHeatmapFN)
         self.aniWorkDir = os.path.join(workdir, Parameters.__aniWorkDir)
         self.aniBlastFilePath = os.path.join(workdir, Parameters.__aniBlastFilePath)
 

@@ -7,7 +7,7 @@ from PHANTASM.coreGenes import rankPhylogeneticMarkers, xenogiInterfacer_1, \
                         parseGenbank, allVsAllBlast, copyExistingBlastFiles, \
                         calculateCoreGenes, makeSpeciesTree
 from PHANTASM.findMissingNeighbors import phyloMarkerBlastRunner, xenogiInterfacer_2
-from PHANTASM.overallGenomeRelatedIndices import overallGenomeRelatedIndices, makeAaiHeatmap
+from PHANTASM.overallGenomeRelatedIndices import overallGenomeRelatedIndices, makeAaiHeatmap, makeAniHeatmap
 from Bio import Entrez
 
 
@@ -95,6 +95,7 @@ def finalAnalysesWrapper(outgroup:Taxonomy, paramD_2:dict) -> None:
     makeSpeciesTree(paramD_2, outgroup)
     overallGenomeRelatedIndices(paramD_2)
     makeAaiHeatmap(paramD_2, outgroup)
+    makeAniHeatmap(paramD_2, outgroup)
 
 
 
