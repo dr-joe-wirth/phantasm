@@ -1,11 +1,11 @@
 # Author: Joseph S. Wirth
 
 from __future__ import annotations
-import sys, os, re, glob, scipy.stats, csv
+import sys, os, re, glob, scipy.stats, csv, subprocess
 from PHANTASM.utilities import parseCsv
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
-from PHANTASM.downloadGbff import downloadGbffsForRootTaxonomy, __makeHumanMapString, __makeTaxonName
+from PHANTASM.downloadGbff import downloadGbffsForRootTaxonomy, _makeHumanMapString, _makeTaxonName
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
 from param import XENOGI_DIR
 sys.path.insert(0,os.path.join(sys.path[0], XENOGI_DIR))
@@ -38,7 +38,7 @@ def xenogiInterfacer_1(taxO:Taxonomy, queryGbff:str, paramD:dict) -> Taxonomy:
     os.symlink(oldFN, newFN)
 
     # add the query to the human map file
-    humanMapStr = __makeHumanMapString(USER_INPUT, os.path.basename(queryGbff))
+    humanMapStr = _makeHumanMapString(USER_INPUT, os.path.basename(queryGbff))
     filehandle = open(humanMapFN, "a")
     filehandle.write(humanMapStr)
     filehandle.close()
@@ -295,21 +295,21 @@ def makeSpeciesTree(paramD:dict, outgroup:Taxonomy) -> None:
     # concatenate the alignments
     __concatenateAlignments(speTreWorkDir, catAlnFN, keyFN, wgsFN)
 
-    # print alignment summary
-    __printSummary(paramD)
-
     # run fasttree on the concatenated alignment
     print(PRINT_2, end='', flush=True)
-    command = fastTree + " -quiet -out " + speTreeFN + " " + catAlnFN
-    os.system(command)
+    cmd = [fastTree, "-quiet", "-out", speTreeFN, catAlnFN]
+    subprocess.run(cmd)
 
     # replace the invalid string for Taxonomy objects with that of trees
-    outgroupTaxonName = __makeTaxonName(outgroup)
+    outgroupTaxonName = _makeTaxonName(outgroup)
 
     # root the tree on the specified outgroup
     __rootTree(speTreeFN, [outgroupTaxonName])
 
     print(DONE)
+
+    # print summary for the concatenated alignment
+    __printSummary(paramD)
 
 
 def __makeGeneTreesWrapper(paramD) -> None:
@@ -440,8 +440,9 @@ def __printSummary(paramD:dict) -> None:
             of each concatenated alignment. Does not return.
     """
     # constants
-    PRINT_1 = "Number of core genes used to construct the tree: "
-    PRINT_2 = "Sequence length for each concatenated alignment: "
+    GAP = " " * 4
+    PRINT_1 = GAP + "Number of core genes used to construct the tree: "
+    PRINT_2 = GAP + "Sequence length for each concatenated alignment: "
 
     # extract data on the alignment
     numCoreGenes, lenAlignment = __getSummary(paramD)
