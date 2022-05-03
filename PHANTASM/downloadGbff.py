@@ -91,7 +91,7 @@ def __downloadGbffFromSpeciesList(allTaxa:list, humanMapFN:str, gbffDir:str) \
         gbffFN = __downloadGbff(taxon.assemblyFtp, gbffDir)
 
         # create the human map string
-        humanMapStr = __makeHumanMapString(taxon, gbffFN)
+        humanMapStr = _makeHumanMapString(taxon, gbffFN)
         
         # add the string to the file
         filehandle.write(humanMapStr)
@@ -137,7 +137,7 @@ def __downloadGbff(ftpPath:str, gbffDir:str) -> str:
     return os.path.basename(gbffFileName)
 
 
-def __makeHumanMapString(speciesO:Taxonomy, filename:str) -> str:
+def _makeHumanMapString(speciesO:Taxonomy, filename:str) -> str:
     """ makeHumanMapString:
             Accepts a Taxonomy object (or string) and a string indicating the
             filename of the genome for that object as inputs. Constructs and
@@ -152,7 +152,7 @@ def __makeHumanMapString(speciesO:Taxonomy, filename:str) -> str:
         taxonName = speciesO
 
     elif type(speciesO) is Taxonomy:
-        taxonName = __makeTaxonName(speciesO)
+        taxonName = _makeTaxonName(speciesO)
 
     else:
         raise Exception(ERR_MSG)
@@ -161,7 +161,7 @@ def __makeHumanMapString(speciesO:Taxonomy, filename:str) -> str:
     return filename + '\t' + taxonName + '\n'
 
 
-def __makeTaxonName(speciesO:Taxonomy) -> str:
+def _makeTaxonName(speciesO:Taxonomy) -> str:
     """ makeTaxonName:
             Accepts a Taxonomy object as input. Constructs the name used in
             the human map file, the concatenated alignment, and the species
