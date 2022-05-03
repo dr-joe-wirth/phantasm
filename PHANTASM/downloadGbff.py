@@ -172,6 +172,7 @@ def _makeTaxonName(speciesO:Taxonomy) -> str:
     INVALID_STR = '__invalid'
     TYPE_SUFFIX = "_T"
     SEP = "|"
+    ILLEGAL_CHAR_GREP = r'[\#\%\&\{\}\\\<\>\*\?\/\$\!\'\"\:\@\+\`\=\|\ ]'
 
     # otherwise if the species name is invalid, then reflect this in the name
     if INVALID_TAX in speciesO.sciName:
@@ -184,9 +185,9 @@ def _makeTaxonName(speciesO:Taxonomy) -> str:
     # replace any spaces in the species name with underscores
     speciesName = re.sub(' ', '_', speciesName)
 
-    # get the strain information and remove spaces
+    # get the strain information and remove illegal characters
     strainName = speciesO.assemblyStrain
-    strainName = re.sub(' ', '_', strainName)
+    strainName = re.sub(ILLEGAL_CHAR_GREP, '_', strainName)
 
     # determine if the genome is a type strain
     if speciesO.assemblyFromType:
