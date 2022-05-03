@@ -1,16 +1,14 @@
 # Author: Joseph S. Wirth
 
-import glob, math, os, sys
+import glob, math, os, sys, subprocess
 import rpy2.robjects as robjects
-from Bio.Blast.Applications import NcbiblastnCommandline
 from Bio import SeqIO
 from param import XENOGI_DIR, PHANTASM_DIR
 sys.path.insert(0,os.path.join(sys.path[0],XENOGI_DIR))
 import xenoGI.xenoGI, xenoGI.analysis
-from PHANTASM.rRNA.runRnaBlast import __makeblastdbFromFna, __makeOutfmtString
 from PHANTASM.utilities import parseCsv
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
-from PHANTASM.coreGenes import __makeTaxonName
+from PHANTASM.downloadGbff import _makeTaxonName
 
 
 ###############################################################################
@@ -31,8 +29,6 @@ def overallGenomeRelatedIndices(paramD:dict) -> None:
     # extract relevant data from paramD
     aaiFN = paramD['aaiFN']
     aniFN = paramD['aniFN']
-    aaiHeatmapFN = paramD['aaiHeatmapFN']
-    treeFN = paramD['speciesTreeFN']
 
     # calculate AAI
     print(PRINT_1, end='', flush=True)
@@ -42,6 +38,15 @@ def overallGenomeRelatedIndices(paramD:dict) -> None:
     # save the result to file
     print(SAVE_PRINT + aaiFN)
     __saveOgriMatrix(aaiD, aaiFN)
+
+    # calculate ANI
+    print(PRINT_2, end='', flush=True)
+    aniD = _calculateANI(paramD)
+    print(DONE)
+
+    # save the result to file
+    print(SAVE_PRINT + aniFN)
+    __saveOgriMatrix(aniD, aniFN)
 
 
 def __saveOgriMatrix(ogriD:dict, filename:str) -> None:
@@ -138,237 +143,170 @@ def makeAaiHeatmap(paramD:dict, outgroup:Taxonomy) -> None:
             custom R-script to generate a heatmap of the AAI values. Does not
             return.
     """
-    # get the filename of the R script and source it
-    rScript = os.path.join(PHANTASM_DIR, "PHANTASM", "aaiHeatmap.R")
-    robjects.r['source'](rScript)
-
     # extract data from paramD
     treeFN:str = paramD['speciesTreeFN']
     aaiFN:str = paramD['aaiFN']
     pdfOutFN:str = paramD['aaiHeatmapFN']
 
-    # create the python function that can call the R function
-    heatmapRunner = robjects.globalenv['heatmapRunner']
-
-    # get the taxon name for the outgroup
-    outgroupTaxonName = __makeTaxonName(outgroup)
-
-    # make the outgroup an R vector
-    outgroupVec = robjects.StrVector([outgroupTaxonName])
-
-    # call the function to generate the heatmap
-    heatmapRunner(treeFN, aaiFN, outgroupVec, pdfOutFN)
+    __makeHeatmap(outgroup, treeFN, aaiFN, pdfOutFN)
 
 ###############################################################################
 
 
 ###############################################################################
+
 def _calculateANI(paramD:dict) -> dict:
     """ calculateANI:
-            Accepts the parameter dictionary as input. Calculates the average
-            nucleotide identity for the dataset specified by the input. Returns
-            a dictionary whose keys are pairs of species names and whose values
-            are the corresponding ANI value.
+            Accepts the parameter dictionary as input. Uses pyani's average nu-
+            cleotide calculator. Returns a dictionary whose keys are tuples co-
+            ntaining pairs of species names and whose values are the ANI for 
+            the pair.
     """
-    # extract relevant data from paramD
-    blastJoinStr = paramD['blastFileJoinStr']
-    aniBlastPath = paramD['aniBlastFilePath']
+    # prepare all files needed to pyani to run
+    fnaDir = __aniPrep(paramD)
 
-    # get all the blast files
-    blastFiles = glob.glob(aniBlastPath)
-
-    # if the blastn files don't exist, then fix that
-    if blastFiles == []:
-        __aniBlastnPrep(paramD)
-        __aniBlastnWrapper(paramD)
-
-    # for each file, begin calculating the ANI
-    aniD = dict()
-    for blastFN in blastFiles:
-        # extract the query and subject names from the blast filename
-        basename:str = os.path.basename(blastFN)
-        basename = os.path.splitext(basename)[0]
-        query, subject = basename.split(blastJoinStr)
-
-        # get the ANI value for the pair and save it in the dictionary
-        aniD[(query, subject)] = __calculateAniFromBlastnFile(blastFN)
-
-    return aniD
-
-
-def __calculateAniFromBlastnFile(blastFN:str) -> float:
-    """ calculateAniFromBlastnFile:
-            Accepts a string indicating the path to a blastn table with the fo-
-            rmat indicated by the constants below as input. Calculates the ave-
-            rage nucleotide identity (ANI) for that blast file. Returns the ca-
-            lculated value as a float.
-    """
-    # constants
-    DELIM_CHAR = '\t'
-    QSEQID = 0
-    SSEQID = 1
-    PIDENT = 2
-    LENGTH = 3
-    QLEN   = 4
-    EVALUE = 5
-    BITSCO = 6
-
-    # parse the table
-    parsedBlastnTable = parseCsv(blastFN, DELIM_CHAR)
-
-    # initialize variables for looping
-    row:list
-    sumPercId = 0
-    sumLength = 0
-
-    # for each row in the blast table
-    for row in parsedBlastnTable:
-        # extract specific values
-        alignLen = int(row[LENGTH])
-        percId   = float(row[PIDENT])
-        queryLen = int(row[QLEN])
-
-        # recalculate the overall sequence identity
-        overallSeqId = percId * alignLen / queryLen
-
-        # determine the percentage of the alignable region
-        percAligned = alignLen / queryLen * 100
-
-        # only proceed >30% overall identity and >70% alignable region
-        if overallSeqId >= 30 and percAligned >= 70:
-            # weight the percent id by the alignment length
-            sumPercId += percId * alignLen
-            sumLength += alignLen
+    # calculate and return ani
+    return __aniRunner(fnaDir, paramD)
     
-    # return the mean average nucleotide identity
-    return sumPercId / sumLength
 
-
-def __aniBlastnWrapper(paramD:dict) -> None:
-    """ aniBlastnWrapper:
-            Accepts the parameter dictionary as input. Uses the dictionary to
-            determine which blast comparisons are required and then uses blastn
-            to make those comparison files. Does not return.
+def __aniPrep(paramD:dict) -> str:
+    """ aniPrep:
+            Accepts the parameter dictionary as input. Creates the ANI working
+            directory and makes a nucleotide fasta for each whole genome seque-
+            nce. Returns a string indicating the directory containing the newly
+            created fasta files.
     """
     # constants
-    FRAG_END = '_fragmented.fna'
+    FNA_EXT = ".fna"
 
-    # extract relevant data from paramD
-    blastJoinStr = paramD['blastFileJoinStr']
-    aniBlastPath = paramD['aniBlastFilePath']
-    blastExeDir  = paramD['blastExecutDirPath']
-    workdir = paramD['aniWorkDir']
+    # extract necessary data from paramD
+    gbFilePath = paramD['genbankFilePath']
+    aniDir = paramD['aniWorkDir']
 
-    # get the file extension for the blastn results
-    fileExt = os.path.splitext(aniBlastPath)[1]
+    # make the ani directory if it does not exist
+    if not os.path.exists(aniDir):
+        os.mkdir(aniDir)
+    
+    # make the fasta directory if it does not exist
+    fnaDir = os.path.join(aniDir, "fasta")
+    if not os.path.exists(fnaDir):
+        os.mkdir(fnaDir)
 
-    # get the path to the blastn executable
-    blastnExe = os.path.join(blastExeDir, 'blastn')
+    # get a list of all gbff files
+    gbFilesL = glob.glob(gbFilePath)
 
-    # make the blast directory
-    blastdir = os.path.dirname(aniBlastPath)
-    os.mkdir(blastdir)
+    # go through the list of gbff files and convert to fna
+    for gbFN in gbFilesL:
+        # drop file path and extension
+        basename = os.path.basename(gbFN)
+        basename = os.path.splitext(basename)[0]
 
-    # get query fna files
-    queryFnaFiles = glob.glob(os.path.join(workdir, '*' + FRAG_END))
+        # make fasta file name
+        fnaFN = os.path.join(fnaDir, basename + FNA_EXT)
 
-    # run all pairwise blast comparisons
-    for queryFN in queryFnaFiles:
-        for q2 in queryFnaFiles:
-            # extract the name of the blastdb for the comparison
-            subjectDb = q2[:-len(FRAG_END)]
-
-            # get the human map names for both the query and subject
-            qname = os.path.basename(queryFN)[:-len(FRAG_END)]
-            sname = os.path.basename(subjectDb)
-
-            # construct the filename for the blastp result
-            outFN = qname + blastJoinStr + sname + fileExt
-            outFN = os.path.join(blastdir, outFN)
-
-            # run blastn
-            __runAniBlastn(queryFN, subjectDb, outFN, blastnExe)
+        # create the fasta file
+        __genbankToFna(gbFN, fnaFN)
+    
+    return fnaDir
 
 
-def __runAniBlastn(queryFN:str, subjectDb:str, outFN:str, blastnExe:str) \
-                                                                       -> None:
-    """ runAniBlastn:
-            Accepts four strings as inputs: the filename for a query fasta file
-            (fragmented), the filename for a blastdb, a filename to save the 
-            blastn results, and the full path the blastn executatble. Calls the
-            executable to and saves the result to the specified file. Does not
-            return.
+def __genbankToFna(genbankFN:str, fastaFN:str) -> None:
+    """ genbankToFna:
+            Accepts two strings as input: one indicating the path to a genbank
+            file and another indicating where to write the nucleotide fasta fi-
+            le (.fna). Converts the genbank into fasta format. Does not return.
     """
     # constants
-    HEADERS = ['qseqid', 'sseqid', 'pident', 
-               'length', 'qlen', 'evalue', 'bitscore']
-    OUTFMT = '6'
+    IN_FORMAT = 'genbank'
+    OUT_FORMAT = 'fasta'
 
-    # make the outfmt string
-    outfmtStr = __makeOutfmtString(OUTFMT, HEADERS)
+    # parse the genbank file
+    parsed:SeqIO.InsdcIO.GenBankIterator = SeqIO.parse(genbankFN, IN_FORMAT)
 
-    # construct the blastn command
-    blastnCmd = NcbiblastnCommandline(cmd=blastnExe,
-                                      query=queryFN,
-                                      db=subjectDb,
-                                      out=outFN,
-                                      outfmt=outfmtStr)
+    # get all of the records as a list
+    allRecords = list(parsed.records)
 
-    # execute the blastn command
-    blastnCmd()
+    # write the records to specified file
+    SeqIO.write(allRecords, fastaFN, OUT_FORMAT)
 
 
-def __aniBlastnPrep(paramD:dict) -> None:
-    """ aniBlastnPrep:
-            Accepts the parameter dictionary as input. Makes nucleotide fasta
-            files (.fna) and blastn databases required to run the ANI blast co-
-            mparisons. Does not return.
+def __aniRunner(fnaDir:str, paramD:dict) -> dict:
+    """ aniRunner:
+            Accepts a string indicating the directory containing the nucleotide
+            fasta files and the parameter dictionary as inputs. Uses pyani to
+            calculate the average nucleotide identities for all genomes in the
+            provided directory. Returns a dictionary whose keys are pairs of
+            species and whose values are the ANI scores for that pair.
     """
     # constants
-    FNA_EXT = '.fna'
-    FRAG_STR = '_fragmented'
+    PYANI_O = "pyani"
+    OUTFILE = "ANIb_percentage_identity.tab"
 
-    # extract relevant data from paramD
-    gbkFilePath = paramD['genbankFilePath']
-    aniWorkDir  = paramD['aniWorkDir']
-    humanMapFN  = paramD['fileNameMapFN']
-    blastExePath = paramD['blastExecutDirPath']
+    # extract necessary data from paramD
+    aniDir = paramD['aniWorkDir']
+    numThreads = paramD['numProcesses']
+    humanMapFN = paramD['fileNameMapFN']
 
-    # get genbank files
-    genbankFiles = glob.glob(gbkFilePath)
+    # determine the path for pyani's output
+    outDir = os.path.join(aniDir, PYANI_O)
 
-    # make ANI working directory
-    os.mkdir(aniWorkDir)
+    # call ANI function via bash
+    cmd = ['average_nucleotide_identity.py',
+            '-m', 'ANIb',
+            '-i', fnaDir,
+            '-o', outDir,
+            '--workers', str(numThreads)]
+    subprocess.run(cmd)
 
-    # load the human map file
-    humanMapD = __loadHumanMap(humanMapFN)
+    # convert the file to a dictionary with pairs of human names as keys
+    pyaniOutFN = os.path.join(outDir, OUTFILE)
+    return __createAniD(humanMapFN, pyaniOutFN)
 
-    # for each genbank file
-    for gbkFN in genbankFiles:
-        # remove the path information from the filename
-        base = os.path.basename(gbkFN)
-        
-        # use the filename to look up the human name
-        if base == 'AH-928-D05.gbk':
-            print('debug')
 
-        humanName = humanMapD[base]
+def __createAniD(humanMapFN:str, aniFN:str) -> dict:
+    """ createAniD:
+            Accepts a string indicating the path to the human map file and a
+            string indicating the path to the output of pyani's analysis. Crea-
+            tes and returns a dictionary whose keys are pairs of species and
+            whose values are the average nucleotide identities for the pair of
+            species.
+    """
+    # load the human map as a dictionary
+    humanMapD:dict = __loadHumanMap(humanMapFN)
 
-        # add the working directory to the human name
-        humanName = os.path.join(aniWorkDir, humanName)
+    # keys contain file extensions; remove them from the keys
+    tempD = dict()
+    for oldKey in humanMapD.keys():
+        newKey = os.path.splitext(oldKey)[0]
+        tempD[newKey] = humanMapD[oldKey]
 
-        # make the filenames for the full and fragmented fasta files
-        fullFastaFN = humanName + FNA_EXT
-        fragFastaFN = humanName + FRAG_STR + FNA_EXT
+    humanMapD = tempD
 
-        # make the regular fasta file (used to make blast db)
-        __genbankToFna(gbkFN, fullFastaFN)
+    # parse the ANI results into a list of lists
+    aniL = parseCsv(aniFN, delim='\t')
 
-        # make the fragmented fasta (used as blastn queries)
-        __makeFragmentedFnaForAni(gbkFN, fragFastaFN)
+    # the first row contains the headers; all sequence names
+    header = aniL[0]
 
-        # make a blastdb for the regular fasta
-        __makeblastdbFromFna(fullFastaFN, humanName, blastExePath)
+    # initialize the output
+    aniD = dict()
+
+    # for each row in the file (excluding the header)
+    for row in aniL[1:]:
+        # for each column (first column is the sequence name)
+        for idx in range(1,len(row)):
+            # determine the two sequences that are being compared
+            seqA = row[0]
+            seqB = header[idx]
+
+            # use humanMapD to get the human names for each sequence
+            nameA = humanMapD[seqA]
+            nameB = humanMapD[seqB]
+            
+            # save the result as a float in the dictionary
+            aniD[(nameA, nameB)] = float(row[idx])
+    
+    return aniD
 
 
 def __loadHumanMap(humanMapFN:str) -> dict:
@@ -393,74 +331,40 @@ def __loadHumanMap(humanMapFN:str) -> dict:
     return humanMapD
 
 
-def __genbankToFna(genbankFN:str, fastaFN:str) -> None:
-    """ genbankToFna:
-            Accepts two strings as input: one indicating the path to a genbank
-            file and another indicating where to write the nucleotide fasta fi-
-            le (.fna). Converts the genbank into fasta format. Does not return.
+def makeAniHeatmap(paramD:dict, outgroup:Taxonomy) -> None:
+    """ makeAaiHeatmap:
+            Accepts the parameter dictionary and an outgroup as inputs. Calls a
+            custom R-script to generate a heatmap of the ANI values. Does not
+            return.
     """
-    # constants
-    IN_FORMAT = 'genbank'
-    OUT_FORMAT = 'fasta'
+    # extract data from paramD
+    treeFN:str = paramD['speciesTreeFN']
+    aniFN:str = paramD['aniFN']
+    pdfOutFN:str = paramD['aniHeatmapFN']
 
-    # parse the genbank file
-    parsed:SeqIO.InsdcIO.GenBankIterator = SeqIO.parse(genbankFN, IN_FORMAT)
+    __makeHeatmap(outgroup, treeFN, aniFN, pdfOutFN)
 
-    # get all of the records as a list
-    allRecords = list(parsed.records)
-
-    # write the records to specified file
-    SeqIO.write(allRecords, fastaFN, OUT_FORMAT)
-    
-
-def __makeFragmentedFnaForAni(genbankFN:str, fastaFN:str) -> None:
-    """ makeFragmentedFnaForAni:
-            Accepts a string indicating the path to a genbank file and a string
-            indicating where to save the resulting fasta file as inputs. Fragm-
-            ents the genome into 1020bp pieces, and writes a fasta containing
-            these fragments to the specified file. Does not return.
-    """
-    # constants
-    MAX_FRAGMENT_SIZE = 1020  # bp
-    IN_FORMAT = 'genbank'
-    OUT_FORMAT = 'fasta'
-    SEP_1 = '|'
-    SEP_2 = '..'
-
-    # import the genbank into memory
-    parsed:SeqIO.InsdcIO.GenBankIterator = SeqIO.parse(genbankFN, IN_FORMAT)
-
-    # make the fragmented fasta file
-    fragRecords = list()
-    record:SeqIO.SeqRecord
-    for record in parsed.records:
-        # determine the number of iterations for the record
-        numIter = math.ceil(len(record.seq) / MAX_FRAGMENT_SIZE)
-
-        for iter in range(numIter):
-            # determine the sequence boundaries based on the iteration
-            start = iter * MAX_FRAGMENT_SIZE
-            end = start + MAX_FRAGMENT_SIZE
-            
-            # slice the sequence to reflect the boundaries
-            fragSeq = record.seq[start:end]
-
-            # the starting base pair is always 1 larger than 'start'
-            start += 1
-
-            # then end base pair matches except at the end of a sequence
-            if len(fragSeq) < MAX_FRAGMENT_SIZE:
-                end = len(record.seq)
-        
-            # build the new record for the fragment
-            fragRec = SeqIO.SeqRecord(fragSeq)
-            fragRec.id = record.id + SEP_1 + str(start) + SEP_2 + str(end)
-            fragRec.description = ''
-
-            # add the new record to the list
-            fragRecords.append(fragRec)
-
-    # save the fragmented fasta to the specified file
-    SeqIO.write(fragRecords, fastaFN, OUT_FORMAT)
 ###############################################################################
+def __makeHeatmap(outgroup:Taxonomy, treeFN:str, matFN:str, pdfFN:str) -> None:
+    """ makeHeatmap:
+            Accepts an outgroup (Taxonomy) and three strings indicating the pa-
+            ths to the species tree, a similariy matrix (ie. ANI/AAI), and the
+            output pdf file as inputs. Calls a custom R-script to generate a
+            heatmap of the values in the provided matrix. Does not return.
+    """
+    # get the filename of the R script and source it
+    rScript = os.path.join(PHANTASM_DIR, "PHANTASM", "heatmap.R")
+    robjects.r['source'](rScript)
+
+    # create the python function that can call the R function
+    heatmapRunner = robjects.globalenv['heatmapRunner']
+
+    # get the taxon name for the outgroup
+    outgroupTaxonName = _makeTaxonName(outgroup)
+
+    # make the outgroup an R vector
+    outgroupVec = robjects.StrVector([outgroupTaxonName])
+
+    # call the function to generate the heatmap
+    heatmapRunner(treeFN, matFN, outgroupVec, pdfFN)
 
