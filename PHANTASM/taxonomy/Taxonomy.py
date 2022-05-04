@@ -16,7 +16,7 @@ class Taxonomy:
             saved in the object. It is capable of automatically selecting refe-
             rence genomes to use for phylogenomic analyses.
     """
-    ### constant used for comparing ranks to the species-level
+    ### constant used for comparing ranks to the taxonomy floor/ceiling
     SPECIES = TaxRank('species')
     DOMAIN  = TaxRank('domain')
 
@@ -3107,27 +3107,19 @@ class Taxonomy:
         if self.rank != Taxonomy.SPECIES:
             raise Exception(ERR_MSG)
 
-        if self.typeMaterial is not None:
-            # extract the strain name from the assembly
-            strainIsType = False
-            for strains in assSum[STRN_F1][STRN_F2_A]:
-                strain = strains[STRN_F3]
-                
-                # done if a type strain was identified
-                if strain in self.typeMaterial:
-                    strainIsType = True
-                    return str(strain), strainIsType
+        # initialize a boolean
+        strainIsType = False
+
+        # extract the strain name from the assembly
+        allStrainsL = list()
+        for strains in assSum[STRN_F1][STRN_F2_A]:
+            allStrainsL.append(strains[STRN_F3])
+
+        # grab strain from alternate field
+        allStrainsL.append(assSum[STRN_F1][STRN_F2_B])
         
-        # if a type strain was not found
-        if not strainIsType:
-            # grab strain from alternate field and compare it
-            strain = assSum[STRN_F1][STRN_F2_B]
-            if strain in self.typeMaterial:
-                strainIsType = True
-                return str(strain), strainIsType
-            
-        # if still not found
-        if not strainIsType:
+        # if strain data still not found
+        if allStrainsL == []:
             # query NCBI taxonomy for the full entry
             taxRecord = ncbiEfetchById(assSum['Taxid'], 'taxonomy')
 
@@ -3145,14 +3137,24 @@ class Taxonomy:
             for strain in strains:
                 # remove the species name from the front of the str
                 strain = re.sub(self.sciName + ' ', '', strain)
+                allStrainsL.append(strain)
 
-                # check if the strain is type material
+        # if still no strains identified, then do not proceed further
+        if allStrainsL == []:
+            return None, False
+
+        # if there is type material, check if the strains match
+        elif self.typeMaterial is not None:
+            for strain in allStrainsL:
+                # done if a type strain was identified
                 if strain in self.typeMaterial:
                     strainIsType = True
                     return str(strain), strainIsType
         
-        # if we reach this point, then return the null result
-        return None, False
+        
+        # if we reach this point, then return the first strain and False
+        else:
+            return allStrainsL[0], False
 
 
     def _updateAssemblyInfo(self, assSummary:Parser.DictionaryElement) -> None:
