@@ -198,23 +198,26 @@ def __blastFaaAgainstDb(faaFN:str, outFN:str, blastExecutDirPath:str, \
 
 
 ###############################################################################
-def getRelatives(paramD:dict, lpsnD:dict) -> list:
+def getRelatives(oldParamD:dict, newParamD:dict, lpsnD:dict) -> list:
     """ getRelatives:
-            Accepts the parameter dictionary and the LPSN dictionary as inputs.
-            Uses the blastp results for the phylogenetic marker to determine
-            which species should be used for downstream phylogenomic analyses.
-            Returns a list of the selected species.
+            Accepts the old and new parameter dictionaries and the LPSN dictio-
+            nary as inputs. Uses the blastp results for the phylogenetic marker
+            to determine which species should be used for downstream phylogeno-
+            mic analyses. Returns a list of the selected species.
     """
-    # extract relevant data from paramD
-    taxFN = glob.glob(paramD['taxonomyObjectFilePath']).pop()
-    blastFN = paramD['blastpResultFN']
-    maxNumSeqs = paramD['maxNumTreeLeaves'] - 2  # query + outgroup = 2 seqs
+
+    # extract relevant data from parameter dictionaries
+    oldTaxFN = glob.glob(oldParamD['taxonomyObjectFilePath']).pop()
+    blastFN = oldParamD['blastpResultFN']
+    maxNumSeqs = oldParamD['maxNumTreeLeaves'] - 2  # query + outgroup = 2 seqs
+    newTaxDir = os.path.dirname(newParamD['taxonomyObjectFilePath'])
+    newTaxExt = os.path.splitext(newParamD['taxonomyObjectFilePath'])[1]
 
     # set entrez email
-    Entrez.email = paramD['email']
+    Entrez.email = oldParamD['email']
 
     # load the taxonomy object from file
-    taxO = Taxonomy.load(taxFN)
+    taxO = Taxonomy.load(oldTaxFN)
 
     # extract the assembly and blastp data from the blast file
     assemblyData:tuple = __findMissingAssemblies(blastFN, taxO, lpsnD)
@@ -265,8 +268,10 @@ def getRelatives(paramD:dict, lpsnD:dict) -> list:
             assembly:dict = assembliesD[assmId]
             speciesO._updateAssemblyInfo(assembly['summary'])
 
-    # overwrite the taxonomy file with the new taxonomy
-    taxO.save(taxFN)
+    # save a taxonomy file with the new taxonomy
+    taxO = taxO.getRoot()
+    newTaxFN = os.path.join(newTaxDir, taxO.sciName + newTaxExt)
+    taxO.save(newTaxFN)
 
     # get the unique genera with their min and max bitscores
     uniqueGeneraD = __getUniqueGeneraFromAssembliesD(assembliesD, lpsnD)
@@ -749,7 +754,7 @@ def xenogiInterfacer_2(queryGbff:str, oldParamD:dict, newParamD:dict, \
     DONE = 'Done.'
 
     # extract relevant data from the parameter dictionaries
-    taxObjectFilePath = oldParamD['taxonomyObjectFilePath']
+    taxObjectFilePath = newParamD['taxonomyObjectFilePath']
     oldGenbankFilePath = oldParamD['genbankFilePath']
     newGenbankFilePath = newParamD['genbankFilePath']
     newWorkDir = newParamD['workdir']
@@ -761,17 +766,24 @@ def xenogiInterfacer_2(queryGbff:str, oldParamD:dict, newParamD:dict, \
 
     # get the new relatives based on phylogenetic marker blastp
     print(PRINT_1, end='', flush=True)
-    speciesL = getRelatives(oldParamD, lpsnD)
+    speciesL = getRelatives(oldParamD, newParamD, lpsnD)
     print(DONE)
 
-    # load the taxonomy object
+    # load the taxonomy object created by getRelatives
     taxFN = glob.glob(taxObjectFilePath).pop()
     taxO = Taxonomy.load(taxFN)
 
     # add the outgroup to the list
+    taxO:Taxonomy
     outgroup:Taxonomy
     taxO, outgroup = taxO._pickOutgroup(lpsnD)
     speciesL.append(outgroup)
+
+    # save the modified taxonomy object and remove previously loaded version
+    dir = os.path.dirname(taxObjectFilePath)
+    ext = os.path.splitext(taxObjectFilePath)[1]
+    os.remove(taxFN)
+    taxO.save(os.path.join(dir, taxO.getRoot().sciName + ext))
 
     # initialize variables to populate while looping
     fileToSpeD = dict()
@@ -818,7 +830,7 @@ def xenogiInterfacer_2(queryGbff:str, oldParamD:dict, newParamD:dict, \
         taxon:Taxonomy = fileToSpeD[filename]
 
         # add the human map string data to the growing string
-        humanMapStr +=  __makeHumanMapString(taxon, filename)
+        humanMapStr +=  _makeHumanMapString(taxon, filename)
 
         # make a symlink for the existing file
         oldFN = os.path.join(oldGbkDir, filename)
@@ -831,7 +843,7 @@ def xenogiInterfacer_2(queryGbff:str, oldParamD:dict, newParamD:dict, \
     os.symlink(oldFN, newFN)
 
     # add the user input to the human map string
-    humanMapStr += __makeHumanMapString(QUERY_STR, os.path.basename(queryGbff))
+    humanMapStr += _makeHumanMapString(QUERY_STR, os.path.basename(queryGbff))
     
     # make a list of species objects that still need to be downloaded
     speciesL = list()
