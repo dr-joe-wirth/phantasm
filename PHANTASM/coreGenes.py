@@ -26,11 +26,24 @@ def xenogiInterfacer_1(taxO:Taxonomy, queryGbff:str, paramD:dict) -> Taxonomy:
     # extract relevant data from paramD
     gbffFN = paramD['genbankFilePath']
     humanMapFN = paramD['fileNameMapFN']
-
+    taxObjFilePath = paramD['taxonomyObjectFilePath']
+    
+    # determine the directory for the gbff file
     gbffDir = os.path.dirname(gbffFN)
 
     # identify and download gbff files from NCBI
     outgroup:Taxonomy = downloadGbffsForRootTaxonomy(taxO, paramD)
+
+    # determine paths to taxonomy files and the extensions
+    oldTaxFN = glob.glob(taxObjFilePath).pop()
+    dir = os.path.dirname(taxObjFilePath)
+    ext = os.path.splitext(taxObjFilePath)[1]
+
+    # save and replace existing taxonomy file
+    taxO = taxO.getRoot()
+    newTaxFN = os.path.join(dir, taxO.sciName + ext)
+    os.remove(oldTaxFN)
+    taxO.save(newTaxFN)
 
     # make a symlink to the user's input file
     oldFN = os.path.abspath(queryGbff)
