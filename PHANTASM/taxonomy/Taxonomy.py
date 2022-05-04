@@ -3107,9 +3107,6 @@ class Taxonomy:
         if self.rank != Taxonomy.SPECIES:
             raise Exception(ERR_MSG)
 
-        # initialize a boolean
-        strainIsType = False
-
         # extract the strain name from the assembly
         allStrainsL = list()
         for strains in assSum[STRN_F1][STRN_F2_A]:
@@ -3151,10 +3148,8 @@ class Taxonomy:
                     strainIsType = True
                     return str(strain), strainIsType
         
-        
         # if we reach this point, then return the first strain and False
-        else:
-            return allStrainsL[0], False
+        return allStrainsL[0], False
 
 
     def _updateAssemblyInfo(self, assSummary:Parser.DictionaryElement) -> None:
