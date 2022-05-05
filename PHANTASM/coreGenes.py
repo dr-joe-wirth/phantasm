@@ -217,7 +217,8 @@ def __updateQuerySubjectNames(existingFile:str, newFile:str, \
     """
     # constants
     DELIM = "\t"
-    GREP_FIND = r"^\d+_[^-]+-(\S+)$"
+    GREP_FIND_1 = r'^\d+_[^\|]+\|[^\|]+\|[^-]+-(\S+)$'
+    GREP_FIND_2 = r"^\d+_[^-]+-(\S+)$"
     GREP_REPL = r"\1"
     QRY_COL = 0
     SBJ_COL = 1
@@ -234,8 +235,16 @@ def __updateQuerySubjectNames(existingFile:str, newFile:str, \
     # for each row in the blast table ...
     for row in oldReader:
         # ... extract the locus tag for the subject and the query
-        locusTag_qry = re.sub(GREP_FIND, GREP_REPL, row[QRY_COL])
-        locusTag_sbj = re.sub(GREP_FIND, GREP_REPL, row[SBJ_COL])
+        locusTag_qry = re.sub(GREP_FIND_1, GREP_REPL, row[QRY_COL])
+        locusTag_sbj = re.sub(GREP_FIND_1, GREP_REPL, row[SBJ_COL])
+
+        # if grep didn't work for query (eg user_input), then try GREP_FIND_2
+        if locusTag_qry == row[QRY_COL]:
+            locusTag_qry = re.sub(GREP_FIND_2, GREP_REPL, row[QRY_COL])
+        
+        # if grep didn't work for subject (eg user_input), then try GREP_FIND_2
+        if locusTag_sbj == row[SBJ_COL]:
+            locusTag_sbj = re.sub(GREP_FIND_2, GREP_REPL, row[SBJ_COL])
 
         # ... replace the query and subject names with the new names
         row[QRY_COL] = locusTagToNewNameD[locusTag_qry]
