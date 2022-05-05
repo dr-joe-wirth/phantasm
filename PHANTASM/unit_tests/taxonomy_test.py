@@ -357,9 +357,6 @@ class TestTaxonomy(unittest.TestCase):
                 
                 # ... ensure that the accession number matches the ftp path
                 self.assertIn(speO.assemblyAccn, speO.assemblyFtp)
-            
-                # ... ensure that the coverage is > 0
-                self.assertGreater(speO.assCoverage, 0)
 
     def typeMaterialTestSuite(self, taxO:Taxonomy) -> None:
         """ typeMaterialTestSuite:
