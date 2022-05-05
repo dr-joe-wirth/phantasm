@@ -2298,8 +2298,9 @@ class Taxonomy:
                 # ... set 'ncbiNameIsCorrect' to false
                 sibling.ncbiNameIsCorrect = False
 
-                # ... mark the name as invalid
-                sibling.sciName = '"' + sibling.sciName + INVALID_STR
+                # ... mark the name as invalid (unless it is already marked)
+                if INVALID_STR not in sibling.sciName:
+                    sibling.sciName = '"' + sibling.sciName + INVALID_STR
 
 
     def __updateStructureByLpsn(self, lpsnD:dict, removeEmpties:bool) -> None:
