@@ -3170,10 +3170,15 @@ class Taxonomy:
         isComp = assSummary[STATUS]  == COMPLETE
         isRef  = assSummary[REF_SEQ] == REF_GEN
         cover  = Taxonomy.__coverageToFloat(assSummary[COVERAGE])
+        strain, strainIsType = self.__getStrainDataFromSummary(assSummary)
         
         # save the assembly info if nothing to overwrite
         if len(self.allAssIds) == 0:
-            self.__populateAssemblyVars(assSummary)    
+            self.__populateAssemblyVars(assSummary)
+        
+        # save if a type assembly can replace a nontype assembly
+        elif not self.assemblyFromType and strainIsType:
+            self.__populateAssemblyVars(assSummary)
         
         # save if a complete genome can replace a draft
         elif not self.assIsComplete and isComp:
@@ -3357,8 +3362,12 @@ class Taxonomy:
         root = self.getRoot()
 
         # protect against a discarded taxO (can happen to synonyms)
-        taxO = root.getDescendantByTaxId(self.taxid, resolveSynonym=True)
+        if self.parent is not None:
+            parent = root.getDescendantByTaxId(self.parent.taxid)
+            parent._importDirectDescendant(self)
         
+        taxO = root.getDescendantByTaxId(self.taxid, resolveSynonym=True)
+
         return taxO, outgroup
 
 
@@ -3732,12 +3741,11 @@ class Taxonomy:
         ingroupSpecies:list
         ingroupHigherTaxa:list
         ingroupSpecies, ingroupHigherTaxa = \
-            Taxonomy.__unpackIngroupRaw(ingroupRaw)
+                                        Taxonomy.__unpackIngroupRaw(ingroupRaw)
 
         # redistribute the surplus to the remaining candidates
         Taxonomy.__redistributeSurplusToCandidates(ingroupSpecies, \
-                                                   ingroupHigherTaxa, \
-                                                   candidates)
+                                                 ingroupHigherTaxa, candidates)
 
         # check that all ingroup species are unique
         if len(ingroupSpecies) != len(set(ingroupSpecies)):
