@@ -6,18 +6,19 @@ from Bio import SeqIO
 from param import XENOGI_DIR, PHANTASM_DIR
 sys.path.insert(0,os.path.join(sys.path[0],XENOGI_DIR))
 import xenoGI.xenoGI, xenoGI.analysis
+from PHANTASM.Parameter import Parameters
 from PHANTASM.utilities import parseCsv
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
 from PHANTASM.downloadGbff import _makeTaxonName
 
 
 ###############################################################################
-def overallGenomeRelatedIndices(paramD:dict) -> None:
+def overallGenomeRelatedIndices(paramO:Parameters) -> None:
     """ overallGenomeRelatedIndices:
-            Accepts the parameter dictionary as input. Calculates the average
-            amino-acid identity (AAI) and the average nucleotide identity (ANI)
-            for the data-set specified in the parameter dictionary. Writes the
-            results to file. Does not return.
+            Accepts a Parameters object as input. Calculates the average amino-
+            acid identity (AAI) and the average nucleotide identity (ANI) for
+            the data-set specified in the Parameters object. Writes the results
+            to file. Does not return.
     """
     # constants
     INDENT  = ' '*4
@@ -26,13 +27,13 @@ def overallGenomeRelatedIndices(paramD:dict) -> None:
     PRINT_2 = 'Calculating average nucleotide identity (ANI) ... '
     DONE = 'Done.'
 
-    # extract relevant data from paramD
-    aaiFN = paramD['aaiFN']
-    aniFN = paramD['aniFN']
+    # extract relevant data from paramO
+    aaiFN = paramO.aaiFN
+    aniFN = paramO.aniFN
 
     # calculate AAI
     print(PRINT_1, end='', flush=True)
-    aaiD = _calculateAAI(paramD)
+    aaiD = _calculateAAI(paramO)
     print(DONE)
 
     # save the result to file
@@ -41,7 +42,7 @@ def overallGenomeRelatedIndices(paramD:dict) -> None:
 
     # calculate ANI
     print(PRINT_2, end='', flush=True)
-    aniD = _calculateANI(paramD)
+    aniD = _calculateANI(paramO)
     print(DONE)
 
     # save the result to file
@@ -109,18 +110,18 @@ def __saveOgriMatrix(ogriD:dict, filename:str) -> None:
 
 
 ###############################################################################
-def _calculateAAI(paramD:dict) -> dict:
+def _calculateAAI(paramO:Parameters) -> dict:
     """ calculateAAI:
-            Accepts the parameter dictionary as input. Uses xenoGI's amino acid
-            identity calculator. Returns a dictionary whose keys are tuples co-
-            ntaining pairs of species names and whose values are the AAI for 
-            the pair.
+            Accepts Parameters object as input. Uses xenoGI's amino acid ident-
+            ity calculator. Returns a dictionary whose keys are tuples contain-
+            ing pairs of species names and whose values are the AAI for the sp-
+            ecified pair.
     """
-    # extract relevant data from paramD
-    humanMapFN:str = paramD['fileNameMapFN']
-    blastJoinStr:str = paramD['blastFileJoinStr']
-    evalThresh:str = paramD['evalueThresh']
-    blastFilePath:str = paramD['blastFilePath']
+    # extract relevant data from paramO
+    humanMapFN:str = paramO.fileNameMapFN
+    blastJoinStr:str = paramO.blastFileJoinStr
+    evalThresh:str = paramO.evalueThresh
+    blastFilePath:str = paramO.blastFilePath
 
     # get a list of strain names from the human map file
     humanMapD  = __loadHumanMap(humanMapFN)
@@ -137,16 +138,15 @@ def _calculateAAI(paramD:dict) -> dict:
                                              evalThresh)
 
 
-def makeAaiHeatmap(paramD:dict, outgroup:Taxonomy) -> None:
+def makeAaiHeatmap(paramO:Parameters, outgroup:Taxonomy) -> None:
     """ makeAaiHeatmap:
-            Accepts the parameter dictionary and an outgroup as inputs. Calls a
-            custom R-script to generate a heatmap of the AAI values. Does not
-            return.
+            Accepts a Parameters object and an outgroup (Taxonomy) as inputs.
+            Creates a heatmap of average amino acid identity. Does not return.
     """
     # extract data from paramD
-    treeFN:str = paramD['speciesTreeFN']
-    aaiFN:str = paramD['aaiFN']
-    pdfOutFN:str = paramD['aaiHeatmapFN']
+    treeFN:str = paramO.speciesTreeFN
+    aaiFN:str = paramO.aaiFN
+    pdfOutFN:str = paramO.aaiHeatmapFN
 
     __makeHeatmap(outgroup, treeFN, aaiFN, pdfOutFN)
 
@@ -154,34 +154,33 @@ def makeAaiHeatmap(paramD:dict, outgroup:Taxonomy) -> None:
 
 
 ###############################################################################
-
-def _calculateANI(paramD:dict) -> dict:
+def _calculateANI(paramO:Parameters) -> dict:
     """ calculateANI:
-            Accepts the parameter dictionary as input. Uses pyani's average nu-
-            cleotide calculator. Returns a dictionary whose keys are tuples co-
-            ntaining pairs of species names and whose values are the ANI for 
-            the pair.
+            Accepts a Parameters object as input. Uses pyani's average nucleot-
+            ide calculator. Returns a dictionary whose keys are tuples contain-
+            ing pairs of species names and whose values are the ANI for the sp-
+            ecified pair.
     """
     # prepare all files needed to pyani to run
-    fnaDir = __aniPrep(paramD)
+    fnaDir = __aniPrep(paramO)
 
     # calculate and return ani
-    return __aniRunner(fnaDir, paramD)
+    return __aniRunner(fnaDir, paramO)
     
 
-def __aniPrep(paramD:dict) -> str:
+def __aniPrep(paramO:Parameters) -> str:
     """ aniPrep:
-            Accepts the parameter dictionary as input. Creates the ANI working
-            directory and makes a nucleotide fasta for each whole genome seque-
-            nce. Returns a string indicating the directory containing the newly
-            created fasta files.
+            Accepts a Parameters object as input. Creates the ANI working dire-
+            ctory and makes a nucleotide fasta for each whole genome sequence.
+            Returns a string indicating the directory containing the newly cre-
+            ated fasta files.
     """
     # constants
     FNA_EXT = ".fna"
 
-    # extract necessary data from paramD
-    gbFilePath = paramD['genbankFilePath']
-    aniDir = paramD['aniWorkDir']
+    # extract necessary data from paramO
+    gbFilePath = paramO.genbankFilePath
+    aniDir = paramO.aniWorkDir
 
     # make the ani directory if it does not exist
     if not os.path.exists(aniDir):
@@ -230,22 +229,22 @@ def __genbankToFna(genbankFN:str, fastaFN:str) -> None:
     SeqIO.write(allRecords, fastaFN, OUT_FORMAT)
 
 
-def __aniRunner(fnaDir:str, paramD:dict) -> dict:
+def __aniRunner(fnaDir:str, paramO:Parameters) -> dict:
     """ aniRunner:
             Accepts a string indicating the directory containing the nucleotide
-            fasta files and the parameter dictionary as inputs. Uses pyani to
-            calculate the average nucleotide identities for all genomes in the
-            provided directory. Returns a dictionary whose keys are pairs of
-            species and whose values are the ANI scores for that pair.
+            fasta files and a Parameters object as inputs. Uses pyani to calcu-
+            late the average nucleotide identities for all genomes in the prov-
+            ided directory. Returns a dictionary whose keys are pairs of speci-
+            es and whose values are the ANI scores for that pair.
     """
     # constants
     PYANI_O = "pyani"
     OUTFILE = "ANIb_percentage_identity.tab"
 
     # extract necessary data from paramD
-    aniDir = paramD['aniWorkDir']
-    numThreads = paramD['numProcesses']
-    humanMapFN = paramD['fileNameMapFN']
+    aniDir = paramO.aniWorkDir
+    numThreads = paramO.numProcesses
+    humanMapFN = paramO.fileNameMapFN
 
     # determine the path for pyani's output
     outDir = os.path.join(aniDir, PYANI_O)
@@ -331,16 +330,15 @@ def __loadHumanMap(humanMapFN:str) -> dict:
     return humanMapD
 
 
-def makeAniHeatmap(paramD:dict, outgroup:Taxonomy) -> None:
+def makeAniHeatmap(paramO:Parameters, outgroup:Taxonomy) -> None:
     """ makeAaiHeatmap:
-            Accepts the parameter dictionary and an outgroup as inputs. Calls a
-            custom R-script to generate a heatmap of the ANI values. Does not
-            return.
+            Accepts a Parameters object and an outgroup (Taxonomy) as inputs.
+            Creates a heatmap of average nucleotide identity. Does not return.
     """
     # extract data from paramD
-    treeFN:str = paramD['speciesTreeFN']
-    aniFN:str = paramD['aniFN']
-    pdfOutFN:str = paramD['aniHeatmapFN']
+    treeFN:str = paramO.speciesTreeFN
+    aniFN:str = paramO.aniFN
+    pdfOutFN:str = paramO.aniHeatmapFN
 
     __makeHeatmap(outgroup, treeFN, aniFN, pdfOutFN)
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 import sys, os, re, glob, scipy.stats, csv, subprocess
 from PHANTASM.utilities import parseCsv
+from PHANTASM.Parameter import Parameters
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from PHANTASM.downloadGbff import downloadGbffsForRootTaxonomy, _makeHumanMapString, _makeTaxonName
@@ -12,27 +13,25 @@ sys.path.insert(0,os.path.join(sys.path[0], XENOGI_DIR))
 import xenoGI.xenoGI, xenoGI.scores, xenoGI.Tree, xenoGI.genomes, xenoGI.trees
 
 
-def xenogiInterfacer_1(taxO:Taxonomy, queryGbff:str, paramD:dict) -> Taxonomy:
+def xenogiInterfacer_1(taxO:Taxonomy, allQryGbksL:list, paramsO:Parameters) -> Taxonomy:
     """ xenogiInterfacer_1:
-            Accepts a Taxonomy object, a string indicating the path to the qu-
-            ery genbank, and the parameter dictionary as inputs. Downloads the
-            ingroup and outgroup sequences and puts them into a file structure
-            that is expected by xenoGI. Creates the human map file required by 
-            xenoGI. Returns the outgroup species as a Taxonomy object
+            Accepts a Taxonomy object, a list of paths (str) to the query genb-
+            ank files, and a Parameters object as inputs. Downloads the ingroup
+            and outgroup sequences and puts them into a file structure that is
+            expected by xenoGI. Creates the human map file required by xenoGI.
+            Returns the outgroup species as a Taxonomy object.
     """
-    # constants
-    USER_INPUT = "user_input"
-
     # extract relevant data from paramD
-    gbffFN = paramD['genbankFilePath']
-    humanMapFN = paramD['fileNameMapFN']
-    taxObjFilePath = paramD['taxonomyObjectFilePath']
+    gbffFN = paramsO.genbankFilePath
+    humanMapFN = paramsO.fileNameMapFN
+    taxObjFilePath = paramsO.taxonomyObjectFilePath
+    maxNumSeqs = paramsO.maxNumTreeLeaves - len(allQryGbksL) - 1 # outgroup
     
     # determine the directory for the gbff file
     gbffDir = os.path.dirname(gbffFN)
 
     # identify and download gbff files from NCBI
-    outgroup:Taxonomy = downloadGbffsForRootTaxonomy(taxO, paramD)
+    outgroup:Taxonomy = downloadGbffsForRootTaxonomy(taxO, maxNumSeqs, paramsO)
 
     # determine paths to taxonomy files and the extensions
     oldTaxFN = glob.glob(taxObjFilePath).pop()
@@ -45,16 +44,20 @@ def xenogiInterfacer_1(taxO:Taxonomy, queryGbff:str, paramD:dict) -> Taxonomy:
     os.remove(oldTaxFN)
     taxO.save(newTaxFN)
 
-    # make a symlink to the user's input file
-    oldFN = os.path.abspath(queryGbff)
-    newFN = os.path.join(gbffDir, os.path.basename(queryGbff))
-    os.symlink(oldFN, newFN)
+    # for each query genome in the list
+    for queryGbff in allQryGbksL:
+        # make a symlink to the user's input file
+        oldFN = os.path.abspath(queryGbff)
+        newFN = os.path.join(gbffDir, os.path.basename(queryGbff))
+        os.symlink(oldFN, newFN)
 
-    # add the query to the human map file
-    humanMapStr = _makeHumanMapString(USER_INPUT, os.path.basename(queryGbff))
-    filehandle = open(humanMapFN, "a")
-    filehandle.write(humanMapStr)
-    filehandle.close()
+        # add the query to the human map file
+        basename = os.path.basename(queryGbff)
+        noext = os.path.splitext(basename)[0]
+        humanMapStr = _makeHumanMapString(noext, basename)
+        filehandle = open(humanMapFN, "a")
+        filehandle.write(humanMapStr)
+        filehandle.close()
 
     return outgroup
 
@@ -88,12 +91,12 @@ def allVsAllBlast(paramD:dict) -> None:
     print(DONE)
 
 
-def copyExistingBlastFiles(oldParamD:dict, newParamD:dict) -> None:
+def copyExistingBlastFiles(oldParamO:Parameters, newParamO:Parameters) -> None:
     """ copyExistingBlastFiles:
-            Accepts two parameter dictionaries as inputs. Identifies any exist-
-            ing blast tables that could be used in the new folder. Creates mod-
-            ified files that are equivalent to the original but have replaced
-            the old gene number with the new gene number. Does not return. 
+            Accepts two Parameters objects as inputs. Identifies any existing
+            blast tables that could be used in the new folder. Creates modifi-
+            ed files that are equivalent to the original but have replaced the
+            old gene number with the new gene number. Does not return.
     """
     # constants
     PRINT = "Copying existing blastp comparisons ... "
@@ -103,17 +106,17 @@ def copyExistingBlastFiles(oldParamD:dict, newParamD:dict) -> None:
     print(PRINT, end='', flush=True)
 
     # extract the new blast directory from newParamD
-    newBlastDir = os.path.splitext(newParamD['blastFilePath'])[0][:-1]
+    newBlastDir = os.path.splitext(newParamO.blastFilePath)[0][:-1]
 
     # create the new blast directory (if it doesn't already exist)
     if glob.glob(newBlastDir) == []:
         os.mkdir(newBlastDir)
 
     # determine which blastp tables need to be made
-    filesToCopyD = __getBlastFilesToCopy(oldParamD, newParamD)
+    filesToCopyD = __getBlastFilesToCopy(oldParamO, newParamO)
 
     # get a dictionary to link locus tags to their new names
-    locusTagToNewNameD = __getLocusTagToNameD(newParamD)
+    locusTagToNewNameD = __getLocusTagToNameD(newParamO)
 
     # for each file to copy
     for oldFilename in filesToCopyD:
@@ -127,9 +130,9 @@ def copyExistingBlastFiles(oldParamD:dict, newParamD:dict) -> None:
     print(DONE)
 
 
-def __getBlastFilesToCopy(oldParamD, newParamD) -> dict:
+def __getBlastFilesToCopy(oldParamO:Parameters, newParamO:Parameters) -> dict:
     """ getBlastFilesToCopy:
-            Accepts the old and new parameter dictionarys as inputs. Determines
+            Accepts the old and new Parameters objects as inputs. Determines
             which blastp comparisons have already been performed. Creates a di-
             ctionary where the key is the path to the existing blastp files and
             the value is the path where the existing file should be copied. Re-
@@ -139,12 +142,12 @@ def __getBlastFilesToCopy(oldParamD, newParamD) -> dict:
     DELIM = "\t"
 
     # extract relevant data from oldParamD
-    oldBlastPath = oldParamD['blastFilePath'] # path/*
+    oldBlastPath = oldParamO.blastFilePath # path/*
 
     # extract relevant data from newParamD
-    blastJoin = newParamD['blastFileJoinStr']
-    wgsMapFN = newParamD['fileNameMapFN']
-    blastSplt = os.path.splitext(newParamD['blastFilePath'])
+    blastJoin = newParamO.blastFileJoinStr
+    wgsMapFN = newParamO.fileNameMapFN
+    blastSplt = os.path.splitext(newParamO.blastFilePath)
 
     # get the blast file extension and the new blast dicrectory
     blastExt =  blastSplt[1]
@@ -182,20 +185,21 @@ def __getBlastFilesToCopy(oldParamD, newParamD) -> dict:
     return filesToCopyD
 
 
-def __getLocusTagToNameD(paramD:dict) -> dict:
+def __getLocusTagToNameD(paramO:Parameters) -> dict:
     """ getLocusTagToNameD:
-            Accecpts a parameter dictionary as input. Uses genesO.geneInfoD to
-            create a new dictionary keyed by locus tag with the gene blast str-
-            ing as the value (eg. "999_Methanosarcina_acetivorans-MA_RS05270").
-            Returns the newly created dictionary.
+            Accecpts a Parameters object as input. Uses genesO.geneInfoD to cr-
+            eate a new dictionary keyed by locus tag with the gene blast string
+            as the value (eg. "999_Methanosarcina_acetivorans-MA_RS05270"). Re-
+            turns the newly created dictionary.
     """
     # constants
     LOCUS_TAG_IDX  = 2
     BLAST_NAME_IDX = 0
 
     # get the genesO object for the new folder and initialize its geneInfoD
-    newGenesO = xenoGI.xenoGI.loadGenomeRelatedData(paramD)[1] # genesO object 
-    newGenesO.initializeGeneInfoD(paramD['geneInfoFN'])
+    paramD = paramO.toDict()
+    newGenesO = xenoGI.xenoGI.loadGenomeRelatedData(paramD)[1] # genesO object
+    newGenesO.initializeGeneInfoD(paramO.geneInfoFN)
 
     # create a new dictionary: key = locus_tag, val = blast name
     locusTagToNameD = dict()
@@ -258,25 +262,29 @@ def __updateQuerySubjectNames(existingFile:str, newFile:str, \
     newHandle.close()
 
 
-def calculateCoreGenes(paramD) -> None:
+def calculateCoreGenes(paramO:Parameters) -> None:
     """ calculateCoreGenes:
-            Accepts the parameter dictionary as input. Calculates the hardcore
-            genes via the 'createAabrhL' function from xenoGI. Does not return.
+            Accepts a Parameters object as input. Calculates the hardcore genes
+            via the 'createAabrhL' function from xenoGI. Does not return.
     """
+    # constants
+    PRINT_1 = 'Calculating core genes ... '
+    DONE = 'Done.'
+
     # parse parameters into shorter variable names
-    strainInfoFN = paramD['strainInfoFN']
-    blastFileJoinStr = paramD['blastFileJoinStr']
-    blastDir,blastExt = paramD['blastFilePath'].split("*")
-    evalueThresh = paramD['evalueThresh']
-    alignCoverThresh = paramD['alignCoverThresh']
-    percIdentThresh = paramD['percIdentThresh']
-    aabrhFN = paramD['aabrhFN']
+    strainInfoFN = paramO.strainInfoFN
+    blastFileJoinStr = paramO.blastFileJoinStr
+    blastDir,blastExt = paramO.blastFilePath.split("*")
+    evalueThresh = paramO.evalueThresh
+    alignCoverThresh = paramO.alignCoverThresh
+    percIdentThresh = paramO.percIdentThresh
+    aabrhFN = paramO.aabrhFN
 
     # read the strain info into a list
     strainNamesL = xenoGI.xenoGI.readStrainInfoFN(strainInfoFN)
 
     # determine the all-against-all best reciprocal hits (hardcore genes)
-    print('Calculating core genes ... ', end='', flush=True)
+    print(PRINT_1, end='', flush=True)
     xenoGI.scores.createAabrhL(strainNamesL,
                                blastFileJoinStr,
                                blastDir,
@@ -285,15 +293,15 @@ def calculateCoreGenes(paramD) -> None:
                                alignCoverThresh,
                                percIdentThresh,
                                aabrhFN)
-    print('Done.')
+    print(DONE)
 
 
-def makeSpeciesTree(paramD:dict, outgroup:Taxonomy) -> None:
+def makeSpeciesTree(paramO:Parameters, outgroup:Taxonomy) -> None:
     """ makeSpeciesTree:
-            Accepts the parameters dictionary and an outgroup (Taxonomy) as in-
-            puts. Uses xenoGI to make a species tree, and then builds another
-            tree based on the concatenated alignments of the hardcore genes and
-            roots the tree on the specified outgroup. Does not return.
+            Accepts a Parameters object and an outgroup (Taxonomy) as inputs.
+            Uses xenoGI to make a species tree, and then builds another tree b-
+            ased on the concatenated alignments of the hardcore genes and roots
+            the tree on the specified outgroup. Does not return.
     """
     # constants
     PRINT_1 = 'Aligning core genes and making gene trees ... '
@@ -303,16 +311,16 @@ def makeSpeciesTree(paramD:dict, outgroup:Taxonomy) -> None:
 
     # align hardcore genes and build gene trees with fasttree
     print(PRINT_1, end='', flush=True)
-    __makeGeneTreesWrapper(paramD)
+    __makeGeneTreesWrapper(paramO)
     print(DONE)
     
-    # parse data from paramD
-    speTreWorkDir = paramD['makeSpeciesTreeWorkingDir']
-    catAlnFN = paramD['concatenatedAlignmentFN']
-    keyFN = paramD['famToGeneKeyFN']
-    wgsFN = paramD['fileNameMapFN']
-    fastTree = paramD['fastTreePath']
-    speTreeFN = paramD['speciesTreeFN']
+    # parse data from paramO
+    speTreWorkDir = paramO.makeSpeciesTreeWorkingDir
+    catAlnFN = paramO.concatenatedAlignmentFN
+    keyFN = paramO.famToGeneKeyFN
+    wgsFN = paramO.fileNameMapFN
+    fastTree = paramO.fastTreePath
+    speTreeFN = paramO.speciesTreeFN
 
     # concatenate the alignments
     __concatenateAlignments(speTreWorkDir, catAlnFN, keyFN, wgsFN)
@@ -331,26 +339,32 @@ def makeSpeciesTree(paramD:dict, outgroup:Taxonomy) -> None:
     print(DONE)
 
     # print summary for the concatenated alignment
-    __printSummary(paramD)
+    __printSummary(paramO)
 
 
-def __makeGeneTreesWrapper(paramD) -> None:
+def __makeGeneTreesWrapper(paramO:Parameters) -> None:
     """ makeGeneTreeWrapper:
-            Accepts the parameter dictionary as input. Uses xenoGI to make a
-            tree for each core gene identified. Does not return.
+            Accepts a Parameters object as input. Uses xenoGI to make a tree
+            for each core gene identified. Does not return.
     """
+    # extract necessary data from paramO
+    aabrhFN = paramO.aabrhFN
+    workDir = paramO.makeSpeciesTreeWorkingDir
+    gtFileStem = paramO.aabrhHardCoreGeneTreeFileStem
+
+    # make parameter dictionary for xenoGI
+    paramD = paramO.toDict()
+
     # load genesO and aarbHardCoreL using xenoGI
-    strainNamesT,genesO,geneOrderD = xenoGI.xenoGI.loadGenomeRelatedData(paramD)
-    aabrhHardCoreL = xenoGI.scores.loadOrthos(paramD['aabrhFN'])
+    genesO = xenoGI.xenoGI.loadGenomeRelatedData(paramD)[1]
+    aabrhHardCoreL = xenoGI.scores.loadOrthos(aabrhFN)
 
     ## set up
     # create work dir if it doesn't already exist
-    workDir = paramD['makeSpeciesTreeWorkingDir']
     if glob.glob(workDir)==[]:
         os.mkdir(workDir)
 
     # get the pattern for identifying gene trees
-    gtFileStem = paramD['aabrhHardCoreGeneTreeFileStem']
     allGtFilePath = os.path.join(workDir,gtFileStem+'*.tre')
    
     # delete any pre-existing hard core gene trees
@@ -364,10 +378,16 @@ def __makeGeneTreesWrapper(paramD) -> None:
         newAabrhHardCoreL.append((orthoNum,orthoT))
     
     # make the gene trees
-    xenoGI.trees.makeGeneTrees(paramD,True,genesO,workDir,gtFileStem,newAabrhHardCoreL)
+    xenoGI.trees.makeGeneTrees(paramD,
+                               True,
+                               genesO,
+                               workDir,
+                               gtFileStem,
+                               newAabrhHardCoreL)
 
 
-def __concatenateAlignments(speciesTreeWorkDir:str, alnOutFN:str, keyFN:str, wgsMapFN:str) -> None:
+def __concatenateAlignments(speciesTreeWorkDir:str, alnOutFN:str, keyFN:str, \
+                                                         wgsMapFN:str) -> None:
     """ concatenateAlignments:
             Accepts a string indicating the make species tree working director-
             y, a string indicating the output filename, a string indicating the
@@ -455,11 +475,11 @@ def __concatenateAlignments(speciesTreeWorkDir:str, alnOutFN:str, keyFN:str, wgs
     SeqIO.write(allConcatenatedRecords, alnOutFN, FORMAT)
 
 
-def __printSummary(paramD:dict) -> None:
+def __printSummary(paramO:Parameters) -> None:
     """ printSummary:
-            Accepts the parameter dictionary as input. Prints the number of co-
-            re genes used to generate the alignment and and the sequence length
-            of each concatenated alignment. Does not return.
+            Accepts a Parameters object as input. Prints the number of core ge-
+            nes used to generate the alignment and and the sequence length of
+            each concatenated alignment. Does not return.
     """
     # constants
     GAP = " " * 4
@@ -467,25 +487,25 @@ def __printSummary(paramD:dict) -> None:
     PRINT_2 = GAP + "Sequence length for each concatenated alignment: "
 
     # extract data on the alignment
-    numCoreGenes, lenAlignment = __getSummary(paramD)
+    numCoreGenes, lenAlignment = __getSummary(paramO)
 
     # print the data
     print(PRINT_1 + str(numCoreGenes))
     print(PRINT_2 + str(lenAlignment))
 
 
-def __getSummary(paramD:dict) -> tuple:
+def __getSummary(paramO:Parameters) -> tuple:
     """ getSummary:
-            Accepts the parameter dictionary as input. Uses existing files to
-            determine the number of core genes used to construct the concatena-
-            ted alignment and the sequence length of each individual alignment.
-            Returns the values as a tuple.
+            Accepts a Parameters object as input. Uses existing files to deter-
+            mine the number of core genes used to construct the concatenated a-
+            lignment and the sequence length of each individual alignment. Ret-
+            urns the values as a tuple.
     """
     # get the filename for core genes file
-    coreGenesFN = paramD["aabrhFN"]
+    coreGenesFN = paramO.aabrhFN
 
-    # te the filename for the concatenated alignment
-    concatAlnFN = paramD["concatenatedAlignmentFN"]
+    # get the filename for the concatenated alignment
+    concatAlnFN = paramO.concatenatedAlignmentFN
     
     # get the number of core genes (nrow of coreGenesFN)
     parsed = parseCsv(coreGenesFN, delim="\t")
@@ -552,14 +572,15 @@ def __rootTree(treeFN, outGroupTaxaL) -> None:
     handle.close()
 
 
-def rankPhylogeneticMarkers(paramD:dict) -> None:
+def rankPhylogeneticMarkers(paramO:Parameters) -> None:
     """ rankPhylogeneticMarkers:
-            Accepts the parameter dictionary as input. Calculates the cophenet-
-            ic correlation coefficient for all hardcore genes and writes the
-            results to the file specified in the parameter dictionary. Does not
-            return.
+            Accepts a Parameters object as input. Calculates the cophenetic co-
+            rrelation coefficient for all hardcore genes and writes the results
+            to the file specified in the parameter dictionary. Does not return.
     """
     # constants
+    PRINT_1 = 'Ranking phylogenetic markers ... '
+    DONE = 'Done.'
     GENE_NUM_IDX = 0
     COPH_COR_IDX = 1 
     GENE_NAME_IDX = 1
@@ -568,19 +589,23 @@ def rankPhylogeneticMarkers(paramD:dict) -> None:
     DELIM = "\t"
     EOL = "\n"
     HEADER_STRING = "cophenetic_corr_coef" + DELIM + "gene_num" + DELIM + \
-                    "locus_tag" + DELIM + "gene_name" + DELIM + "annotation" + EOL
+                 "locus_tag" + DELIM + "gene_name" + DELIM + "annotation" + EOL
 
-    print('Ranking phylogenetic markers ... ', end='', flush=True)
+    # print status
+    print(PRINT_1, end='', flush=True)
+
+    # extract necessary data from paramO
+    geneInfoFN = paramO.geneInfoFN
+    phyloMarkersFN = paramO.phyloMarkersFN
+
     # load the gene info file as a dictionary
-    geneInfoFN = paramD['geneInfoFN']
     genesO = xenoGI.genomes.genes(geneInfoFN)
     genesO.initializeGeneInfoD(geneInfoFN)
 
     # obtain the cophenetic correlation coefficients for each core gene
-    cophCorrCoefs = __calculateCopheneticCorrelations(paramD)
+    cophCorrCoefs = __calculateCopheneticCorrelations(paramO)
 
     # make sure the file is already empty
-    phyloMarkersFN = paramD['phyloMarkersFN']
     filehandle = open(phyloMarkersFN, "w")
     filehandle.close()
 
@@ -603,37 +628,39 @@ def rankPhylogeneticMarkers(paramD:dict) -> None:
 
         # construct the string and write to file
         lineStr = cophCor + DELIM + geneNum + DELIM + locusTag + DELIM + \
-                                    geneName + DELIM + annotation + "\n"
+                                    geneName + DELIM + annotation + EOL
         filehandle.write(lineStr)
     
     # close the file
     filehandle.close()
-    print('Done.')
+    print(DONE)
 
 
-def __calculateCopheneticCorrelations(paramD:dict) -> list:
+def __calculateCopheneticCorrelations(paramO:Parameters) -> list:
     """ calculateCopheneticCorrelations:
-            Accepts the parameter dictionary as input. Calculates the cophenet-
-            ic correlation coefficients for each hardcore gene and constructs a
-            list of tuples where the first item is the gene number and the next
-            item is the cophenetic correlation coefficient. Returns the list 
-            with the items sorted from highest correlation to lowest.
+            Accepts a Parameters object as input. Calculates the cophenetic co-
+            rrelation coefficient for each hardcore gene and constructs a list
+            of tuples where the first item is the gene number and the next item
+            is the cophenetic correlation coefficient. Returns the list with
+            the items sorted from highest correlation to lowest.
     """
     # constants
+    TREE_EXT = "*.tre"
     GREP_REPL = r"\1"
     GREP_FIND_PREFIX = r"^.+"
     GREP_FIND_SUFFIX = r"0{0,}(\d+)\.tre"
 
     # extract values from paramD
-    geneTreeFileStem = paramD['aabrhHardCoreGeneTreeFileStem']
-    speciesTreeWorkDir = paramD['makeSpeciesTreeWorkingDir']
-    speciesTreeFN = paramD['speciesTreeFN']
-    famToGeneKeyFN = paramD['famToGeneKeyFN']
+    geneTreeFileStem = paramO.aabrhHardCoreGeneTreeFileStem
+    speciesTreeWorkDir = paramO.makeSpeciesTreeWorkingDir
+    speciesTreeFN = paramO.speciesTreeFN
+    famToGeneKeyFN = paramO.famToGeneKeyFN
     
-
+    # construct the grep find pattern
     grepFind = GREP_FIND_PREFIX + geneTreeFileStem + GREP_FIND_SUFFIX
 
-    filePattern = os.path.join(speciesTreeWorkDir, "*.tre")
+    # construct the pattern that matches all tree files
+    filePattern = os.path.join(speciesTreeWorkDir, TREE_EXT)
 
     # get the distance matrix of the species tree
     speDistMat = __distanceMatrixFromNewickFile(speciesTreeFN)
@@ -730,5 +757,4 @@ def __loadFamToGeneKey(famToGeneKeyFN:str) -> dict:
         outD[line[FAM_NUM_IDX]] = line[GENE_NUM_IDX]
     
     return outD
-
 

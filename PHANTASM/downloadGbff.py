@@ -1,26 +1,28 @@
 # Author: Joseph S. Wirth
 
-import re, os
+import os, re
 from PHANTASM.utilities import downloadFileFromFTP, removeFileExtension, decompressGZ
+from PHANTASM.Parameter import Parameters
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
 from PHANTASM.taxonomy.taxonomyConstruction import __getLpsnData
 
 
-def downloadGbffsForRootTaxonomy(taxO:Taxonomy, paramD:dict) -> Taxonomy:
+def downloadGbffsForRootTaxonomy(taxO:Taxonomy, maxNumSeqs:int, paramO:Parameters) -> Taxonomy:
     """ downloadGbffsForRootTaxonomy:
-            Accepts a Taxonomy object and the parameters dictionary as inputs.
-            Uses the Taxonomy object to determine which assemblies to download
-            and then downloads those assemblies. Returns the outgroup as a Tax-
-            onomy object.
+            Accepts a Taxonomy object, an int indicating the max number of seq-
+            uences to download, and a Parameters object as inputs. Uses the Ta-
+            xonomy object to determine which assemblies to download and then
+            downloads those assemblies. Returns the outgroup as a Taxonomy obj-
+            ect.
     """
     # constants
     PRINT_1 = 'Identifying a suitable set of whole genome sequences ... '
     PRINT_2 = 'Downloading genbank files from NCBI ... '
     DONE = 'Done.'
 
-    maxNumSeqs = paramD['maxNumTreeLeaves'] - 2  # user_input + outgroup = 2
-    humanMapFN = paramD['fileNameMapFN']
-    gbffFN = paramD['genbankFilePath']
+    # extract necessary data from paramO
+    humanMapFN = paramO.fileNameMapFN
+    gbffFN = paramO.genbankFilePath
 
     gbffDir = os.path.dirname(gbffFN)
 
@@ -198,3 +200,4 @@ def _makeTaxonName(speciesO:Taxonomy) -> str:
 
     # make and return the human name for the genome
     return speciesName + SEP + strainName + SEP + accnNum
+

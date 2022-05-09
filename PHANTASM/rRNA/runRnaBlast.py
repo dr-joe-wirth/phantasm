@@ -2,6 +2,7 @@
 
 from PHANTASM.utilities import extractFilenameFromPath, downloadFileFromFTP, extractContentsFromGZ, removeFileExtension, changeFileExtension
 from pathlib import Path
+from io import TextIOWrapper
 from Bio.Blast.Applications import NcbimakeblastdbCommandline, NcbiblastnCommandline
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
@@ -10,15 +11,15 @@ from Bio.SeqIO.InsdcIO import GenBankIterator
 import os
 
 
-def rnaBlastRunner(queryGenbank:str, workingDir:str, blastExecutDirPath:str) \
+def rnaBlastRunner(allQryGbksL:list, workingDir:str, blastExecutDirPath:str) \
                                                                         -> str:
     """ rnaBlastRunner:
-            Accepts the path to the query genbank filem, a the filename for the
-            blast output, and the directory containing the blast+ executables
+            Accepts a list of all the query genbank files, the path to a worki-
+            ng directory, and the directory containing the blast+ executables
             as inputs. Downloads and constructs a blast database from NCBI for
             the 16S rRNA gene sequences of Bacteria and Archaea. Uses blastn to
             compare the query 16S rRNA gene sequences against those in the dat-
-            abase. Returns the filename containing the blastn results.
+            abase. Returns the filename containing the blastn results (str).
     """
     # constants
     RNA_FOLDER = "16S/"
@@ -31,7 +32,7 @@ def rnaBlastRunner(queryGenbank:str, workingDir:str, blastExecutDirPath:str) \
     Path(blastDir).mkdir(parents=True, exist_ok=True)
 
     # Construct query fasta and blast database
-    queryFna, blastdb, blastFileOut = __blastPrep(queryGenbank, rnaDir, blastDir, blastExecutDirPath)
+    queryFna, blastdb, blastFileOut = __blastPrep(allQryGbksL, rnaDir, blastDir, blastExecutDirPath)
 
     # Run the blast
     __runRnaBlast(queryFna, blastdb, blastFileOut, blastExecutDirPath)
@@ -40,19 +41,20 @@ def rnaBlastRunner(queryGenbank:str, workingDir:str, blastExecutDirPath:str) \
     return blastFileOut
 
 
-def __blastPrep(queryGenbank:str, rnaDir:str, blastDir:str, \
-                                              blastExecutDirPath:str) -> tuple:
+def __blastPrep(allQryGbksL:list, rnaDir:str, blastDir:str, \
+                                 blastExecutDirPath:str) -> tuple[str,str,str]:
     """ blastPrep:
-            Accepts a genbank file, and three directories as inputs. Extracts
-            all sequences from the genbank and writes them to a file in fasta 
-            format. Downloads the curated 16S rRNA gene sequences from NCBI for
-            Bacteria and Archaea and constructs a blast database made for those
-            sequences. Returns a three-ple composed of the filename of the new-
-            ly created 16S rRNA fasta (query), the filename of the blast datab-
-            ase, and the filename where the blast results will be written to.
+            Accepts a list of query genbank files, and three directories as in-
+            puts. Extracts all sequences from the genbanks and writes them to a
+            file in fasta format. Downloads the curated 16S rRNA gene sequences
+            from NCBI for Bacteria and Archaea and constructs a blast database
+            made for those sequences. Returns a three-ple composed of the file-
+            name of the newly created 16S rRNA fasta (query), the filename of
+            the blast database, and the filename where the blast results will
+            be written to.
     """
     # constants
-    QUERY_FNA_EXTENSION = ".16SrRNA.fna"
+    QUERY_FNA_FILENAME = "query.16SrRNA.fna"
     SUBJECT_GBFF = "prok.16SrRNA.gbff"
     RESULT_EXTENSION = '.blastn'
     EOL = " ... "
@@ -62,18 +64,24 @@ def __blastPrep(queryGenbank:str, rnaDir:str, blastDir:str, \
     PRNT_4 = "Making blast database from '"
     DONE = "Done.\n"
     
-    # construct the 16S query fasta filename
-    queryFnaFile = changeFileExtension(queryGenbank, QUERY_FNA_EXTENSION)
-
     # add path information to queryFnaFile
-    queryFnaFile = os.path.join(rnaDir, queryFnaFile)
+    queryFnaFile = os.path.join(rnaDir, QUERY_FNA_FILENAME)
 
     # add path information to SUBJECT_GBFF
     subjectGbff = os.path.join(rnaDir, SUBJECT_GBFF)
 
-    # make query fasta from the input gbff
+    # make query fasta from the input gbffs
     print(PRNT_1, end="", flush=True)
-    __rnaFastaFromGbk(queryGenbank, queryFnaFile)
+    
+    # open the file as a filehandle
+    queryFnaFH = open(queryFnaFile, "w")
+
+    # get 16s rRNA sequences from each query gbff and save in a single fasta
+    for queryGenbank in allQryGbksL:
+        __rnaFastaFromGbk(queryGenbank, queryFnaFH)
+    
+    # close the fasta file
+    queryFnaFH.close()
     print(DONE)
 
     # download the sequence files from NCBI and save the gbff
@@ -103,9 +111,9 @@ def __blastPrep(queryGenbank:str, rnaDir:str, blastDir:str, \
     return queryFnaFile, dbFilename, blastResultFilename
 
 
-def __rnaFastaFromGbk(filename:str, outFile:str) -> None:
+def __rnaFastaFromGbk(filename:str, outFH:TextIOWrapper) -> None:
     """ rnaFastaFromGbk:
-            Accepts the filename of a query genbank and the filename for saving
+            Accepts the filename of a query genbank and a filhandle for saving
             the fasta file. Parses the genbank file and retrieves the 16S rRNA 
             gene sequences using the annotations. Writes the 16S rRNA gene seq-
             uences in fasta format. Does not return.
@@ -121,7 +129,7 @@ def __rnaFastaFromGbk(filename:str, outFile:str) -> None:
         raise Exception(ERR_MSG)
 
     # write the records to file
-    SeqIO.write(recs, outFile, 'fasta')
+    SeqIO.write(recs, outFH, 'fasta')
 
 
 def __rnaSeqGrabber(filename: str) -> list:

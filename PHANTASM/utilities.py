@@ -34,11 +34,11 @@ def unique(inputL:list) -> list:
     return list(outL)
 
 
-def getParamD_1(email:str) -> dict:
-    """ getParamD_1:
-            Helper function to facilitate the creation of the first parameter
-            dictionary. Accepts a valid email address as input. Returns the pa-
-            rameter dictionary.
+def getParamO_1(email:str) -> Parameters:
+    """ getParamO_1:
+            Helper function to facilitate the creation of the first Parameters
+            object. Accepts a valid email address as input. Returns the Parame-
+            ters object.
     """
     # import relevant data from param.py and specify the anlysis directory
     from param import BLASTPLUS_DIR, MUSCLE_EXE, FASTTREE_EXE, NUM_PROCESSORS,\
@@ -54,14 +54,14 @@ def getParamD_1(email:str) -> dict:
                             NUM_PROCESSORS,
                             MAX_LEAVES)
 
-    return parameterO.toDict()
+    return parameterO
 
 
-def getParamD_2(email:str) -> dict:
-    """ getParamD_2:
-            Helper function to facilitate the creation of the second parameter
-            dictionary. Accepts a valid email address as input. Returns the pa-
-            rameter dictionary.
+def getParamO_2(email:str) -> Parameters:
+    """ getParamO_2:
+            Helper function to facilitate the creation of the second Parameters
+            object. Accepts a valid email address as input. Returns the Parame-
+            ters object.
     """
     # import relevant data from param.py and specify the anlysis directory
     from param import BLASTPLUS_DIR, MUSCLE_EXE, FASTTREE_EXE, NUM_PROCESSORS,\
@@ -77,7 +77,7 @@ def getParamD_2(email:str) -> dict:
                             NUM_PROCESSORS,
                             MAX_LEAVES)
     
-    return parameterO.toDict()
+    return parameterO
 
 
 def validEmailAddress(email:str) -> bool:

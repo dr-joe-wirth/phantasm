@@ -1,6 +1,7 @@
 # Author: Joseph S. Wirth
 
 import sys, os, re, glob, copy
+from PHANTASM.Parameter import Parameters
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
 from PHANTASM.rRNA.runRnaBlast import __makeOutfmtString
 from PHANTASM.utilities import parseCsv, ncbiIdsFromSearchTerm, ncbiSummaryFromIdList, ncbiELinkFromIdList, extractIdsFromELink, removeFileExtension
@@ -16,15 +17,15 @@ import xenoGI.genomes, Bio.Entrez.Parser
 
 
 ###############################################################################
-def phyloMarkerBlastRunner(geneNum:int, paramD:dict) -> None:
+def phyloMarkerBlastRunner(geneNumsL:list, paramO:Parameters) -> None:
     """ phyloMarkerBlastRunner:
-            Accepts an integer indicating a xenoGI gene number and the paramet-
-            er dictionary as inputs. Creates an amino acid fasta file (faa) for
-            the CDS in the query genome corresponding to the provided gene num-
-            ber. Uses the fasta file to run a blastp against NCBI's nr databa-
-            se. If that blastp was not successful (often due to exceeding CPU
-            limit), then it tries to run a blastp against NCBI's refseq_protein
-            database. Does not return.
+            Accepts a list of xenoGI gene numbers and a Parameters object as
+            inputs. Creates an amino acid fasta file (faa) for the CDS in the
+            query genomes corresponding to the provided gene number. Uses the
+            fasta file to run a blastp against NCBI's nr database. If that bla-
+            stp was not successful (often due to exceeding CPU limit), then it
+            tries to run a blastp against NCBI's refseq_protein database. Does
+            not return.
     """
     # constants
     PRINT_1 = 'Using the phylogenetic marker to search for closely-related genomes ... '
@@ -33,18 +34,22 @@ def phyloMarkerBlastRunner(geneNum:int, paramD:dict) -> None:
     DB_1 = "nr"
     DB_2 = "refseq_protein"
 
+    # print status
     print(PRINT_1, end='', flush=True)
     
     # extract relevant parameters
-    faaFN = paramD['phyloMarkerFaaFN']
-    blastFN = paramD['blastpResultFN']
-    blastExecutDirPath = paramD['blastExecutDirPath']
+    faaFN = paramO.phyloMarkerFaaFN
+    blastFN = paramO.blastpResultFN
+    blastExecutDirPath = paramO.blastExecutDirPath
     
     # get a SeqRecord object for the protein
-    seqRec = __getSeqRecordFromGeneNum(geneNum, paramD)
+    allSeqRecs = list()
+    for geneNum in geneNumsL:
+        seqRec = __getSeqRecordFromGeneNum(geneNum, paramO)
+        allSeqRecs.append(seqRec)
 
     # save the file as a fasta
-    SeqIO.write(seqRec, faaFN, FORMAT)
+    SeqIO.write(allSeqRecs, faaFN, FORMAT)
 
     # run the blastp with the new fasta against nr
     __blastFaaAgainstDb(faaFN, blastFN, blastExecutDirPath, DB_1)
@@ -62,20 +67,20 @@ def phyloMarkerBlastRunner(geneNum:int, paramD:dict) -> None:
     print(DONE)
 
 
-def __getSeqRecordFromGeneNum(geneNum:int, paramD:dict) -> SeqRecord:
+def __getSeqRecordFromGeneNum(geneNum:int, paramO:Parameters) -> SeqRecord:
     """ getSeqRecordFromGeneNum:
-            Accepts an integer indicating a xenoGI gene number and the paramet-
-            er dictionary as inputs. Retrieves and returns a SeqRecord object
-            for the desired gene.
+            Accepts an integer indicating a xenoGI gene number and a Parameters
+            object as inputs. Retrieves and returns a SeqRecord object for the
+            desired gene.
     """
     # constants
     GENE_NAME_IDX = 0
     FASTA_FN = "user_input_prot.fa"
     FORMAT = "fasta"
 
-    # get the necessary data from paramD
-    geneInfoFN = paramD['geneInfoFN']
-    fastaDir = os.path.dirname(paramD["fastaFilePath"])
+    # get the necessary data from paramO
+    geneInfoFN = paramO.geneInfoFN
+    fastaDir = os.path.dirname(paramO.fastaFilePath)
 
     # identify the path to the user_input fasta file
     fastaFN = os.path.join(fastaDir, FASTA_FN)
@@ -126,50 +131,6 @@ def _locusTagToGeneNum(locusTag:str, geneInfoFN:str) -> int:
     raise Exception("Invalid locus tag provided")
 
 
-def __getSeqRecordFromLocusTag(locusTag:str, genbankFN:str) -> SeqIO.SeqRecord:
-    """ getSeqRecordFromLocusTag:
-            Accepts two strings as inputs: the first is a locus tag and the se-
-            cond is a genbank filename containing the provided locus tag. Finds
-            and extracts the locus tag from the genbank file. Returns the CDS
-            as a SeqRecord object.
-    """
-    # constants
-    FORMAT = 'genbank'
-    CDS = 'CDS'
-    LOCUS_TAG = 'locus_tag'
-    GENE = 'gene'
-
-    # parse the genbank file
-    parsed = SeqIO.parse(genbankFN, FORMAT)
-
-    # initialize variables for looping
-    record:SeqIO.SeqRecord
-    feature:SeqFeature.SeqFeature
-
-    # for each contig in the genbank ...
-    for record in parsed:
-        # ... for each feature in the contig ...
-        for feature in record.features:
-            # ... if the feature is a coding sequence ...
-            if feature.type == CDS:
-                # ... and if the coding sequence has the desired tag
-                tag = feature.qualifiers[LOCUS_TAG][0]
-                if tag == locusTag:
-                    # extract the translation into a new SeqRecord object
-                    newRecord:SeqIO.SeqRecord = feature.translate(record)
-
-                    # save the locus tag as the id
-                    newRecord.id = locusTag
-
-                    # save the gene name as the description
-                    if GENE in feature.qualifiers.keys():
-                        newRecord.description = feature.qualifiers[GENE][0]
-                    else:
-                        newRecord.description = ""
-
-                    return newRecord
-
-
 def __blastFaaAgainstDb(faaFN:str, outFN:str, blastExecutDirPath:str, \
                                                          database:str) -> None:
     """ blastFaaAgainstDb:
@@ -198,23 +159,23 @@ def __blastFaaAgainstDb(faaFN:str, outFN:str, blastExecutDirPath:str, \
 
 
 ###############################################################################
-def getRelatives(oldParamD:dict, newParamD:dict, lpsnD:dict) -> list:
+def getRelatives(oldParamO:Parameters, newParamO:Parameters, lpsnD:dict, \
+                                                       maxNumSeqs:int) -> list:
     """ getRelatives:
-            Accepts the old and new parameter dictionaries and the LPSN dictio-
-            nary as inputs. Uses the blastp results for the phylogenetic marker
-            to determine which species should be used for downstream phylogeno-
-            mic analyses. Returns a list of the selected species.
+            Accepts the old and new Parameters objects and the LPSN dictionary
+            as inputs. Uses the blastp results for the phylogenetic marker to
+            determine which species should be used for downstream phylogenomic
+            analyses. Returns a list of the selected species.
     """
 
     # extract relevant data from parameter dictionaries
-    oldTaxFN = glob.glob(oldParamD['taxonomyObjectFilePath']).pop()
-    blastFN = oldParamD['blastpResultFN']
-    maxNumSeqs = oldParamD['maxNumTreeLeaves'] - 2  # query + outgroup = 2 seqs
-    newTaxDir = os.path.dirname(newParamD['taxonomyObjectFilePath'])
-    newTaxExt = os.path.splitext(newParamD['taxonomyObjectFilePath'])[1]
+    oldTaxFN = glob.glob(oldParamO.taxonomyObjectFilePath).pop()
+    blastFN = oldParamO.blastpResultFN
+    newTaxDir = os.path.dirname(newParamO.taxonomyObjectFilePath)
+    newTaxExt = os.path.splitext(newParamO.taxonomyObjectFilePath)[1]
 
     # set entrez email
-    Entrez.email = oldParamD['email']
+    Entrez.email = oldParamO.email
 
     # load the taxonomy object from file
     taxO = Taxonomy.load(oldTaxFN)
@@ -736,29 +697,29 @@ def __refineAssemblySelection(assmD:dict) -> None:
 
 
 ###############################################################################
-def xenogiInterfacer_2(queryGbff:str, oldParamD:dict, newParamD:dict, \
+def xenogiInterfacer_2(allQryGbksL:list, oldParamO:Parameters, newParamO:Parameters, \
                                                        lpsnD:dict) -> Taxonomy:
     """ xenogiInterfacer_2:
-            Accepts a string indicating the filename of the query genbank, the
-            parameter dictionary for the first analysis, the parameter diction-
-            ary for the final analysis, and the LPSN dictionary as inputs. Uses
-            the phylogenetic marker's blastp results to determine which genomes
-            to download. Downloads (or makes symlinks for) these genomes and
-            makes the human map file in the process. Returns the outgroup as a
-            Taxonomy object. 
+            Accepts a list of strings indicating the filenames of the query ge-
+            nbanks, a Parameters object for the first analysis, the Parameters
+            object for the final analysis, and the LPSN dictionary as inputs.
+            Uses the phylogenetic marker's blastp results to determine which
+            genomes to download. Downloads (or makes symlinks for) these genom-
+            es and makes the human map file in the process. Returns the outgro-
+            up as a Taxonomy object.
     """
     # constants
-    QUERY_STR = 'user_input'
     PRINT_1 = 'Finding missing relatives and updating the Taxonomy object ... '
     PRINT_2 = 'Downloading genbank files from NCBI ... '
     DONE = 'Done.'
 
-    # extract relevant data from the parameter dictionaries
-    taxObjectFilePath = newParamD['taxonomyObjectFilePath']
-    oldGenbankFilePath = oldParamD['genbankFilePath']
-    newGenbankFilePath = newParamD['genbankFilePath']
-    newWorkDir = newParamD['workdir']
-    newHumanMapFN = newParamD['fileNameMapFN']
+    # extract relevant data from the Parameters objects
+    maxNumSeqs = oldParamO.maxNumTreeLeaves - len(allQryGbksL) - 1 # 1 outgroup
+    taxObjectFilePath = newParamO.taxonomyObjectFilePath
+    oldGenbankFilePath = oldParamO.genbankFilePath
+    newGenbankFilePath = newParamO.genbankFilePath
+    newWorkDir = newParamO.workdir
+    newHumanMapFN = newParamO.fileNameMapFN
 
     # make the new working directory
     if not os.path.exists(newWorkDir):
@@ -766,7 +727,7 @@ def xenogiInterfacer_2(queryGbff:str, oldParamD:dict, newParamD:dict, \
 
     # get the new relatives based on phylogenetic marker blastp
     print(PRINT_1, end='', flush=True)
-    speciesL = getRelatives(oldParamD, newParamD, lpsnD)
+    speciesL = getRelatives(oldParamO, newParamO, lpsnD, maxNumSeqs)
     print(DONE)
 
     # load the taxonomy object created by getRelatives
@@ -837,13 +798,17 @@ def xenogiInterfacer_2(queryGbff:str, oldParamD:dict, newParamD:dict, \
         newFN = os.path.join(newGbkDir, filename)
         os.symlink(oldFN, newFN)
     
-    # make a symlink for the user's input file
-    oldFN = os.path.abspath(queryGbff)
-    newFN = os.path.join(newGbkDir, os.path.basename(queryGbff))
-    os.symlink(oldFN, newFN)
+    # for each of the user's query genomes
+    for queryGbff in allQryGbksL:
+        # make a symlink for the user's input file
+        basename = os.path.basename(queryGbff)
+        noext = os.path.splitext(basename)[0]
+        oldFN = os.path.abspath(queryGbff)
+        newFN = os.path.join(newGbkDir, basename)
+        os.symlink(oldFN, newFN)
 
-    # add the user input to the human map string
-    humanMapStr += _makeHumanMapString(QUERY_STR, os.path.basename(queryGbff))
+        # add the user input to the human map string
+        humanMapStr += _makeHumanMapString(basename, noext)
     
     # make a list of species objects that still need to be downloaded
     speciesL = list()
