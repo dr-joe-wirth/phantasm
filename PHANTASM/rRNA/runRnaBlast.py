@@ -42,7 +42,7 @@ def rnaBlastRunner(allQryGbksL:list, workingDir:str, blastExecutDirPath:str) \
 
 
 def __blastPrep(allQryGbksL:list, rnaDir:str, blastDir:str, \
-                                 blastExecutDirPath:str) -> tuple[str,str,str]:
+                                              blastExecutDirPath:str) -> tuple:
     """ blastPrep:
             Accepts a list of query genbank files, and three directories as in-
             puts. Extracts all sequences from the genbanks and writes them to a
