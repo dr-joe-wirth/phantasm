@@ -74,27 +74,38 @@ def __getSeqRecordFromGeneNum(geneNum:int, paramO:Parameters) -> SeqRecord:
             desired gene.
     """
     # constants
+    GREP_FIND_1 = r'^\d+_([^\|]+\|[^\|]+\|[^-]+)-\S+$'
+    GREP_FIND_2 = r"^\d+_([^-]+)-\S+$"
+    GREP_REPL = r"\1"
     GENE_NAME_IDX = 0
-    FASTA_FN = "user_input_prot.fa"
     FORMAT = "fasta"
 
     # get the necessary data from paramO
     geneInfoFN = paramO.geneInfoFN
-    fastaDir = os.path.dirname(paramO.fastaFilePath)
+    fastaFilePath = paramO.fastaFilePath
 
-    # identify the path to the user_input fasta file
-    fastaFN = os.path.join(fastaDir, FASTA_FN)
-
-    # load the genesO object
+    # load the geneInfo data for the given gene number
     genesO = xenoGI.genomes.genes(geneInfoFN)
     genesO.initializeGeneInfoD(geneInfoFN)
-
-    # make sure gene num is an integer (allows strings as input)
-    geneNum = int(geneNum)
+    geneInfo = genesO.numToGeneInfo(int(geneNum))
 
     # get the name for the provided gene
-    geneInfo = genesO.numToGeneInfo(geneNum)
     geneName = geneInfo[GENE_NAME_IDX]
+
+    # extract the species name from the gene name
+    speciesName = re.sub(GREP_FIND_1, GREP_REPL, geneName)
+
+    # if the grep didn't work
+    if geneName == speciesName:
+        speciesName = re.sub(GREP_FIND_2, GREP_REPL, geneName)
+    
+    # use the species name to determine which file to load
+    allFastasL = glob.glob(fastaFilePath)
+
+    # navigate to the correct fasta file
+    for fastaFN in allFastasL:
+        if speciesName in fastaFN:
+            break
     
     # read the fasta file
     parsed:FastaIterator = SeqIO.parse(fastaFN, FORMAT)
