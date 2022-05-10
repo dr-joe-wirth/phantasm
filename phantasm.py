@@ -17,7 +17,7 @@ GENE_NUM  = "--gene_num"
 # error messages
 ERR_MSG_1 = "Incorrect syntax used.\nType 'python3 <path>/phantasm.py help' for more information."
 ERR_MSG_2 = "Invalid email address"
-ERR_MSG_3 = "The number of genes does not match the number of genomes."
+ERR_MSG_3 = "The number of genes is not a multiple of the number of input genomes."
 ERR_MSG_4 = "Invalid flag: "
 ERR_MSG_5A = "Invalid task: "
 ERR_MSG_5B = "\ntype '<path>/phantasm.py help' for information."
@@ -107,8 +107,8 @@ if __name__ == "__main__":
             # split the gene argument into a list of genes
             genesL = gene.split(SEP)
 
-            # raise error if num genes does not match num genomes
-            if len(genesL) != len(gbffL):
+            # raise error if num genes is not a multiple of num genomes
+            if len(genesL) % len(gbffL) != 0:
                 raise ValueError(ERR_MSG_3)
 
             # construct the Parameters objects
