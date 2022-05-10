@@ -6,11 +6,23 @@ from PHANTASM.utilities import validEmailAddress, getParamO_1, getParamO_2
 import glob, os, sys
 
 # constants
+JOB_0 = 'help'
+JOB_1 = 'getPhyloMarker'
+JOB_2 = 'refinePhylogeny'
+SEP = ","
 GAP = " "*4
+LOCUS_TAG = "--locus_tag"
+GENE_NUM  = "--gene_num"
+
+# error messages
 ERR_MSG_1 = "Incorrect syntax used.\nType 'python3 <path>/phantasm.py help' for more information."
 ERR_MSG_2 = "Invalid email address"
-ERR_MSG_3A = "Invalid task: "
-ERR_MSG_3B = "\ntype '<path>/phantasm.py help' for information."
+ERR_MSG_3 = "The number of genes does not match the number of genomes."
+ERR_MSG_4 = "Invalid flag: "
+ERR_MSG_5A = "Invalid task: "
+ERR_MSG_5B = "\ntype '<path>/phantasm.py help' for information."
+
+# help message
 HELP_MSG = "\nPHANTASM: PHylogenomic ANalyses for the TAxonomy and Systematics of Microbes\n\n" + \
            "In order to run PHANTASM, first follow these steps:\n" + \
            GAP + "1. cd into the desired working directory\n" + \
@@ -26,9 +38,6 @@ HELP_MSG = "\nPHANTASM: PHylogenomic ANalyses for the TAxonomy and Systematics o
            GAP*2 + "'finalAnalysis/aai_heatmap.pdf'\n" + \
            GAP*2 + "'finalAnalysis/speciesTree.nwk'\n" + \
            GAP*2 + "'finalAnalysis/speciesTree_outgroupPruned.nwk'\n"
-JOB_0 = 'help'
-JOB_1 = 'getPhyloMarker'
-JOB_2 = 'refinePhylogeny'
 
 # begin main function
 if __name__ == "__main__":
@@ -85,33 +94,50 @@ if __name__ == "__main__":
             # ensure that a valid email address is being used
             if not validEmailAddress(email):
                 raise ValueError(ERR_MSG_2)
-
-            # construct the Parameters objects
-            paramO_1 = getParamO_1(email)
-            paramO_2 = getParamO_2(email)
-
-            # if a locus tag was provided, convert it to an integer
-            if flag == "--locus_tag":
-                geneNum = _locusTagToGeneNum(gene, paramO_1.geneInfoFN)
             
-            # otherwise, a gene number should have been specified
-            elif flag == "--gene_num":
-                geneNum = int(gene)
-            
-            else:
-                raise ValueError("Invalid flag: " + flag)
-            
-            # if a directory was provided, then get the list of files within it
+            # if a directory was provided
             if os.path.isdir(inputFile):
+                # get the list of files within it
                 gbffL = glob.glob(os.path.join(inputFile, "*"))
             
             # if a single file was provided, then convert it to a one-item list
             else:
                 gbffL = [inputFile]
 
-            refinePhylogeny(geneNum, gbffL, paramO_1, paramO_2)
+            # split the gene argument into a list of genes
+            genesL = gene.split(SEP)
+
+            # raise error if num genes does not match num genomes
+            if len(genesL) != len(gbffL):
+                raise ValueError(ERR_MSG_3)
+
+            # construct the Parameters objects
+            paramO_1 = getParamO_1(email)
+            paramO_2 = getParamO_2(email)
+
+            # initialize geneNumsL
+            geneNumsL = list()
+
+            # if a locus tag was provided, convert it to an integer
+            if flag == LOCUS_TAG:
+                for gene in genesL:
+                    geneNum = _locusTagToGeneNum(gene, paramO_1.geneInfoFN)
+                    geneNumsL.append(geneNum)
+                    
+            # otherwise, a gene number should have been specified
+            elif flag == GENE_NUM:
+                for gene in genesL:
+                    geneNum = int(gene)
+                    geneNumsL.append(geneNum)
+            
+            # if an invalid flag was specified, then raise an error
+            else:
+                raise ValueError(ERR_MSG_4 + flag)
+
+            # execute JOB_2
+            refinePhylogeny(geneNumsL, gbffL, paramO_1, paramO_2)
         
         # raise an error if an invalid job was specified
         else:
-            raise ValueError(ERR_MSG_3A + job + ERR_MSG_3B)
+            raise ValueError(ERR_MSG_5A + job + ERR_MSG_5B)
 

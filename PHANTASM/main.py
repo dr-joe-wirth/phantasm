@@ -21,11 +21,11 @@ def getPhyloMarker(allQueryGenbanksL:list, paramO:Parameters) -> None:
     findPhylogeneticMarkersWrapper(allQueryGenbanksL, outgroup, paramO)
 
 
-def refinePhylogeny(geneNum:int, allQueryGenbanksL:list, paramO_1:Parameters, \
+def refinePhylogeny(geneNumsL:list, allQueryGenbanksL:list, paramO_1:Parameters, \
                                                   paramO_2:Parameters) -> None:
     """ run the entire second portion from start to finish
     """
-    outgroup = findMissingRelativesWrapper(geneNum, allQueryGenbanksL, \
+    outgroup = findMissingRelativesWrapper(geneNumsL, allQueryGenbanksL, \
                                                             paramO_1, paramO_2)
     coreGenesWrapper_2(paramO_1, paramO_2)
     finalAnalysesWrapper(outgroup, paramO_2)

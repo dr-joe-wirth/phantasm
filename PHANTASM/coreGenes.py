@@ -1,7 +1,7 @@
 # Author: Joseph S. Wirth
 
 from __future__ import annotations
-import sys, os, re, glob, scipy.stats, csv, subprocess
+import csv, glob, os, re, scipy.stats, subprocess, sys
 from PHANTASM.utilities import parseCsv
 from PHANTASM.Parameter import Parameters
 from Bio import SeqIO
@@ -12,6 +12,8 @@ from param import XENOGI_DIR
 sys.path.insert(0,os.path.join(sys.path[0], XENOGI_DIR))
 import xenoGI.xenoGI, xenoGI.scores, xenoGI.Tree, xenoGI.genomes, xenoGI.trees
 
+# global constant for separating multiple geno
+SEP_CHAR = ","
 
 def xenogiInterfacer_1(taxO:Taxonomy, allQryGbksL:list, paramsO:Parameters) \
                                                                    -> Taxonomy:
@@ -417,7 +419,6 @@ def __concatenateAlignments(qryHumanNamesL:list, speciesTreeWorkDir:str, \
     GREP_FIND_2 = r'^\S+ (\d+)$'
     GREP_REPL = r'\1'
     DELIM = "\t"
-    SEP = "|"
     EOL = "\n"
 
     # get the files sring
@@ -475,7 +476,7 @@ def __concatenateAlignments(qryHumanNamesL:list, speciesTreeWorkDir:str, \
         # loop through the query names so that ordering is consistent
         for queryName in qryHumanNamesL:
             # add the associated gene numbers separated by the SEP character
-            lineStr += famKeyD[famNum][queryName] + SEP
+            lineStr += famKeyD[famNum][queryName] + SEP_CHAR
         
         # remove the trailing SEP character and add EOL to the line
         lineStr = lineStr[:-1] + EOL
@@ -624,11 +625,15 @@ def rankPhylogeneticMarkers(paramO:Parameters) -> None:
     GENE_NAME_IDX = 1
     LOCUS_TAG_IDX = 2
     ANNOTATXN_IDX = 4
-    SEP = "|"
+    CDS_START_IDX = 6
+    CDS_END_IDX = 7
+    ANN_SEP_CHAR = " | "
+    PRO_SEP_CHAR = "|"
     DELIM = "\t"
     EOL = "\n"
-    HEADER_STRING = "cophenetic_corr_coef" + DELIM + "gene_num" + DELIM + \
-                 "locus_tag" + DELIM + "gene_name" + DELIM + "annotation" + EOL
+    HEADER_STRING = "cophenetic_corr_coef" + DELIM + "protein_len" + DELIM + \
+             "gene_num" + DELIM + "locus_tag" + DELIM + "gene_name" + DELIM + \
+                                                             "annotation" + EOL
 
     # print status
     print(PRINT_1, end='', flush=True)
@@ -661,27 +666,34 @@ def rankPhylogeneticMarkers(paramO:Parameters) -> None:
         locusTag = ""
         geneName = ""
         annotation = ""
+        proteinLen = ""
 
         # for each gene number 
-        for geneNum in geneNumStr.split(SEP):
+        for geneNum in geneNumStr.split(SEP_CHAR):
             # get a tuple of all the gene information
             geneInfo = genesO.numToGeneInfo(int(geneNum))
 
             # parse the desired strings from the geneInfo dictionary
             # append the data onto the growing strings
             # multiple genomes will have multiple values at each position
-            locusTag += geneInfo[LOCUS_TAG_IDX] + SEP
-            geneName += geneInfo[GENE_NAME_IDX] + SEP
-            annotation += geneInfo[ANNOTATXN_IDX] + SEP
+            locusTag += geneInfo[LOCUS_TAG_IDX] + SEP_CHAR
+            geneName += geneInfo[GENE_NAME_IDX] + SEP_CHAR
+            annotation += geneInfo[ANNOTATXN_IDX] + ANN_SEP_CHAR
+
+            # calculate the length of the protein
+            cdsStart = int(geneInfo[CDS_START_IDX])
+            cdsEnd = int(geneInfo[CDS_END_IDX])
+            proteinLen += str(abs(cdsEnd - cdsStart) // 3) + PRO_SEP_CHAR
         
-        # remove the trailing sep characters
-        locusTag = locusTag[:-1]
-        geneName = geneName[:-1]
-        annotation = annotation[:-1]
+        # remove the trailing sep character(s)
+        locusTag = locusTag[:-len(SEP_CHAR)]
+        geneName = geneName[:-len(SEP_CHAR)]
+        annotation = annotation[:-len(ANN_SEP_CHAR)]
+        proteinLen = proteinLen[:-len(PRO_SEP_CHAR)]
 
         # construct the string and write it to file
-        lineStr = cophCor + DELIM + geneNumStr + DELIM + locusTag + DELIM + \
-                                            geneName + DELIM + annotation + EOL
+        lineStr = cophCor + DELIM + proteinLen + DELIM + geneNumStr + DELIM + \
+                         locusTag + DELIM + geneName + DELIM + annotation + EOL
         filehandle.write(lineStr)
     
     # close the file
