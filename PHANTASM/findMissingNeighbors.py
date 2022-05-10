@@ -819,7 +819,7 @@ def xenogiInterfacer_2(allQryGbksL:list, oldParamO:Parameters, newParamO:Paramet
         os.symlink(oldFN, newFN)
 
         # add the user input to the human map string
-        humanMapStr += _makeHumanMapString(basename, noext)
+        humanMapStr += _makeHumanMapString(noext, basename)
     
     # make a list of species objects that still need to be downloaded
     speciesL = list()
