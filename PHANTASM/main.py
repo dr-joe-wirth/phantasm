@@ -18,7 +18,7 @@ def getPhyloMarker(allQueryGenbanksL:list, paramO:Parameters) -> None:
 
     outgroup = taxonomyWrapper(allQueryGenbanksL, paramO)
     coreGenesWrapper_1(paramO)
-    findPhylogeneticMarkersWrapper(outgroup, paramO)
+    findPhylogeneticMarkersWrapper(allQueryGenbanksL, outgroup, paramO)
 
 
 def refinePhylogeny(geneNum:int, allQueryGenbanksL:list, paramO_1:Parameters, \
@@ -63,12 +63,12 @@ def coreGenesWrapper_1(paramO_1:Parameters) -> None:
     calculateCoreGenes(paramO_1)
 
 
-def findPhylogeneticMarkersWrapper(outgroup:Taxonomy, paramO_1:Parameters) \
-                                                                       -> None:
+def findPhylogeneticMarkersWrapper(allQryGbksL:list, outgroup:Taxonomy, \
+                                                  paramO_1:Parameters) -> None:
     """ makes the first species tree and ranks the core genes as phylogenetic
         markers.
     """
-    makeSpeciesTree(paramO_1, outgroup)
+    makeSpeciesTree(allQryGbksL, paramO_1, outgroup)
     rankPhylogeneticMarkers(paramO_1)
 
 

@@ -13,7 +13,8 @@ sys.path.insert(0,os.path.join(sys.path[0], XENOGI_DIR))
 import xenoGI.xenoGI, xenoGI.scores, xenoGI.Tree, xenoGI.genomes, xenoGI.trees
 
 
-def xenogiInterfacer_1(taxO:Taxonomy, allQryGbksL:list, paramsO:Parameters) -> Taxonomy:
+def xenogiInterfacer_1(taxO:Taxonomy, allQryGbksL:list, paramsO:Parameters) \
+                                                                   -> Taxonomy:
     """ xenogiInterfacer_1:
             Accepts a Taxonomy object, a list of paths (str) to the query genb-
             ank files, and a Parameters object as inputs. Downloads the ingroup
@@ -296,12 +297,14 @@ def calculateCoreGenes(paramO:Parameters) -> None:
     print(DONE)
 
 
-def makeSpeciesTree(paramO:Parameters, outgroup:Taxonomy) -> None:
+def makeSpeciesTree(allQryGbksL:list, paramO:Parameters, outgroup:Taxonomy) \
+                                                                       -> None:
     """ makeSpeciesTree:
-            Accepts a Parameters object and an outgroup (Taxonomy) as inputs.
-            Uses xenoGI to make a species tree, and then builds another tree b-
-            ased on the concatenated alignments of the hardcore genes and roots
-            the tree on the specified outgroup. Does not return.
+            Accepts a list of the query genbank files, a Parameters object and
+            an outgroup (Taxonomy) as inputs. Uses xenoGI to make a species tr-
+            ee, and then builds another tree based on the concatenated alignme-
+            nts of the hardcore genes and roots the tree on the specified outg-
+            roup. Does not return.
     """
     # constants
     PRINT_1 = 'Aligning core genes and making gene trees ... '
@@ -322,8 +325,19 @@ def makeSpeciesTree(paramO:Parameters, outgroup:Taxonomy) -> None:
     fastTree = paramO.fastTreePath
     speTreeFN = paramO.speciesTreeFN
 
+    # make a list of the human names for the query genomes
+    queryHumanNamesL = list()
+    for qryGbk in allQryGbksL:
+        basename = os.path.basename(qryGbk)
+        humanName = os.path.splitext(basename)[0]
+        queryHumanNamesL.append(humanName)
+
     # concatenate the alignments
-    __concatenateAlignments(speTreWorkDir, catAlnFN, keyFN, wgsFN)
+    __concatenateAlignments(queryHumanNamesL,
+                            speTreWorkDir,
+                            catAlnFN,
+                            keyFN,
+                            wgsFN)
 
     # run fasttree on the concatenated alignment
     print(PRINT_2, end='', flush=True)
@@ -386,15 +400,15 @@ def __makeGeneTreesWrapper(paramO:Parameters) -> None:
                                newAabrhHardCoreL)
 
 
-def __concatenateAlignments(speciesTreeWorkDir:str, alnOutFN:str, keyFN:str, \
-                                                         wgsMapFN:str) -> None:
+def __concatenateAlignments(qryHumanNamesL:list, speciesTreeWorkDir:str, \
+                                 alnOutFN:str, keyFN:str,wgsMapFN:str) -> None:
     """ concatenateAlignments:
-            Accepts a string indicating the make species tree working director-
-            y, a string indicating the output filename, a string indicating the
-            famToGeneKey filename, and a string indicating the wgsHumanMap fil-
-            ename as inputs. Concatenates the alignments of all the hardcore
-            genes and then saves the concatenated alignment in fasta format.
-            Does not return.
+            Accepts a list of human names for the query genomes, a string indi-
+            cating the make species tree working directory, a string indicating
+            the output filename, a string indicating the famToGeneKey filename,
+            and a string indicating the wgsHumanMap filename as inputs. Concat-
+            enates the alignments of all the hardcore genes and then saves the
+            concatenated alignment in fasta format. Does not return.
     """
     # constants
     FILE_NAME_PATTERN = 'align*afa'
@@ -402,7 +416,9 @@ def __concatenateAlignments(speciesTreeWorkDir:str, alnOutFN:str, keyFN:str, \
     GREP_FIND_1 = r'^.+align(\d+)\.afa$'
     GREP_FIND_2 = r'^\S+ (\d+)$'
     GREP_REPL = r'\1'
-    USER_INPUT = "user_input"
+    DELIM = "\t"
+    SEP = "|"
+    EOL = "\n"
 
     # get the files sring
     fileString = os.path.join(speciesTreeWorkDir, FILE_NAME_PATTERN)
@@ -410,15 +426,9 @@ def __concatenateAlignments(speciesTreeWorkDir:str, alnOutFN:str, keyFN:str, \
     # get a list of all the alignment files
     allAfa = glob.glob(fileString)
 
-    # make sure the fam number to gene number file is empty
-    filehandle = open(keyFN, "w")
-    filehandle.close()
-
-    # open the file for appending data during the loop
-    filehandle = open(keyFN, "a")
-
     # concatenate sequences in dictionary format
     seqD = dict()
+    famKeyD = dict()
     for filename in allAfa:
         # get the aabrhHardCoreFam number from the filename
         famNum = str(int(re.sub(GREP_FIND_1, GREP_REPL, filename)))
@@ -437,19 +447,47 @@ def __concatenateAlignments(speciesTreeWorkDir:str, alnOutFN:str, keyFN:str, \
             else:
                 seqD[record.id] += record.seq
             
-            # save the gene number for the user's input
-            if record.id == USER_INPUT:
+            # save the gene number for the user's input genomes
+            if record.id in qryHumanNamesL:
                 # get the gene number and save it in the number file
                 genNum = re.sub(GREP_FIND_2, GREP_REPL, record.description)
 
-                # make the tab delimited string and append it to the file
-                filehandle.write(famNum + "\t" + genNum + "\n")
+                # make a new dictionary for each famNum that is absent
+                if famNum not in famKeyD.keys():
+                    famKeyD[famNum] = {record.id: genNum}
 
-    # close the key file
-    filehandle.close()
+                # add subsequent entries to nested dictionary
+                else:
+                    famKeyD[famNum].update({record.id: genNum})
+
+    # make sure keyFN is empty
+    keyFH = open(keyFN, 'w')
+    keyFH.close()
+
+    # open keyFN to write famKeyD data to file
+    keyFH = open(keyFN, 'a')
+
+    # for each family number
+    for famNum in famKeyD.keys():
+        # initialize the line with the family number
+        lineStr = famNum + DELIM
+
+        # loop through the query names so that ordering is consistent
+        for queryName in qryHumanNamesL:
+            # add the associated gene numbers separated by the SEP character
+            lineStr += famKeyD[famNum][queryName] + SEP
+        
+        # remove the trailing SEP character and add EOL to the line
+        lineStr = lineStr[:-1] + EOL
+
+        # write the line to the file
+        keyFH.write(lineStr)
+    
+    # close the file
+    keyFH.close()
 
     # load the wgsHumanMap file into memory
-    wgsMapL = parseCsv(wgsMapFN, delim="\t")
+    wgsMapL = parseCsv(wgsMapFN, delim=DELIM)
 
     # convert the dictionary to a list of SeqRecord objects
     allConcatenatedRecords = list()
@@ -576,7 +614,7 @@ def rankPhylogeneticMarkers(paramO:Parameters) -> None:
     """ rankPhylogeneticMarkers:
             Accepts a Parameters object as input. Calculates the cophenetic co-
             rrelation coefficient for all hardcore genes and writes the results
-            to the file specified in the parameter dictionary. Does not return.
+            to the file specified in the Parameters object. Does not return.
     """
     # constants
     PRINT_1 = 'Ranking phylogenetic markers ... '
@@ -586,6 +624,7 @@ def rankPhylogeneticMarkers(paramO:Parameters) -> None:
     GENE_NAME_IDX = 1
     LOCUS_TAG_IDX = 2
     ANNOTATXN_IDX = 4
+    SEP = "|"
     DELIM = "\t"
     EOL = "\n"
     HEADER_STRING = "cophenetic_corr_coef" + DELIM + "gene_num" + DELIM + \
@@ -615,20 +654,34 @@ def rankPhylogeneticMarkers(paramO:Parameters) -> None:
     entry:tuple
     for entry in cophCorrCoefs:
         # parse the tuple into gene number and cophenetic correlation coef.
-        geneNum = entry[GENE_NUM_IDX]
+        geneNumStr:str = entry[GENE_NUM_IDX]
         cophCor = str(entry[COPH_COR_IDX])
 
-        # get a tuple of all the gene information
-        geneInfo = genesO.numToGeneInfo(int(geneNum))
+        # initialize empty strings for each field
+        locusTag = ""
+        geneName = ""
+        annotation = ""
 
-        # parse the desired strings from the geneInfo dictionary
-        locusTag = geneInfo[LOCUS_TAG_IDX]
-        geneName = geneInfo[GENE_NAME_IDX]
-        annotation = geneInfo[ANNOTATXN_IDX]
+        # for each gene number 
+        for geneNum in geneNumStr.split(SEP):
+            # get a tuple of all the gene information
+            geneInfo = genesO.numToGeneInfo(int(geneNum))
 
-        # construct the string and write to file
-        lineStr = cophCor + DELIM + geneNum + DELIM + locusTag + DELIM + \
-                                    geneName + DELIM + annotation + EOL
+            # parse the desired strings from the geneInfo dictionary
+            # append the data onto the growing strings
+            # multiple genomes will have multiple values at each position
+            locusTag += geneInfo[LOCUS_TAG_IDX] + SEP
+            geneName += geneInfo[GENE_NAME_IDX] + SEP
+            annotation += geneInfo[ANNOTATXN_IDX] + SEP
+        
+        # remove the trailing sep characters
+        locusTag = locusTag[:-1]
+        geneName = geneName[:-1]
+        annotation = annotation[:-1]
+
+        # construct the string and write it to file
+        lineStr = cophCor + DELIM + geneNumStr + DELIM + locusTag + DELIM + \
+                                            geneName + DELIM + annotation + EOL
         filehandle.write(lineStr)
     
     # close the file
