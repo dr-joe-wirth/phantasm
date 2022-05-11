@@ -62,8 +62,7 @@ def phyloMarkerBlastRunner(geneNumsL:list, paramO:Parameters) -> None:
     blastFH = open(blastFN, 'w')
     blastFH.close()
 
-    # open the blast file to begin saving results
-    blastFH = open(blastFN, 'a')
+    
 
     # for each seq record
     #### doing it this way should ease the strain on remote blast computation
@@ -73,10 +72,20 @@ def phyloMarkerBlastRunner(geneNumsL:list, paramO:Parameters) -> None:
         SeqIO.write(seqRec, tempFaaFN, FORMAT)
 
         # run the blastp with the new fasta against nr
+
+
+        print('against nr')
+
+
         __blastFaaAgainstDb(tempFaaFN, tempBlastFN, blastExecutDirPath, DB_1)
 
         # check that the blast was successful
         if os.path.getsize(tempBlastFN) == 0:
+
+
+            print('against refseq_protein')
+
+
             # if not, then run a blast against refseq_protein
             __blastFaaAgainstDb(tempFaaFN, tempBlastFN, blastExecutDirPath, DB_2)
         
@@ -89,8 +98,13 @@ def phyloMarkerBlastRunner(geneNumsL:list, paramO:Parameters) -> None:
         tempBlastFH = open(tempBlastFN, 'r')
 
         # move the data from the temp file into the blast file
+        # open the blast file to begin saving results
+        blastFH = open(blastFN, 'a')
         for line in tempBlastFH:
             blastFH.write(line)
+        
+        # close the blast file
+        blastFH.close()
         
         # close the temp blast file
         tempBlastFH.close()
@@ -98,9 +112,8 @@ def phyloMarkerBlastRunner(geneNumsL:list, paramO:Parameters) -> None:
         # remove the temp files
         os.remove(tempFaaFN)
         os.remove(tempBlastFN)
-    
-    # close the blast file
-    blastFH.close()
+
+        print('finished first blastp')
 
     print(DONE)
 
