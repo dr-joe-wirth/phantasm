@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 # Author: Joseph S. Wirth
 
 from PHANTASM.main import getPhyloMarker, refinePhylogeny
