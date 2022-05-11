@@ -29,8 +29,10 @@ def phyloMarkerBlastRunner(geneNumsL:list, paramO:Parameters) -> None:
             not return.
     """
     # constants
-    PRINT_1 = 'Using the phylogenetic marker to search for closely-related genomes ... '
+    PRINT_1 = 'Using the phylogenetic marker(s) to search for closely-related genomes ... '
     DONE = 'Done.'
+    TEMP_FAA_FN = "temp.faa"
+    TEMP_BLAST_FN = 'temp.blastp'
     FORMAT = 'fasta'
     DB_1 = "nr"
     DB_2 = "refseq_protein"
@@ -52,18 +54,53 @@ def phyloMarkerBlastRunner(geneNumsL:list, paramO:Parameters) -> None:
     # save the file as a fasta
     SeqIO.write(allSeqRecs, faaFN, FORMAT)
 
-    # run the blastp with the new fasta against nr
-    __blastFaaAgainstDb(faaFN, blastFN, blastExecutDirPath, DB_1)
+    # determine the temporary filenames
+    tempFaaFN = os.path.join(os.path.dirname(faaFN), TEMP_FAA_FN)
+    tempBlastFN = os.path.join(os.path.dirname(blastFN), TEMP_BLAST_FN)
 
-    # check that the blast was successful
-    if os.path.getsize(blastFN) == 0:
-        # if not, then run a blast against refseq_protein
-        __blastFaaAgainstDb(faaFN, blastFN, blastExecutDirPath, DB_2)
+    # make sure the blast file is empty
+    blastFH = open(blastFN, 'w')
+    blastFH.close()
+
+    # open the blast file to begin saving results
+    blastFH = open(blastFN, 'a')
+
+    # for each seq record
+    #### doing it this way should ease the strain on remote blast computation
+    #### this way is more likely to successfully get a result back
+    for seqRec in allSeqRecs:
+        # write the record to file
+        SeqIO.write(seqRec, tempFaaFN, FORMAT)
+
+        # run the blastp with the new fasta against nr
+        __blastFaaAgainstDb(tempFaaFN, tempBlastFN, blastExecutDirPath, DB_1)
+
+        # check that the blast was successful
+        if os.path.getsize(tempBlastFN) == 0:
+            # if not, then run a blast against refseq_protein
+            __blastFaaAgainstDb(tempFaaFN, tempBlastFN, blastExecutDirPath, DB_2)
+        
+        # check that the blast was successful
+        if os.path.getsize(tempBlastFN) == 0:
+            # if not, then raise an error
+            raise RuntimeError("blastp failed.")
+        
+        # open the temp file
+        tempBlastFH = open(tempBlastFN, 'r')
+
+        # move the data from the temp file into the blast file
+        for line in tempBlastFH:
+            blastFH.write(line)
+        
+        # close the temp blast file
+        tempBlastFH.close()
+
+        # remove the temp files
+        os.remove(tempFaaFN)
+        os.remove(tempBlastFN)
     
-    # check that the blast was successful
-    if os.path.getsize(blastFN) == 0:
-        # if not, then raise an error
-        raise RuntimeError("blastp failed.")
+    # close the blast file
+    blastFH.close()
 
     print(DONE)
 
