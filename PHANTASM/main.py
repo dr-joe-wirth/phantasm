@@ -28,7 +28,7 @@ def refinePhylogeny(geneNumsL:list, allQueryGenbanksL:list, paramO_1:Parameters,
     outgroup = findMissingRelativesWrapper(geneNumsL, allQueryGenbanksL, \
                                                             paramO_1, paramO_2)
     coreGenesWrapper_2(paramO_1, paramO_2)
-    finalAnalysesWrapper(outgroup, paramO_2)
+    finalAnalysesWrapper(allQueryGenbanksL, outgroup, paramO_2)
 
 
 def taxonomyWrapper(allQueryGenbanksL:list, paramO_1:Parameters) -> Taxonomy:
@@ -95,10 +95,11 @@ def coreGenesWrapper_2(paramO_1:Parameters, paramO_2:Parameters) -> None:
     calculateCoreGenes(paramO_2)
 
 
-def finalAnalysesWrapper(outgroup:Taxonomy, paramO_2:Parameters) -> None:
+def finalAnalysesWrapper(allQryGbksL:list, outgroup:Taxonomy, \
+                                                  paramO_2:Parameters) -> None:
     """ makes the second species tree and calculates OGRIs.
     """
-    makeSpeciesTree(paramO_2, outgroup)
+    makeSpeciesTree(allQryGbksL, paramO_2, outgroup)
     overallGenomeRelatedIndices(paramO_2)
     makeAaiHeatmap(paramO_2, outgroup)
     makeAniHeatmap(paramO_2, outgroup)
