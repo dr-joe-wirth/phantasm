@@ -1,6 +1,6 @@
 # Author: Joseph S. Wirth
 
-import os, re
+import os, re, string
 from PHANTASM.utilities import downloadFileFromFTP, removeFileExtension, decompressGZ
 from PHANTASM.Parameter import Parameters
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
@@ -174,7 +174,7 @@ def _makeTaxonName(speciesO:Taxonomy) -> str:
     INVALID_STR = '__invalid'
     TYPE_SUFFIX = "_T"
     SEP = "|"
-    ILLEGAL_CHAR_GREP = r'[\#\%\&\{\}\\\<\>\*\?\/\$\!\'\"\:\@\+\`\=\|\ ]'
+    ALLOWED_CHARS = string.ascii_letters + string.digits + "_-"
 
     # otherwise if the species name is invalid, then reflect this in the name
     if INVALID_TAX in speciesO.sciName:
@@ -187,9 +187,18 @@ def _makeTaxonName(speciesO:Taxonomy) -> str:
     # replace any spaces in the species name with underscores
     speciesName = re.sub(' ', '_', speciesName)
 
-    # get the strain information and remove illegal characters
-    strainName = speciesO.assemblyStrain
-    strainName = re.sub(ILLEGAL_CHAR_GREP, '_', strainName)
+    # initialize the strain name string
+    strainName = ""
+
+    # for each character in the assembly strain name
+    for char in speciesO.assemblyStrain:
+        # keep the character if it is allowed
+        if char in ALLOWED_CHARS:
+            strainName += char
+        
+        # replace illegal characters with an underscore
+        else:
+            strainName += "_"
 
     # determine if the genome is a type strain
     if speciesO.assemblyFromType:
