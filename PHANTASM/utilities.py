@@ -6,33 +6,6 @@ from Bio.Entrez import Parser
 from PHANTASM.taxonomy.TaxRank import TaxRank
 from PHANTASM.Parameter import Parameters
 
-def getRedundantInds(inputList:list) -> list:
-    """ getRedundantInds:
-            Accepts a list as input. Finds the redundant elements and makes a 
-            list of the indices where the redundant elements are located. 
-            Returns the list.
-    """
-    # intialize lists
-    uniqThings = list()
-    redIndices = list()
-
-    for i in range(len(inputList)):
-        # keep track of the unique elements
-        if not inputList[i] in uniqThings:
-            uniqThings.append(inputList[i])
-        
-        # if not unique, then redundant; save the index
-        else:
-            redIndices.append(i)
-    
-    # return the redundant indices:
-    return redIndices
-
-
-def unique(inputL:list) -> list:
-    outL = set(inputL)
-    return list(outL)
-
 
 def getParamO_1(email:str) -> Parameters:
     """ getParamO_1:
@@ -81,10 +54,15 @@ def getParamO_2(email:str) -> Parameters:
 
 
 def validEmailAddress(email:str) -> bool:
+    """ validEmailAddress:
+            Accepts an email address (str) as input. Ensures that it matches an
+            expected pattern as defined by two general regular expressions. Re-
+            turns a boolean indicating if the email is valid.
+    """
     GREP_FIND_1 = r'\s'
     GREP_FIND_2 = r'^[^@]+@[^@]+\.[^@]+$'
     
-    # if whitespace, then invalid
+    # if whitespace present, then invalid
     if re.search(GREP_FIND_1, email):
         return False
     
@@ -92,8 +70,8 @@ def validEmailAddress(email:str) -> bool:
     elif re.search(GREP_FIND_2, email):
         return True
     
-    else:
-        return False
+    # if here, then false
+    return False
 
 
 def checkEntrezEmail(email:str) -> None:
