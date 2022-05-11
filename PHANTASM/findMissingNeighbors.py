@@ -796,22 +796,23 @@ def xenogiInterfacer_2(allQryGbksL:list, oldParamO:Parameters, newParamO:Paramet
     oldGbkDir = os.path.dirname(oldGenbankFilePath)
     oldGbkDir = os.path.abspath(oldGbkDir)
 
+    # initialize the human map string
+    #### cannot open file and append
+    #### __downloadGbffFromSpeciesList will delete the existing human map file
+    humanMapStr = ""
+
     # make symlinks for files and simultaneously make the human map string
-    filehandle = open(newHumanMapFN, 'a')
     for filename in filesToCopy:
         # extract the Taxonomy object from the dictionary
         taxon:Taxonomy = fileToSpeD[filename]
 
         # add the human map string data to the growing string
-        humanMapStr = _makeHumanMapString(taxon, filename)
+        humanMapStr += _makeHumanMapString(taxon, filename)
 
         # make a symlink for the existing file
         oldFN = os.path.join(oldGbkDir, filename)
         newFN = os.path.join(newGbkDir, filename)
         os.symlink(oldFN, newFN)
-
-        # write the string to file
-        filehandle.write(humanMapStr)
     
     # for each of the user's query genomes
     for queryGbff in allQryGbksL:
@@ -823,15 +824,11 @@ def xenogiInterfacer_2(allQryGbksL:list, oldParamO:Parameters, newParamO:Paramet
         newFN = os.path.join(newGbkDir, basename)
         os.symlink(oldFN, newFN)
 
-        # get the human name for the query file name
+        # get the human name from the query file name
         humanName = _humanNameFromQueryGenbankFN(queryGbff)
 
         # make the human map string and append it to the human map file
-        humanMapStr = _makeHumanMapString(humanName, basename)
-        filehandle.write(humanMapStr)
-    
-    # close the human map file
-    filehandle.close()
+        humanMapStr += _makeHumanMapString(humanName, basename)
     
     # make a list of species objects that still need to be downloaded
     speciesL = list()
@@ -842,5 +839,10 @@ def xenogiInterfacer_2(allQryGbksL:list, oldParamO:Parameters, newParamO:Paramet
     print(PRINT_2, end='', flush=True)
     __downloadGbffFromSpeciesList(speciesL, newHumanMapFN, newGbkDir)
     print(DONE)
+
+    # append the human map string to the file
+    filehandle = open(newHumanMapFN, 'a')
+    filehandle.write(humanMapStr)
+    filehandle.close()
 
     return outgroup
