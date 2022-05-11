@@ -6,6 +6,7 @@ from PHANTASM.taxonomy.Taxonomy import Taxonomy
 from PHANTASM.rRNA.runRnaBlast import __makeOutfmtString
 from PHANTASM.utilities import parseCsv, ncbiIdsFromSearchTerm, ncbiSummaryFromIdList, ncbiELinkFromIdList, extractIdsFromELink, removeFileExtension
 from PHANTASM.downloadGbff import __downloadGbffFromSpeciesList, _makeHumanMapString
+from PHANTASM.coreGenes import _humanNameFromQueryGenbankFN
 from Bio import Entrez, SeqIO, SeqFeature
 from Bio.SeqRecord import SeqRecord
 from Bio.SeqIO.FastaIO import FastaIterator
@@ -796,30 +797,41 @@ def xenogiInterfacer_2(allQryGbksL:list, oldParamO:Parameters, newParamO:Paramet
     oldGbkDir = os.path.abspath(oldGbkDir)
 
     # make symlinks for files and simultaneously make the human map string
-    humanMapStr = ''
+    filehandle = open(newHumanMapFN, 'a')
     for filename in filesToCopy:
         # extract the Taxonomy object from the dictionary
         taxon:Taxonomy = fileToSpeD[filename]
 
         # add the human map string data to the growing string
-        humanMapStr +=  _makeHumanMapString(taxon, filename)
+        humanMapStr = _makeHumanMapString(taxon, filename)
 
         # make a symlink for the existing file
         oldFN = os.path.join(oldGbkDir, filename)
         newFN = os.path.join(newGbkDir, filename)
         os.symlink(oldFN, newFN)
+
+        # write the string to file
+        filehandle.write(humanMapStr)
     
     # for each of the user's query genomes
     for queryGbff in allQryGbksL:
-        # make a symlink for the user's input file
+        # get the file name
         basename = os.path.basename(queryGbff)
-        noext = os.path.splitext(basename)[0]
+
+        # make a symlink to the user's input file
         oldFN = os.path.abspath(queryGbff)
         newFN = os.path.join(newGbkDir, basename)
         os.symlink(oldFN, newFN)
 
-        # add the user input to the human map string
-        humanMapStr += _makeHumanMapString(noext, basename)
+        # get the human name for the query file name
+        humanName = _humanNameFromQueryGenbankFN(queryGbff)
+
+        # make the human map string and append it to the human map file
+        humanMapStr = _makeHumanMapString(humanName, basename)
+        filehandle.write(humanMapStr)
+    
+    # close the human map file
+    filehandle.close()
     
     # make a list of species objects that still need to be downloaded
     speciesL = list()
@@ -830,10 +842,5 @@ def xenogiInterfacer_2(allQryGbksL:list, oldParamO:Parameters, newParamO:Paramet
     print(PRINT_2, end='', flush=True)
     __downloadGbffFromSpeciesList(speciesL, newHumanMapFN, newGbkDir)
     print(DONE)
-
-    # add the human map string for the symlinked files to the human map file
-    filehandle = open(newHumanMapFN, 'a')
-    filehandle.write(humanMapStr)
-    filehandle.close()
 
     return outgroup

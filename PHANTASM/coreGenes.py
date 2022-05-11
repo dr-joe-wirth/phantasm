@@ -1,7 +1,7 @@
 # Author: Joseph S. Wirth
 
 from __future__ import annotations
-import csv, glob, os, re, scipy.stats, subprocess, sys
+import csv, glob, os, re, scipy.stats, string, subprocess, sys
 from PHANTASM.utilities import parseCsv
 from PHANTASM.Parameter import Parameters
 from Bio import SeqIO
@@ -12,7 +12,7 @@ from param import XENOGI_DIR
 sys.path.insert(0,os.path.join(sys.path[0], XENOGI_DIR))
 import xenoGI.xenoGI, xenoGI.scores, xenoGI.Tree, xenoGI.genomes, xenoGI.trees
 
-# global constant for separating multiple geno
+# global constant for separating the data of multiple input genomes
 SEP_CHAR = ","
 
 def xenogiInterfacer_1(taxO:Taxonomy, allQryGbksL:list, paramsO:Parameters) \
@@ -47,22 +47,57 @@ def xenogiInterfacer_1(taxO:Taxonomy, allQryGbksL:list, paramsO:Parameters) \
     os.remove(oldTaxFN)
     taxO.save(newTaxFN)
 
+    # open the human map file
+    filehandle = open(humanMapFN, "a")
+
     # for each query genome in the list
     for queryGbff in allQryGbksL:
+        # get the file name
+        basename = os.path.basename(queryGbff)
+
         # make a symlink to the user's input file
         oldFN = os.path.abspath(queryGbff)
-        newFN = os.path.join(gbffDir, os.path.basename(queryGbff))
+        newFN = os.path.join(gbffDir, basename)
         os.symlink(oldFN, newFN)
 
-        # add the query to the human map file
-        basename = os.path.basename(queryGbff)
-        noext = os.path.splitext(basename)[0]
-        humanMapStr = _makeHumanMapString(noext, basename)
-        filehandle = open(humanMapFN, "a")
+        # get the human name for the query file name
+        humanName = _humanNameFromQueryGenbankFN(queryGbff)
+
+        # make the human map string and append it to the human map file
+        humanMapStr = _makeHumanMapString(humanName, basename)
         filehandle.write(humanMapStr)
-        filehandle.close()
+    
+    # close the human map file
+    filehandle.close()
 
     return outgroup
+
+
+def _humanNameFromQueryGenbankFN(queryGbff:str) -> str:
+    """ humanNameeFromQueryGenbankFN:
+            Accepts a filename (str) of a query genome as input. Returns the
+            corresponding human name as a string for use in the human map file.
+    """
+    # constants
+    ALLOWED_CHARS = string.ascii_letters + string.digits + "_"
+    
+    # get the filename without the extension or path
+    noext = os.path.splitext(os.path.basename(queryGbff))[0]
+
+    # initialize the human name string
+    humanName = ""
+
+    # for each character in the filename
+    for char in noext:
+        # keep allowed characters
+        if char in ALLOWED_CHARS:
+            humanName += char
+        
+        # replace illegal characters with underscores
+        else:
+            humanName += "_"
+
+    return humanName
 
 
 def parseGenbank(paramD:dict) -> None:
