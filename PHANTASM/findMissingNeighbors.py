@@ -72,19 +72,10 @@ def phyloMarkerBlastRunner(geneNumsL:list, paramO:Parameters) -> None:
         SeqIO.write(seqRec, tempFaaFN, FORMAT)
 
         # run the blastp with the new fasta against nr
-
-
-        print('against nr')
-
-
         __blastFaaAgainstDb(tempFaaFN, tempBlastFN, blastExecutDirPath, DB_1)
 
         # check that the blast was successful
         if os.path.getsize(tempBlastFN) == 0:
-
-
-            print('against refseq_protein')
-
 
             # if not, then run a blast against refseq_protein
             __blastFaaAgainstDb(tempFaaFN, tempBlastFN, blastExecutDirPath, DB_2)
@@ -112,8 +103,6 @@ def phyloMarkerBlastRunner(geneNumsL:list, paramO:Parameters) -> None:
         # remove the temp files
         os.remove(tempFaaFN)
         os.remove(tempBlastFN)
-
-        print('finished first blastp')
 
     print(DONE)
 
