@@ -3,7 +3,7 @@
 from PHANTASM.rRNA.runRnaBlast import rnaBlastRunner
 from PHANTASM.rRNA.processRnaBlast import getTaxIdsFromRnaBlast
 from PHANTASM.Parameter import Parameters
-from PHANTASM.taxonomy.taxonomyConstruction import Taxonomy, constructTaxonomy, __getLpsnData
+from PHANTASM.taxonomy.taxonomyConstruction import Taxonomy, constructTaxonomy, _getLpsnData
 from PHANTASM.coreGenes import rankPhylogeneticMarkers, xenogiInterfacer_1, \
                         parseGenbank, allVsAllBlast, copyExistingBlastFiles, \
                         calculateCoreGenes, makeSpeciesTree
@@ -78,7 +78,7 @@ def findMissingRelativesWrapper(geneNumsL:list, allQueryGenbanksL:list, \
         and makes the new human map file. returns the outgroup species as a str
         (scientific name).
     """
-    lpsnD = __getLpsnData()
+    lpsnD = _getLpsnData()
     phyloMarkerBlastRunner(geneNumsL, paramO_1)
     outgroup = xenogiInterfacer_2(allQueryGenbanksL, paramO_1, paramO_2, lpsnD)
 

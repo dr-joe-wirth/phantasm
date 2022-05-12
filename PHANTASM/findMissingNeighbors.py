@@ -296,7 +296,7 @@ def getRelatives(oldParamO:Parameters, newParamO:Parameters, lpsnD:dict, \
     closestGenusMinScore = uniqueGeneraD[generaSortedL[0]]['min']
     
     # track the index while iterating through genera from best hit to worst
-    relatives = list()
+    relativesL = list()
     for idx in range(len(generaSortedL)):
         # use the index to extract the genus name from the list
         genusName = generaSortedL[idx]
@@ -306,46 +306,58 @@ def getRelatives(oldParamO:Parameters, newParamO:Parameters, lpsnD:dict, \
             # get a handle to that genus
             genus = taxO.getDescendantBySciName(genusName)
 
-            # add all of the species with assemblies to the relatives list
-            relatives.extend(genus.getAllSpeciesWithAssemblies(list))
-        
+            # get all of the species with assemblies to the relatives list
+            speciesL = genus.getAllSpeciesWithAssemblies(list)
+
+            # only store the taxids for each species in the relatives list
+            spe:Taxonomy
+            for spe in speciesL:
+                relativesL.append(spe.taxid)
+
         # otherwise, the list is sorted; it is safe to stop looping
         else: break
 
     # it is possible that too many relatives were selected in the previous step
     # if this is the case, then we need to select a subset of them
-    if len(relatives) > maxNumSeqs:
+    if len(relativesL) > maxNumSeqs:
         # copy relatives and then empty the list
-        speciesToPickL = copy.deepcopy(relatives)
-        relatives = list()
+        speciesToPickL = copy.deepcopy(relativesL)
+        relativesL = list()
 
-        # reverse the indices for on-the-fly popping
+        # reverse the indices and the list for on-the-fly popping
         speIndicesL = list(range(len(speciesToPickL)))
         speIndicesL.reverse()
+        speciesToPickL.reverse()
 
         # go through the indices (in reverse order)
         for speIdx in speIndicesL:
             # extract the current relative
-            relative:Taxonomy = speciesToPickL[speIdx]
+            relativeTaxid = speciesToPickL[speIdx]
+            relative = taxO.getDescendantByTaxId(relativeTaxid)
 
             # if the current relative is type material ...
             if relative.parent.typeMaterial == relative:
                 # ... then pop it from the old and add to relatives
-                relatives.append(speciesToPickL.pop(speIdx))
+                speciesToPickL.pop(speIdx)
+                relativesL.append(relative)
+            
+            # do not exceed the number of available genomes
+            if len(relativesL) >= maxNumSeqs:
+                break
         
         # next, begin adding all species from the related genera
         # speciesToPickL is already in order from closest genus to furthest
         # speciesToPickL will not have any overlap in relatives
-        while len(relatives) < maxNumSeqs and len(speciesToPickL) > 0:
+        while len(relativesL) < maxNumSeqs and len(speciesToPickL) > 0:
             # this will functionally loop through the remaining species
-            relatives.append(speciesToPickL.pop(0))
+            relativesL.append(taxO.getDescendantByTaxId(speciesToPickL.pop(0)))
         
     # the current index can be used to remove the already processed genera
     generaSortedL = generaSortedL[idx:]
     
     # for the remaining genera in the list, add one species from the genus
     # loop until the max num seqs is reached or the genus list is depleted
-    while len(relatives) < maxNumSeqs and generaSortedL != []:
+    while len(relativesL) < maxNumSeqs and generaSortedL != []:
         # get the current genus name and a handle to the corresponding object
         curGenusName = generaSortedL.pop(0)
         curGenus = taxO.getDescendantBySciName(curGenusName)
@@ -361,7 +373,7 @@ def getRelatives(oldParamO:Parameters, newParamO:Parameters, lpsnD:dict, \
 
             # if the type material is a candidate, then this is the selection
             if curGenus.typeMaterial in allCandidates:
-                relatives.append(curGenus.typeMaterial)
+                relativesL.append(curGenus.typeMaterial)
             
             # if type unavailable, select candidates by the following criteria:
                 # bin1:  complete and representative
@@ -397,15 +409,15 @@ def getRelatives(oldParamO:Parameters, newParamO:Parameters, lpsnD:dict, \
                 # prioritize bins first, then prioritize assembly coverage
                 # append only one species per genus
                 if bin1 != []:
-                    relatives.append(bin1[0])
+                    relativesL.append(bin1[0])
                 elif bin2 != []:
-                    relatives.append(bin2[0])
+                    relativesL.append(bin2[0])
                 elif bin3 != []:
-                    relatives.append(bin3[0])
+                    relativesL.append(bin3[0])
                 else:
-                    relatives.append(bin4[0])
+                    relativesL.append(bin4[0])
     
-    return relatives
+    return relativesL
 
 
 def __findMissingAssemblies(blastFN:str, taxO:Taxonomy, lpsnD:dict) -> tuple:
@@ -765,7 +777,7 @@ def xenogiInterfacer_2(allQryGbksL:list, oldParamO:Parameters, newParamO:Paramet
     DONE = 'Done.'
 
     # extract relevant data from the Parameters objects
-    maxNumSeqs = oldParamO.maxNumTreeLeaves - len(allQryGbksL) - 1 # 1 outgroup
+    maxNumSeqs = newParamO.maxNumTreeLeaves - len(allQryGbksL) - 1 # 1 outgroup
     taxObjectFilePath = newParamO.taxonomyObjectFilePath
     oldGenbankFilePath = oldParamO.genbankFilePath
     newGenbankFilePath = newParamO.genbankFilePath

@@ -34,7 +34,7 @@ def constructTaxonomy(taxids:list, saveTax:bool=False, dir:str='./') -> Taxonomy
 
     # for each order ...
     print(PRNT_2, end='', flush=True)
-    lpsnD = __getLpsnData()
+    lpsnD = _getLpsnData()
     for idx in range(len(allOrders)):
         # ... reconcile the object with LPSN data
         order:Taxonomy = allOrders[idx]
@@ -139,8 +139,8 @@ def __getOrder(ordInfo:dict) -> Taxonomy:
     return order
 
 
-def __getLpsnData() -> dict:
-    """ __getLpsnData:
+def _getLpsnData() -> dict:
+    """ getLpsnData:
             Accepts no inputs. Constructs and returns the LPSN data dictionary.
 
             This needs to be retired once an API is available.

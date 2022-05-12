@@ -4,7 +4,7 @@ import os, re, string
 from PHANTASM.utilities import downloadFileFromFTP, removeFileExtension, decompressGZ
 from PHANTASM.Parameter import Parameters
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
-from PHANTASM.taxonomy.taxonomyConstruction import __getLpsnData
+from PHANTASM.taxonomy.taxonomyConstruction import _getLpsnData
 
 
 def downloadGbffsForRootTaxonomy(taxO:Taxonomy, maxNumSeqs:int, paramO:Parameters) -> Taxonomy:
@@ -27,7 +27,7 @@ def downloadGbffsForRootTaxonomy(taxO:Taxonomy, maxNumSeqs:int, paramO:Parameter
     gbffDir = os.path.dirname(gbffFN)
 
     # get lpsnD
-    lpsnD = __getLpsnData()
+    lpsnD = _getLpsnData()
 
     # get a list of species for phylogenetic anlayses
     print(PRINT_1, end='', flush=True)
