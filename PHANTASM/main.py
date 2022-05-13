@@ -3,6 +3,7 @@
 from PHANTASM.rRNA.runRnaBlast import rnaBlastRunner
 from PHANTASM.rRNA.processRnaBlast import getTaxIdsFromRnaBlast
 from PHANTASM.Parameter import Parameters
+from PHANTASM.utilities import cleanup
 from PHANTASM.taxonomy.taxonomyConstruction import Taxonomy, constructTaxonomy, _getLpsnData
 from PHANTASM.coreGenes import rankPhylogeneticMarkers, xenogiInterfacer_1, \
                         parseGenbank, allVsAllBlast, copyExistingBlastFiles, \
@@ -19,6 +20,7 @@ def getPhyloMarker(allQueryGenbanksL:list, paramO:Parameters) -> None:
     outgroup = taxonomyWrapper(allQueryGenbanksL, paramO)
     coreGenesWrapper_1(paramO)
     findPhylogeneticMarkersWrapper(allQueryGenbanksL, outgroup, paramO)
+    cleanup(paramO)
 
 
 def refinePhylogeny(geneNumsL:list, allQueryGenbanksL:list, paramO_1:Parameters, \
@@ -29,6 +31,7 @@ def refinePhylogeny(geneNumsL:list, allQueryGenbanksL:list, paramO_1:Parameters,
                                                             paramO_1, paramO_2)
     coreGenesWrapper_2(paramO_1, paramO_2)
     finalAnalysesWrapper(allQueryGenbanksL, outgroup, paramO_2)
+    cleanup(paramO_2)
 
 
 def taxonomyWrapper(allQueryGenbanksL:list, paramO_1:Parameters) -> Taxonomy:
@@ -103,6 +106,4 @@ def finalAnalysesWrapper(allQryGbksL:list, outgroup:Taxonomy, \
     overallGenomeRelatedIndices(paramO_2)
     makeAaiHeatmap(paramO_2, outgroup)
     makeAniHeatmap(paramO_2, outgroup)
-
-
 

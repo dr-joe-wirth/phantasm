@@ -1,6 +1,6 @@
 # Author: Joseph S. Wirth
 
-import csv, re, ftplib, gzip, os, math, shutil
+import csv, ftplib, glob, gzip, math, os, re, shutil
 from Bio import Entrez
 from Bio.Entrez import Parser
 from PHANTASM.taxonomy.TaxRank import TaxRank
@@ -480,3 +480,22 @@ def decompressGZ(gzFileName:str) -> None:
 
     # remove the gzip file
     os.remove(gzFileName)
+
+
+def cleanup(paramO:Parameters) -> None:
+    """ cleanup:
+            Accepts a Parameters object as input. Removes unnecessary
+    """
+    # constants
+    FILE_PATTERN = "*.dtd"
+
+    # get the working directory
+    workdir = os.path.dirname(paramO.workdir)
+
+    # get a list of files to remove
+    filesToRemove = glob.glob(os.path.join(workdir, FILE_PATTERN))
+
+    # remove each file in the list
+    for file in filesToRemove:
+        os.remove(file)
+
