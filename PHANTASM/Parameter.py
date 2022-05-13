@@ -55,15 +55,18 @@ class Parameters:
     
 
     def __init__(self, email:str, workdir:str, blastExecutDirPath:str, \
-                 musclePath:str, fastTreePath:str, numProcesses:int=1, \
-                                        maxNumTreeLeaves:int=50) -> Parameters:
+                            musclePath:str, fastTreePath:str, iqTreePath:str, \
+                                 numProcesses:int=1, maxNumTreeLeaves:int=50, \
+                                          numBootstraps:int=100) -> Parameters:
         """ __init__:
                 Accepts an email address, a working directory, a directory con-
                 taining blast+ executables, a path to a MUSCLE executable, a
-                path to a FastTree executable, the number of processors, and
-                the maximum number of leaves for species trees as inputs. Popu-
-                lates its member variables using the inputs as several private
-                static class variables. Returns the newly constructed object.
+                path to a FastTree executable, a path to a IQTree executable,
+                the number of processors, the maximum number of leaves for the
+                species trees, and the number of bootstrap supports as inputs.
+                Populates its member variables using the inputs and several
+                private static class variables. Returns the newly constructed
+                object.
         """
         # import the user specified variables; make sure all paths are absolute
         self.email = email
@@ -71,8 +74,10 @@ class Parameters:
         self.blastExecutDirPath = os.path.abspath(blastExecutDirPath)
         self.musclePath = os.path.abspath(musclePath)
         self.fastTreePath = os.path.abspath(fastTreePath)
+        self.iqTreePath = os.path.abspath(iqTreePath)
         self.numProcesses = numProcesses
         self.maxNumTreeLeaves = maxNumTreeLeaves
+        self.numBootstraps = numBootstraps
 
         # add the workdir to the path of selected static class members
         self.genbankFilePath = os.path.join(self.workdir, Parameters.__genbankFilePath)
@@ -131,7 +136,8 @@ class Parameters:
                           paramD['blastExecutDirPath'], 
                           paramD['musclePath'],
                           paramD['fastTreePath'],
+                          paramD['iqTreePath'],
                           paramD['numProcesses'],
-                          paramD['maxNumTreeLeaves'])
-
+                          paramD['maxNumTreeLeaves'],
+                          paramD['numBootstraps'])
 

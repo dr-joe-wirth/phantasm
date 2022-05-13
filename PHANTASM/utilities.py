@@ -14,8 +14,8 @@ def getParamO_1(email:str) -> Parameters:
             ters object.
     """
     # import relevant data from param.py and specify the anlysis directory
-    from param import BLASTPLUS_DIR, MUSCLE_EXE, FASTTREE_EXE, NUM_PROCESSORS,\
-                                                                     MAX_LEAVES
+    from param import BLASTPLUS_DIR, MUSCLE_EXE, FASTTREE_EXE, IQTREE_EXE, \
+                                     NUM_PROCESSORS, MAX_LEAVES, NUM_BOOTSTRAPS
     ANALYSIS_DIR = './initialAnalysis'
 
     # build the parameter object
@@ -24,8 +24,10 @@ def getParamO_1(email:str) -> Parameters:
                             BLASTPLUS_DIR,
                             MUSCLE_EXE,
                             FASTTREE_EXE,
+                            IQTREE_EXE,
                             NUM_PROCESSORS,
-                            MAX_LEAVES)
+                            MAX_LEAVES,
+                            NUM_BOOTSTRAPS)
 
     return parameterO
 
@@ -37,8 +39,8 @@ def getParamO_2(email:str) -> Parameters:
             ters object.
     """
     # import relevant data from param.py and specify the anlysis directory
-    from param import BLASTPLUS_DIR, MUSCLE_EXE, FASTTREE_EXE, NUM_PROCESSORS,\
-                                                                     MAX_LEAVES
+    from param import BLASTPLUS_DIR, MUSCLE_EXE, FASTTREE_EXE, IQTREE_EXE, \
+                                     NUM_PROCESSORS, MAX_LEAVES, NUM_BOOTSTRAPS
     ANALYSIS_DIR = './finalAnalysis'
 
     # build the parameter object
@@ -47,8 +49,10 @@ def getParamO_2(email:str) -> Parameters:
                             BLASTPLUS_DIR,
                             MUSCLE_EXE,
                             FASTTREE_EXE,
+                            IQTREE_EXE,
                             NUM_PROCESSORS,
-                            MAX_LEAVES)
+                            MAX_LEAVES,
+                            NUM_BOOTSTRAPS)
     
     return parameterO
 

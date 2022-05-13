@@ -4,6 +4,9 @@ NUM_PROCESSORS:int = 1
 # specify the maximum number of taxa in a given analysis
 MAX_LEAVES:int = 50
 
+# specify the number of bootstrap supports for the final species tree
+NUM_BOOTSTRAPS:int = 100
+
 # specify the path to the folder containing the blast+ executables
 BLASTPLUS_DIR:str = '/usr/local/ncbi/blast/bin'
 
@@ -12,6 +15,9 @@ MUSCLE_EXE:str = '/usr/local/bin/muscle'
 
 # specify the path to the FastTree executable (FastTreeMP is acceptable)
 FASTTREE_EXE:str = '/usr/local/bin/FastTree'
+
+# specify the path to the IQTree exectuable
+IQTREE_EXE:str = '/usr/local/bin/iqtree'
 
 # specify the path to the phantasm directory
 PHANTASM_DIR:str = '/phantasm'
