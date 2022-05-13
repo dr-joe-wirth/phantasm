@@ -62,8 +62,6 @@ def phyloMarkerBlastRunner(geneNumsL:list, paramO:Parameters) -> None:
     blastFH = open(blastFN, 'w')
     blastFH.close()
 
-    
-
     # for each seq record
     #### doing it this way should ease the strain on remote blast computation
     #### this way is more likely to successfully get a result back
@@ -193,8 +191,8 @@ def __blastFaaAgainstDb(faaFN:str, outFN:str, blastExecutDirPath:str, \
     """
     # constants
     REMOTE = True
-    HEADERS = ['sseqid', 'stitle', 'staxid', 'sacc', 'pident', 'length',
-               'mismatch', 'gaps', 'gapopen', 'evalue', 'bitscore']
+    HEADERS = ['qseqid', 'sseqid', 'stitle', 'staxid', 'sacc', 'pident',
+               'length', 'mismatch', 'gaps', 'gapopen', 'evalue', 'bitscore']
     
     # make the outfmt string
     outfmt = __makeOutfmtString('6', HEADERS)
@@ -235,7 +233,7 @@ def getRelatives(oldParamO:Parameters, newParamO:Parameters, lpsnD:dict, \
     assemblyData:tuple = __findMissingAssemblies(blastFN, taxO, lpsnD)
 
     # complete assembly and blastp data keyed by assembly id
-    assembliesD:dict = assemblyData[0]
+    queriesD:dict = assemblyData[0]
 
     # key = taxid of objects in taxO w/o assemblies; val = list of assembly ids
     existNoAssD:dict = assemblyData[1]
@@ -246,8 +244,21 @@ def getRelatives(oldParamO:Parameters, newParamO:Parameters, lpsnD:dict, \
     # add any missing taxa to the existing Taxonomy object
     # once added, make an entry in existNoAssD
     for speciesName in missingD.keys():
-        # get the taxonomy id for the missing species
-        taxid = assembliesD[missingD[speciesName][0]]['taxid']
+        # find the taxid for the species name
+        for qid in queriesD.keys():
+            # extract the assemblies dictionary
+            assembliesD:dict = queriesD[qid]
+
+            # look up the assembly id
+            assmId = missingD[speciesName][0]
+
+            # only attempt look-up if the assembly was hit by this query
+            if assmId in assembliesD.keys():
+                # get the taxonomy id for the missing species
+                taxid = assembliesD[assmId]['taxid']
+
+                # stop looping through queries once taxid is found
+                break
 
         # create a new object for the missing species (internal by default)
         newTaxon = Taxonomy(taxid, speciesName, 'species')
@@ -274,55 +285,79 @@ def getRelatives(oldParamO:Parameters, newParamO:Parameters, lpsnD:dict, \
         # get a handle to the species of interest
         speciesO = taxO.getRoot().getDescendantByTaxId(taxId)
 
-        # add the assembly to taxO; automatically saves the best assembly
+        # initialize a set of assembly ids that have been seen
+        seenAssmId = set()
+
+        # for each assembly id
         for assmId in assmIdsL:
-            # update object with the assembly
-            assembly:dict = assembliesD[assmId]
-            speciesO._updateAssemblyInfo(assembly['summary'])
+            # for each query
+            for qid in queriesD.keys():
+                # get the assemblies hit by the current query
+                assembliesD:dict = queriesD[qid]
+
+                # if the assembly was hit and not yet seen
+                if assmId in assembliesD.keys() and assmId not in seenAssmId:
+                    # extract the assembly information
+                    assembly:dict = assembliesD[assmId]
+
+                    # add the assembly to taxO
+                    # this automatically saves the best assembly
+                    speciesO._updateAssemblyInfo(assembly['summary'])
+
+                    # mark the assembly as seen
+                    seenAssmId.add(assmId)
 
     # save a taxonomy file with the new taxonomy
     taxO = taxO.getRoot()
     newTaxFN = os.path.join(newTaxDir, taxO.sciName + newTaxExt)
     taxO.save(newTaxFN)
 
-    # get the unique genera with their min and max bitscores
-    uniqueGeneraD = __getUniqueGeneraFromAssembliesD(assembliesD, lpsnD)
-
-    # sort the unique genera from highest max bitscore to lowest max bitscore
-    sortMethod = lambda genName: uniqueGeneraD[genName]['max']
-    generaSortedL = sorted(uniqueGeneraD.keys(), key=sortMethod, reverse=True)
-
-    # get the minimum score for the genus with the highest maximum score
-    closestGenusMinScore = uniqueGeneraD[generaSortedL[0]]['min']
-    
-    # track the index while iterating through genera from best hit to worst
+    # initialize a list to store the related species
     relativesL = list()
-    for idx in range(len(generaSortedL)):
-        # use the index to extract the genus name from the list
-        genusName = generaSortedL[idx]
 
-        # if the max score for the genus >= the lowest score for the best genus
-        if uniqueGeneraD[genusName]['max'] >= closestGenusMinScore:
-            # get a handle to that genus
-            genus = taxO.getDescendantBySciName(genusName)
+    # initialize a list to track which genera have been used
+    generaUsed = list()
 
-            # get all of the species with assemblies to the relatives list
-            speciesL = genus.getAllSpeciesWithAssemblies(list)
+    # for each query
+    for qid in queriesD.keys():
+        # extract the assemblies hit by the current query
+        assembliesD:dict = queriesD[qid]
 
-            # only store the taxids for each species in the relatives list
-            spe:Taxonomy
-            for spe in speciesL:
-                relativesL.append(spe.taxid)
+        # get the unique genera with their min and max bitscores
+        uniqueGeneraD = __getUniqueGeneraFromAssembliesD(assembliesD, lpsnD)
 
-        # otherwise, the list is sorted; it is safe to stop looping
-        else: break
+        # sort unique genera from highest max bitscore to lowest max bitscore
+        sortMethod = lambda genName: uniqueGeneraD[genName]['max']
+        generaSortedL = sorted(uniqueGeneraD.keys(), key=sortMethod, \
+                                                                  reverse=True)
+
+        # get the minimum score for the genus with the highest maximum score
+        closestGenusMinScore = uniqueGeneraD[generaSortedL[0]]['min']
+    
+        # for each genus name
+        for genusName in generaSortedL:
+            # if the current genus hasn't already been used
+            if genusName not in generaUsed:
+                # if the max score for the genus >= min score for best genus
+                if uniqueGeneraD[genusName]['max'] >= closestGenusMinScore:
+                    # get a handle to the current genus
+                    genus = taxO.getDescendantBySciName(genusName)
+
+                    # add all the species with assemblies to the relatives list
+                    relativesL.extend(genus.getAllSpeciesWithAssemblies(list))
+
+                    # mark the genus as used
+                    generaUsed.append(genusName)
+
+                # otherwise, the list is sorted; it is safe to stop looping
+                else: break
 
     # it is possible that too many relatives were selected in the previous step
     # if this is the case, then we need to select a subset of them
     if len(relativesL) > maxNumSeqs:
-        # copy relatives and then empty the list
-        speciesToPickL = copy.deepcopy(relativesL)
-        relativesL = list()
+        # only store the taxids for each species in the relatives list
+        # this greatly improves runtime (copy.deepcopy is too slow )
+        speciesToPickL = [spe.taxid for spe in relativesL]
 
         # reverse the indices and the list for on-the-fly popping
         speIndicesL = list(range(len(speciesToPickL)))
@@ -332,12 +367,11 @@ def getRelatives(oldParamO:Parameters, newParamO:Parameters, lpsnD:dict, \
         # go through the indices (in reverse order)
         for speIdx in speIndicesL:
             # extract the current relative
-            relativeTaxid = speciesToPickL[speIdx]
-            relative = taxO.getDescendantByTaxId(relativeTaxid)
+            relative = taxO.getDescendantByTaxId(speciesToPickL[speIdx])
 
             # if the current relative is type material ...
             if relative.parent.typeMaterial == relative:
-                # ... then pop it from the old and add to relatives
+                # ... then pop it from the list and add it to the relatives
                 speciesToPickL.pop(speIdx)
                 relativesL.append(relative)
             
@@ -352,7 +386,10 @@ def getRelatives(oldParamO:Parameters, newParamO:Parameters, lpsnD:dict, \
             # this will functionally loop through the remaining species
             relativesL.append(taxO.getDescendantByTaxId(speciesToPickL.pop(0)))
         
-    # the current index can be used to remove the already processed genera
+    # get the index of the next unused genus
+    idx = generaSortedL.index(generaUsed[-1]) + 1
+
+    # remove the already used genera from the list
     generaSortedL = generaSortedL[idx:]
     
     # for the remaining genera in the list, add one species from the genus
@@ -425,65 +462,86 @@ def __findMissingAssemblies(blastFN:str, taxO:Taxonomy, lpsnD:dict) -> tuple:
             Accepts a string indicating a blastp result file in outfmt 6 with
             custom headers (see parseBlastpFile for more info), a Taxonomy obj-
             ect, and the LPSN dictionary as inputs. Creates and returns three 
-            dictionaries: the first is the dictionary returned by linkAssembli-
-            esWithBlastpResults. The second is a dictionary keyed by the taxids
-            of objects already present in the Taxonomy object that currently
-            lack assemblies. The third is a dictionary keyed by the names of 
-            validly published species present in the blast result but absent
-            from the Taxonomy object. Both the second and third dictionaries
-            have the corresponding assembly uid as their values.
+            dictionaries: the first is a dictionary whose keys are query ids
+            and whose values are dictionaries of assembly data keyed by assemb-
+            ly ids. The second is a dictionary keyed by the taxids of objects
+            already present in the Taxonomy object that currently lack assembl-
+            ies. The third is a dictionary keyed by the names of validly publi-
+            shed species present in the blast result but absent from the Taxon-
+            omy object. Both the second and third dictionaries have the corres-
+            ponding assembly uid as their values.
     """
     # get a dictionary with both the assembly and blastp data
-    assembliesD = __linkAssembliesWithBlastpResults(blastFN)
-
-    # populate additional diciontaries with hits that need to be resolved
-    existNoAssD = dict()
-    missingD = dict()
-    for assId in assembliesD.keys():
-        # extract values from the assembly dictionary
-        taxid = assembliesD[assId]['taxid']
-        name = assembliesD[assId]['name']
+    rawAssembliesD:dict
+    rawAssembliesD = __linkAssembliesWithBlastpResults(blastFN)
     
-        # make sure name is not a synonym
-        sciName = __renameSpeciesByLpsn(name, lpsnD)
-        
-        # attempt to lookup an existing object by taxid
-        desc = taxO.getDescendantByTaxId(taxid)
+    # make a dictionary keyed by the query to hold the assembly data
+    queriesD = dict()
 
-        # if lookup by taxid failed, then try lookup by sciName
-        if not desc:
-            desc = taxO.getDescendantBySciName(sciName)
+    # for each query id and assembly id pair
+    for qid,aid in rawAssembliesD.keys():
+        # initialize a nested dictionary within queriesD
+        if qid not in queriesD.keys():
+            queriesD[qid] = dict()
         
-        # if lookup by taxid and sciName failed, then try lookup by ncbiName
-        if not desc:
-            desc = taxO.getDescendantByNcbiName(name)
-        
-        # if an existing descendant was found 
-        if desc:
-            # make sure the descendant is marked as internal
-            desc.isExternal = False
+        # store the assembly data within the nested dictionary
+        queriesD[qid][aid] = rawAssembliesD[(qid,aid)]
 
-            # if the existing descendant lacks an assembly
-            if desc.assemblyFtp is None:
-                # make a list of assembly ids if the taxid isn't a key
-                if desc.taxid not in existNoAssD.keys():
-                    existNoAssD[desc.taxid] = [assId]
-                
-                # update the list of assembly ids if the taxid is already a key
-                else:
-                    existNoAssD[desc.taxid].append(assId)
+    # initialize additional dictiontaries with hits that need to be resolved
+    existNoAssD = dict() # species within taxO that lack assemblies
+    missingD = dict() # species not present in taxO
+
+    # for each query
+    for qid in queriesD.keys():
+        # extract the assemblies with hits to the query
+        assembliesD:dict = queriesD[qid]
+
+        # for each assembly
+        for assId in assembliesD.keys():
+            # extract values from the assembly dictionary
+            taxid = assembliesD[assId]['taxid']
+            name = assembliesD[assId]['name']
         
-        # if no existing descendant was found in taxO, but it is a valid name
-        elif sciName is not None:
-            # make a list of assembly ids if the sciName isn't a key
-            if sciName not in missingD.keys():
-                missingD[sciName] = [assId]
+            # make sure name is not a synonym
+            sciName = __renameSpeciesByLpsn(name, lpsnD)
             
-            # update the list of assembly ids if the sciName is already a key
-            else:
-                missingD[sciName].append(assId)
+            # attempt to lookup an existing object by taxid
+            desc = taxO.getDescendantByTaxId(taxid)
+
+            # if lookup by taxid failed, then try lookup by sciName
+            if not desc:
+                desc = taxO.getDescendantBySciName(sciName)
+            
+            # if lookup by taxid and sciName failed try lookup by ncbiName
+            if not desc:
+                desc = taxO.getDescendantByNcbiName(name)
+            
+            # if an existing descendant was found 
+            if desc:
+                # make sure the descendant is marked as internal
+                desc.isExternal = False
+
+                # if the existing descendant lacks an assembly
+                if desc.assemblyFtp is None:
+                    # make a list of assembly ids if the taxid isn't a key
+                    if desc.taxid not in existNoAssD.keys():
+                        existNoAssD[desc.taxid] = [assId]
+                    
+                    # update the list of assembly ids if the taxid is already a key
+                    elif assId not in existNoAssD[desc.taxid]:
+                        existNoAssD[desc.taxid].append(assId)
+            
+            # if no existing descendant was found in taxO, but it is a valid name
+            elif sciName is not None:
+                # make a list of assembly ids if the sciName isn't a key
+                if sciName not in missingD.keys():
+                    missingD[sciName] = [assId]
+                
+                # update the list of assembly ids if the sciName is already a key
+                elif assId not in missingD[sciName]:
+                    missingD[sciName].append(assId)
     
-    return assembliesD, existNoAssD, missingD
+    return queriesD, existNoAssD, missingD
 
 
 def __getUniqueGeneraFromAssembliesD(assembliesD:dict, lpsnD:dict) -> dict:
@@ -545,7 +603,9 @@ def __linkAssembliesWithBlastpResults(blastFN:str) -> dict:
             Accepts a string indicating a blastp result file in outfmt 6 with
             custom headers (see parseBlastpFile for more info) as input. Finds
             and links the assembly information with the blast result via a dic-
-            tionary. Returns the dictionary.
+            tionary. Returns a dictionary whose keys are query-id + assembly-id
+            pairs (tuple) and whose values are the assembly data and the assoc-
+            iated blastp data for the query-assembly pair.
     """
     # constants
     PROT_DB = 'protein'
@@ -563,6 +623,22 @@ def __linkAssembliesWithBlastpResults(blastFN:str) -> dict:
     # get a summary of the protein ids (used to link assemblies later)
     protSummaries = ncbiSummaryFromIdList(protIds, PROT_DB)
 
+    # initialize a list to store the unique query ids
+    queryIds = list()
+
+    # initialize a list to store the unique accession numbers
+    accnNums = list()
+
+    # go through the query-id,assembly-id pairs
+    for qid,aid in hitsD.keys():
+        # save the query id if it is not in the list
+        if qid not in queryIds:
+            queryIds.append(qid)
+
+        # save the assembly id if it is not in the list
+        if aid not in accnNums:
+            accnNums.append(aid)
+
     # make a dictionary linking the protein ids to the blast hits
     prot2hitsD = dict()
     for protSum in protSummaries:
@@ -570,25 +646,37 @@ def __linkAssembliesWithBlastpResults(blastFN:str) -> dict:
         accession = protSum['Caption']
         uid = protSum['Id']
 
-        # handle the rare instance where 'accession' is not in 'hitsD'
-        if accession not in hitsD.keys():
+        # handle the rare instance where 'accession' is not in 'accnNums'
+        if accession not in accnNums:
             continue
 
-        # update hitD so it includes the protein id
-        hitsD[accession]['protein id'] = uid
+        # for each query
+        for qid in queryIds:
+            # if the current query hit the assembly
+            if (qid, accession) in hitsD.keys():
+                # update hitD so it includes the protein id
+                hitsD[qid,accession]['protein id'] = uid
 
-        # add the hit to the dictionary
-        prot2hitsD[uid] = hitsD[accession]
+                # add the hit to the dictionary
+                prot2hitsD[qid,uid] = hitsD[qid,accession]
 
     # use the protein ids to link to nuccore
+    # attempt to do a single search 
     try:
         prot2nuclLink = ncbiELinkFromIdList(protIds, PROT_DB, NUCL_DB)
+
+    # if the single search failed
     except:
+        # initialize a list to store the results
         prot2nuclLink = list()
-        for idx in range(len(protIds)):
+
+        # try each protein id individually
+        for proId in protIds:
+            # save successful searches
             try:
-                proId = protIds[idx]
                 prot2nuclLink += ncbiELinkFromIdList([proId], PROT_DB, NUCL_DB)
+            
+            # skip failures
             except:
                 continue
     
@@ -609,8 +697,10 @@ def __linkAssembliesWithBlastpResults(blastFN:str) -> dict:
     assmSummaries = ncbiSummaryFromIdList(list(assm2nuclD.keys()), 'assembly')
     assmSummaries = assmSummaries['DocumentSummarySet']['DocumentSummary']
 
-    # construct the final dictionary
+    # initialize the final dictionary
     assembliesD = dict()
+
+    # for each assembly summary
     assmSum:Bio.Entrez.Parser.DictionaryElement
     for assmSum in assmSummaries:
         # get the assembly id
@@ -619,15 +709,19 @@ def __linkAssembliesWithBlastpResults(blastFN:str) -> dict:
         # use the assembly id to find protein id via the nuccore id
         protId = nucl2protD[assm2nuclD[assmId]]
 
-        # use the protein id to look up the blast hit
-        blast = prot2hitsD[protId]
+        # for each query
+        for qid in queryIds:
+            # if the query hit the current protein
+            if (qid,protId) in prot2hitsD:
+                # use the protein id to look up the blast hit
+                blast = prot2hitsD[qid,protId]
 
-        # construct and save the entry to the assemblies dictionary
-        assembliesD[assmId] = {'name': assmSum['SpeciesName'],
-                               'taxid': assmSum['Taxid'],
-                               'blast': blast,
-                               'summary': assmSum}
-    
+                # construct and save the entry to the assemblies dictionary
+                assembliesD[qid,assmId] = {'name': assmSum['SpeciesName'],
+                                           'taxid': assmSum['Taxid'],
+                                           'blast': blast,
+                                           'summary': assmSum}
+        
     return assembliesD
 
 
@@ -666,17 +760,18 @@ def __parseBlastpFile(blastFN:str) -> tuple:
             ing.
     """
     # expected blastp headers (and their order)
-    SSEQID = 0
-    STITLE = 1
-    STAXID = 2
-    SACC = 3
-    PIDENT = 4
-    LENGTH = 5
-    MISMATCH = 6
-    GAPS = 7
-    GAPOPEN = 8
-    EVALUE = 9
-    BITSCORE = 10
+    QSEQID = 0
+    SSEQID = 1
+    STITLE = 2
+    STAXID = 3
+    SACC = 4
+    PIDENT = 5
+    LENGTH = 6
+    MISMATCH = 7
+    GAPS = 8
+    GAPOPEN = 9
+    EVALUE = 10
+    BITSCORE = 11
 
     # constants
     BLAST_DELILM = '\t'
@@ -690,21 +785,23 @@ def __parseBlastpFile(blastFN:str) -> tuple:
     hitsD = dict()
     searchStr = str()
     for row in parsed:
-        # extract the protein accession number
+        # extract the protein accession number and query id
         protAccn = row[SACC]
+        qid = row[QSEQID]
 
         # save the blast hit in dictionary format
-        hitsD[protAccn] = {'sseqid': row[SSEQID],
-                           'stitle': row[STITLE],
-                           'staxid': row[STAXID],
-                           'sacc': protAccn,
-                           'pident': row[PIDENT],
-                           'length': row[LENGTH],
-                           'mismatch': row[MISMATCH],
-                           'gaps': row[GAPS],
-                           'gapopen': row[GAPOPEN],
-                           'evalue': row[EVALUE],
-                           'bitscore': row[BITSCORE]}
+        hitsD[qid,protAccn] = {'qseqid': qid,
+                               'sseqid': row[SSEQID],
+                               'stitle': row[STITLE],
+                               'staxid': row[STAXID],
+                               'sacc': protAccn,
+                               'pident': row[PIDENT],
+                               'length': row[LENGTH],
+                               'mismatch': row[MISMATCH],
+                               'gaps': row[GAPS],
+                               'gapopen': row[GAPOPEN],
+                               'evalue': row[EVALUE],
+                               'bitscore': row[BITSCORE]}
 
         # construct the search string for getting the uids for the protein db
         searchStr += protAccn + SEARCH_SUFFIX + SEARCH_SEP
