@@ -15,10 +15,11 @@ from PHANTASM.downloadGbff import _makeTaxonName
 ###############################################################################
 def overallGenomeRelatedIndices(paramO:Parameters, outgroup:Taxonomy) -> None:
     """ overallGenomeRelatedIndices:
-            Accepts a Parameters object as input. Calculates the average amino-
-            acid identity (AAI) and the average nucleotide identity (ANI) for
-            the data-set specified in the Parameters object. Writes the results
-            to file. Does not return.
+            Accepts a Parameters object and an outgroup Taxonomy as inputs.
+            Calculates the average amino acid identity (AAI) and the average
+            nucleotide identity (ANI) for the data-set specified in the Parame-
+            ters object and omits the outgroup from these calculations. Writes
+            the results to file. Does not return.
     """
     # constants
     INDENT  = ' '*4
@@ -33,7 +34,7 @@ def overallGenomeRelatedIndices(paramO:Parameters, outgroup:Taxonomy) -> None:
 
     # calculate AAI
     print(PRINT_1, end='', flush=True)
-    aaiD = _calculateAAI(paramO)
+    aaiD = _calculateAAI(paramO, outgroup)
     print(DONE)
 
     # save the result to file
@@ -110,12 +111,13 @@ def __saveOgriMatrix(ogriD:dict, filename:str) -> None:
 
 
 ###############################################################################
-def _calculateAAI(paramO:Parameters) -> dict:
+def _calculateAAI(paramO:Parameters, outgroup:Taxonomy) -> dict:
     """ calculateAAI:
-            Accepts a Parameters object as input. Calculates the average amino
-            acid identity (AAI) for each pair of strains in the analysis. Cons-
-            tructs and returns a dictionary whose keys are strain pairs and wh-
-            ose values are AAI values.
+            Accepts a Parameters object and an outgroup Taxonomy as inputs.
+            Calculates the average amino acid identity (AAI) for each pair of
+            strains in the analysis. Constructs and returns a dictionary whose
+            keys are strain pairs (tuple) and whose values are the respective
+            AAI values.
     """
     # extract relevant data from paramO
     wgsMapFN = paramO.fileNameMapFN
@@ -126,8 +128,11 @@ def _calculateAAI(paramO:Parameters) -> dict:
     aln = paramO.alignCoverThresh
     pid = paramO.percIdentThresh
 
-    # get a list of all strain pairs
-    allStrainPairsL = __getAllStrainPairsFromHumanMapFile(wgsMapFN)
+    # get the outgroup name
+    outgroupName = _makeTaxonName(outgroup)
+
+    # get a list of all strain pairs, excluding the outgroup
+    allStrainPairsL = __getAllStrainPairs(wgsMapFN, outgroupName)
 
     # initialize the output dictionary
     aaiD = dict()
@@ -152,14 +157,18 @@ def _calculateAAI(paramO:Parameters) -> dict:
     return aaiD
 
 
-def __getAllStrainPairsFromHumanMapFile(wgsMapFN:str) -> list:
-    """ getAllStrainPairsFromHumanMapFile:
-            Accepts a human map file (str) as input. Uses it to determine the
-            strains present in the analysis directoy. Creates and returns a li-
-            st of all pairwise combinations of strains as tuples.
+def __getAllStrainPairs(wgsMapFN:str, outgroupStr:str) -> list:
+    """ getAllStrainPairs:
+            Accepts a human map filename and an outgroup name as inputs. Deter-
+            mines the strains present in the analysis directoy, not including
+            the outgroup. Creates and returns a list of tuples containing all
+            pairwise combinations of strains.
     """
     # get a list of all the strains
     allStrainsL = list(_loadHumanMap(wgsMapFN).values())
+
+    # remove the outgroup from the list
+    allStrainsL.remove(outgroupStr)
 
     # make a list of all the pairs
     allStrainPairsL = list()
@@ -346,9 +355,9 @@ def __aniRunner(fnaDir:str, paramO:Parameters) -> dict:
     """
     # constants
     PYANI_O = "pyani"
-    OUTFILE = "ANIb_percentage_identity.tab"
+    OUTFILE = "ANIm_percentage_identity.tab"
 
-    # extract necessary data from paramD
+    # extract necessary data from paramO
     aniDir = paramO.aniWorkDir
     numThreads = paramO.numProcesses
     humanMapFN = paramO.fileNameMapFN
@@ -358,7 +367,6 @@ def __aniRunner(fnaDir:str, paramO:Parameters) -> dict:
 
     # call ANI function via bash
     cmd = ['average_nucleotide_identity.py',
-            '-m', 'ANIb',
             '-i', fnaDir,
             '-o', outDir,
             '--workers', str(numThreads)]
@@ -409,8 +417,8 @@ def __createAniD(humanMapFN:str, aniFN:str) -> dict:
             nameA = humanMapD[seqA]
             nameB = humanMapD[seqB]
             
-            # save the result as a float in the dictionary
-            aniD[(nameA, nameB)] = float(row[idx])
+            # save the result as a float percentage in the dictionary
+            aniD[(nameA, nameB)] = float(row[idx]) * 100
     
     return aniD
 
