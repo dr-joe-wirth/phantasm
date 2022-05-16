@@ -13,7 +13,7 @@ from PHANTASM.downloadGbff import _makeTaxonName
 
 
 ###############################################################################
-def overallGenomeRelatedIndices(paramO:Parameters) -> None:
+def overallGenomeRelatedIndices(paramO:Parameters, outgroup:Taxonomy) -> None:
     """ overallGenomeRelatedIndices:
             Accepts a Parameters object as input. Calculates the average amino-
             acid identity (AAI) and the average nucleotide identity (ANI) for
@@ -42,7 +42,7 @@ def overallGenomeRelatedIndices(paramO:Parameters) -> None:
 
     # calculate ANI
     print(PRINT_2, end='', flush=True)
-    aniD = _calculateANI(paramO)
+    aniD = _calculateANI(paramO, outgroup)
     print(DONE)
 
     # save the result to file
@@ -247,21 +247,24 @@ def makeAaiHeatmap(paramO:Parameters, outgroup:Taxonomy) -> None:
 
 
 ###############################################################################
-def _calculateANI(paramO:Parameters) -> dict:
+def _calculateANI(paramO:Parameters, outgroup:Taxonomy) -> dict:
     """ calculateANI:
             Accepts a Parameters object as input. Uses pyani's average nucleot-
             ide calculator. Returns a dictionary whose keys are tuples contain-
             ing pairs of species names and whose values are the ANI for the sp-
             ecified pair.
     """
+    # determine the outgroup name
+    outgroupName = _makeTaxonName(outgroup)
+
     # prepare all files needed to pyani to run
-    fnaDir = __aniPrep(paramO)
+    fnaDir = __aniPrep(paramO, outgroupName)
 
     # calculate and return ani
     return __aniRunner(fnaDir, paramO)
     
 
-def __aniPrep(paramO:Parameters) -> str:
+def __aniPrep(paramO:Parameters, outgroupName:str) -> str:
     """ aniPrep:
             Accepts a Parameters object as input. Creates the ANI working dire-
             ctory and makes a nucleotide fasta for each whole genome sequence.
@@ -274,6 +277,7 @@ def __aniPrep(paramO:Parameters) -> str:
     # extract necessary data from paramO
     gbFilePath = paramO.genbankFilePath
     aniDir = paramO.aniWorkDir
+    wgsMapFN = paramO.fileNameMapFN
 
     # make the ani directory if it does not exist
     if not os.path.exists(aniDir):
@@ -287,17 +291,27 @@ def __aniPrep(paramO:Parameters) -> str:
     # get a list of all gbff files
     gbFilesL = glob.glob(gbFilePath)
 
+    # look up the outgroup filename
+    humanMapD = _loadHumanMap(wgsMapFN)
+    for filename in humanMapD.keys():
+        # assign the variable and stop looping once found
+        if humanMapD[filename] == outgroupName:
+            outgroupFN = filename
+            break
+
     # go through the list of gbff files and convert to fna
     for gbFN in gbFilesL:
-        # drop file path and extension
-        basename = os.path.basename(gbFN)
-        basename = os.path.splitext(basename)[0]
+        # only proceed if the file is not the outgroup
+        if outgroupFN not in gbFN:
+            # drop file path and extension
+            basename = os.path.basename(gbFN)
+            basename = os.path.splitext(basename)[0]
 
-        # make fasta file name
-        fnaFN = os.path.join(fnaDir, basename + FNA_EXT)
+            # make fasta file name
+            fnaFN = os.path.join(fnaDir, basename + FNA_EXT)
 
-        # create the fasta file
-        __genbankToFna(gbFN, fnaFN)
+            # create the fasta file
+            __genbankToFna(gbFN, fnaFN)
     
     return fnaDir
 

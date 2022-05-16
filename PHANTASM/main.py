@@ -103,7 +103,7 @@ def finalAnalysesWrapper(allQryGbksL:list, outgroup:Taxonomy, \
     """ makes the second species tree and calculates OGRIs.
     """
     makeSpeciesTree(allQryGbksL, paramO_2, outgroup, 'iqtree')
-    overallGenomeRelatedIndices(paramO_2)
+    overallGenomeRelatedIndices(paramO_2, outgroup)
     makeAaiHeatmap(paramO_2, outgroup)
     makeAniHeatmap(paramO_2, outgroup)
 
