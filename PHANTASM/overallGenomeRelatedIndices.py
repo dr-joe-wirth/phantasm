@@ -5,7 +5,7 @@ import rpy2.robjects as robjects
 from Bio import SeqIO
 from param import XENOGI_DIR, PHANTASM_DIR
 sys.path.insert(0,os.path.join(sys.path[0],XENOGI_DIR))
-import xenoGI.xenoGI, xenoGI.analysis
+import xenoGI.blast
 from PHANTASM.Parameter import Parameters
 from PHANTASM.utilities import parseCsv
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
@@ -112,30 +112,127 @@ def __saveOgriMatrix(ogriD:dict, filename:str) -> None:
 ###############################################################################
 def _calculateAAI(paramO:Parameters) -> dict:
     """ calculateAAI:
-            Accepts Parameters object as input. Uses xenoGI's amino acid ident-
-            ity calculator. Returns a dictionary whose keys are tuples contain-
-            ing pairs of species names and whose values are the AAI for the sp-
-            ecified pair.
+            Accepts a Parameters object as input. Calculates the average amino
+            acid identity (AAI) for each pair of strains in the analysis. Cons-
+            tructs and returns a dictionary whose keys are strain pairs and wh-
+            ose values are AAI values.
     """
     # extract relevant data from paramO
-    humanMapFN:str = paramO.fileNameMapFN
-    blastJoinStr:str = paramO.blastFileJoinStr
-    evalThresh:str = paramO.evalueThresh
-    blastFilePath:str = paramO.blastFilePath
+    wgsMapFN = paramO.fileNameMapFN
+    joinStr  = paramO.blastFileJoinStr
+    blastDir = os.path.dirname(paramO.blastFilePath)
+    blastExt = os.path.splitext(paramO.blastFilePath)[1]
+    evl = paramO.evalueThresh
+    aln = paramO.alignCoverThresh
+    pid = paramO.percIdentThresh
 
-    # get a list of strain names from the human map file
-    humanMapD  = __loadHumanMap(humanMapFN)
-    taxaNamesL = list(humanMapD.values())
+    # get a list of all strain pairs
+    allStrainPairsL = __getAllStrainPairsFromHumanMapFile(wgsMapFN)
+
+    # initialize the output dictionary
+    aaiD = dict()
+
+    # for each strain pair
+    for strA,strB in allStrainPairsL:
+        # for self versus self comparisons
+        if strA == strB:
+            # no need to do any work; the answer is 100
+            aaiD[(strA,strB)] = 100.0
+        
+        # for self versus non-self comparisons
+        else:
+            # determine the two file names to compare
+            blastFN1 = os.path.join(blastDir, strA + joinStr + strB + blastExt)
+            blastFN2 = os.path.join(blastDir, strB + joinStr + strA + blastExt)
+
+            # save the AAI for strainA versus strainB (forward comparison)
+            aaiD[(strA,strB)] = __calculateAaiForOnePair(blastFN1, blastFN2, \
+                                                                 evl, aln, pid)
+            
+            # save the AAI for strainB versus strainA (reverse comparison)
+            aaiD[(strB,strA)] = __calculateAaiForOnePair(blastFN2, blastFN1, \
+                                                                 evl, aln, pid)
     
-    # get the blast directory and the blast extension from the path
-    blastDir, blastExt = blastFilePath.split("*")
+    return aaiD
 
-    # calculate the AAI
-    return xenoGI.analysis.aminoAcidIdentity(taxaNamesL,
-                                             blastJoinStr,
-                                             blastDir,
-                                             blastExt,
-                                             evalThresh)
+
+def __getAllStrainPairsFromHumanMapFile(wgsMapFN:str) -> list:
+    """ getAllStrainPairsFromHumanMapFile:
+            Accepts a human map file (str) as input. Uses it to determine the
+            strains present in the analysis directoy. Creates and returns a li-
+            st of all unique pairwise combinations of strains as tuples.
+    """
+    # get a list of all the strains
+    allStrainsL = list(_loadHumanMap(wgsMapFN).values())
+
+    # make a list of all the pairs: (a,a), (a,b), but not (b,a)
+    allStrainPairsL = list()
+    for idxA in range(len(allStrainsL)):
+        for idxB in range(idxA,len(allStrainsL)):
+            allStrainPairsL.append((allStrainsL[idxA], allStrainsL[idxB]))
+    
+    return allStrainPairsL
+
+
+def __calculateAaiForOnePair(blastFN1:str, blastFN2:str, evalue:float, \
+                                      alignCover:float, percId:float) -> float:
+    """ calculateAaiForOnePair:
+            Accepts two blast files (str), and three cutoffs (float) as inputs.
+            Determines the reciprocal best hits for the pair of blast files and
+            uses them to calculate the average amino acid identity (AAI) for
+            the pair. Returns the AAI value as a float.
+    """
+    # constants
+    NAME_IDX = 0
+    PID_IDX = 1
+    ALN_LEN_IDX = 3
+
+    # load the blastp files
+    blastL1 = xenoGI.blast.parseBlastFile(blastFN1, evalue, alignCover, percId)
+    blastL2 = xenoGI.blast.parseBlastFile(blastFN2, evalue, alignCover, percId)
+
+    # convert the parsed blast tables to best hit dictionaries
+    bestHits1D = xenoGI.blast.getBestHitsDictionary(blastL1)
+    bestHits2D = xenoGI.blast.getBestHitsDictionary(blastL2)
+
+    # initialize two runnings sums
+    weightedPid = 0
+    totalAlnLen = 0
+
+    # for each reciprocal best hit
+    for key1 in bestHits1D.keys():
+        # get the best hit name
+        hit1 = bestHits1D[key1][NAME_IDX]
+
+        # get the hit's best hit (if possible)
+        if hit1 in bestHits2D.keys():
+            key2 = hit1
+            hit2 = bestHits2D[key2][NAME_IDX]
+
+            # if the best hits are reciprocal
+            if hit2 == key1:
+                # determine pid forward and pid reverse
+                pid1 = bestHits1D[key1][PID_IDX]
+                pid2 = bestHits2D[key2][PID_IDX]
+
+                # determine the alignment lengths
+                alLen1 = bestHits1D[key1][ALN_LEN_IDX]
+                alLen2 = bestHits2D[key2][ALN_LEN_IDX]
+        
+                # update the weighted pid sum
+                weightedPid += pid1 * alLen1
+                weightedPid += pid2 * alLen2
+
+                # update the total alignment length
+                totalAlnLen += alLen1 + alLen2
+
+    # calculate AAI from the data; prevent division by zero
+    if totalAlnLen > 0:
+        aai = weightedPid / totalAlnLen
+    else:
+        aai = 0
+    
+    return aai
 
 
 def makeAaiHeatmap(paramO:Parameters, outgroup:Taxonomy) -> None:
@@ -271,7 +368,7 @@ def __createAniD(humanMapFN:str, aniFN:str) -> dict:
             species.
     """
     # load the human map as a dictionary
-    humanMapD:dict = __loadHumanMap(humanMapFN)
+    humanMapD:dict = _loadHumanMap(humanMapFN)
 
     # keys contain file extensions; remove them from the keys
     tempD = dict()
@@ -308,7 +405,7 @@ def __createAniD(humanMapFN:str, aniFN:str) -> dict:
     return aniD
 
 
-def __loadHumanMap(humanMapFN:str) -> dict:
+def _loadHumanMap(humanMapFN:str) -> dict:
     """ loadHumanMap:
             Accepts a string indicating the filename of the human map file as
             input. Constructs a dictionary keyed by gbff filenames with the co-
