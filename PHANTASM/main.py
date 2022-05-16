@@ -71,7 +71,7 @@ def findPhylogeneticMarkersWrapper(allQryGbksL:list, outgroup:Taxonomy, \
     """ makes the first species tree and ranks the core genes as phylogenetic
         markers.
     """
-    makeSpeciesTree(allQryGbksL, paramO_1, outgroup)
+    makeSpeciesTree(allQryGbksL, paramO_1, outgroup, 'fasttree')
     rankPhylogeneticMarkers(paramO_1)
 
 
@@ -102,7 +102,7 @@ def finalAnalysesWrapper(allQryGbksL:list, outgroup:Taxonomy, \
                                                   paramO_2:Parameters) -> None:
     """ makes the second species tree and calculates OGRIs.
     """
-    makeSpeciesTree(allQryGbksL, paramO_2, outgroup)
+    makeSpeciesTree(allQryGbksL, paramO_2, outgroup, 'iqtree')
     overallGenomeRelatedIndices(paramO_2)
     makeAaiHeatmap(paramO_2, outgroup)
     makeAniHeatmap(paramO_2, outgroup)

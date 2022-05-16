@@ -8,6 +8,7 @@ from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from PHANTASM.downloadGbff import downloadGbffsForRootTaxonomy, _makeHumanMapString, _makeTaxonName
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
+from PHANTASM.overallGenomeRelatedIndices import _loadHumanMap
 from param import XENOGI_DIR
 sys.path.insert(0,os.path.join(sys.path[0], XENOGI_DIR))
 import xenoGI.xenoGI, xenoGI.scores, xenoGI.Tree, xenoGI.genomes, xenoGI.trees
@@ -334,20 +335,25 @@ def calculateCoreGenes(paramO:Parameters) -> None:
     print(DONE)
 
 
-def makeSpeciesTree(allQryGbksL:list, paramO:Parameters, outgroup:Taxonomy) \
-                                                                       -> None:
+def makeSpeciesTree(allQryGbksL:list, paramO:Parameters, outgroup:Taxonomy, \
+                                                          program:str) -> None:
     """ makeSpeciesTree:
-            Accepts a list of the query genbank files, a Parameters object and
-            an outgroup (Taxonomy) as inputs. Uses xenoGI to make a species tr-
-            ee, and then builds another tree based on the concatenated alignme-
-            nts of the hardcore genes and roots the tree on the specified outg-
-            roup. Does not return.
+            Accepts a list of the query genbank files, a Parameters object,
+            an outgroup (Taxonomy), and a string indicating which program to
+            use as inputs. Uses xenoGI to make gene trees, and then builds ano-
+            ther tree based on the concatenated alignment of the hardcore genes
+            and roots the tree on the specified outgroup. Does not return.
     """
     # constants
     PRINT_1 = 'Aligning core genes and making gene trees ... '
-    PRINT_2 = 'Making the species tree from a concatenated alignment ' + \
-                                                       'of the core genes ... '
+    PRINT_2A = 'Using FastTree to make the species tree from a ' + \
+                                'concatenated alignment of the core genes ... '
+    PRINT_2B = 'Using IQTree to make the species tree with bootstrap ' + \
+                 'supports from a concatenated alignment of the core genes ...'
     DONE = 'Done.'
+    FAST_TREE = 'fasttree'
+    IQTREE = 'iqtree'
+    ERR_MSG = 'Invalid program specified.'
 
     # align hardcore genes and build gene trees with fasttree
     print(PRINT_1, end='', flush=True)
@@ -359,8 +365,6 @@ def makeSpeciesTree(allQryGbksL:list, paramO:Parameters, outgroup:Taxonomy) \
     catAlnFN = paramO.concatenatedAlignmentFN
     keyFN = paramO.famToGeneKeyFN
     wgsFN = paramO.fileNameMapFN
-    fastTree = paramO.fastTreePath
-    speTreeFN = paramO.speciesTreeFN
 
     # make a list of the human names for the query genomes
     queryHumanNamesL = list()
@@ -376,16 +380,22 @@ def makeSpeciesTree(allQryGbksL:list, paramO:Parameters, outgroup:Taxonomy) \
                             keyFN,
                             wgsFN)
 
-    # run fasttree on the concatenated alignment
-    print(PRINT_2, end='', flush=True)
-    cmd = [fastTree, "-quiet", "-out", speTreeFN, catAlnFN]
-    subprocess.run(cmd)
-
-    # replace the invalid string for Taxonomy objects with that of trees
+    # determine the outgroup's name
     outgroupTaxonName = _makeTaxonName(outgroup)
 
-    # root the tree on the specified outgroup
-    __rootTree(speTreeFN, [outgroupTaxonName])
+    # use fast tree if requested
+    if program == FAST_TREE:
+        print(PRINT_2A, end='', flush=True)
+        __runFastTree(outgroupTaxonName, paramO)
+    
+    # use iqtree if requested
+    elif program == IQTREE:
+        print(PRINT_2B, end='', flush=True)
+        __runIqTree(outgroupTaxonName, paramO)
+    
+    # raise an error if an unexpected program was requested
+    else:
+        raise ValueError(ERR_MSG)
 
     print(DONE)
 
@@ -549,6 +559,133 @@ def __concatenateAlignments(qryHumanNamesL:list, speciesTreeWorkDir:str, \
     SeqIO.write(allConcatenatedRecords, alnOutFN, FORMAT)
 
 
+def __runFastTree(outgroupTaxonName:str, paramO:Parameters) -> None:
+    # extrac the necessary data from paramO
+    fastTree = paramO.fastTreePath
+    speTreeFN = paramO.speciesTreeFN
+    catAlnFN = paramO.concatenatedAlignmentFN
+
+    # run fasttree on the concatenated alignment
+    cmd = [fastTree, "-quiet", "-out", speTreeFN, catAlnFN]
+    subprocess.run(cmd)
+
+    # root the tree on the specified outgroup
+    __rootTree(speTreeFN, [outgroupTaxonName])
+
+
+def __rootTree(treeFN, outGroupTaxaL) -> None:
+    """ rootTree:
+            Accepts a tree file name and a list of outgroup taxa as inputs. Lo-
+            ads the tree and roots it on the specified taxa. Overwites the the
+            original file with the rooted tree. Does not return.
+    """
+    # constants
+    ROOT_NODE = 's0'
+
+    # load the tree into memory as an Rtree object
+    speciesRtreeO = xenoGI.Tree.Rtree()
+    speciesRtreeO.fromNewickFileLoadSpeciesTree(treeFN, outGroupTaxaL, \
+                                                             includeBrLen=True)
+
+    # initialize the total distance and a list of keys that need to be revised
+    totalRootDist = 0
+    keysToChange = list()
+
+    # for each branch length (keys are pairs of node names as a tuple) ...
+    for key in speciesRtreeO.branchLenD.keys():
+        # ... if the branch is directly connected to the root ...
+        if ROOT_NODE in key:
+            # ... update the distance and add the key to the list
+            totalRootDist += speciesRtreeO.branchLenD[key]
+            keysToChange.append(key)
+    
+    # determine what the new "to-root" distance should be
+    newRootDist = totalRootDist / len(keysToChange)
+
+    # for each key that needs to change, update with the "to-root" distance
+    for key in keysToChange:
+        speciesRtreeO.branchLenD[key] = newRootDist
+    
+    # convert the object to a newick string
+    treeStr = speciesRtreeO.toNewickStr(includeBrLength=True)
+
+    # ensure the newick string ends in a semicolon (important for heatmap!)
+    if treeStr[-1] != ";":
+        treeStr += ";"
+
+    # write the rooted tree to file
+    handle = open(treeFN, "w")
+    handle.write(treeStr)
+    handle.close()
+
+
+def __runIqTree(outgroupName:str, paramO:Parameters) -> None:
+    # constants
+    IQTREE_OUT_EXT = ".treefile"
+
+    # extract necessary data from paramO
+    alnFN = paramO.concatenatedAlignmentFN
+    numBootstraps = str(paramO.numBootstraps)
+    iqtree = paramO.iqTreePath
+    numThreads = str(paramO.numProcesses)
+    humanMapFN = paramO.fileNameMapFN
+    speTreeFN = paramO.speciesTreeFN
+
+    # reformat the outgroup name
+    outgroupName = __formatNamesForIqtree(outgroupName)
+
+    # build iqtree command
+    cmd = [iqtree, '-quiet', \
+           '-b', numBootstraps, \
+           '-nt', numThreads, \
+           '-o', outgroupName, \
+           '-s', alnFN]
+    
+    # run iqtree
+    subprocess.run(cmd)
+    
+    # determine the output filename
+    iqtreeOutFN = alnFN + IQTREE_OUT_EXT
+    
+    # load the tree file as a string
+    iqtreeFH = open(iqtreeOutFN, 'r')
+    treeStr = iqtreeFH.read()
+    iqtreeFH.close()
+
+    # load the human map file
+    humanMapD = _loadHumanMap(humanMapFN)
+
+    # use the human map file to replace the names in the tree
+    for origName in humanMapD.values():
+        treeName = __formatNamesForIqtree(origName)
+        treeStr = re.sub(treeName, origName, treeStr)
+    
+    # write the tree string to the species tree file
+    treeFH = open(speTreeFN, 'w')
+    treeFH.write(treeStr)
+    treeFH.close()
+
+
+def __formatNamesForIqtree(taxonName:str) -> str:
+    # constants
+    ALLOWED_CHARS = string.ascii_letters + string.digits + "_-"
+
+    # initialize the new name
+    newName = ""
+
+    # for each character in the taxon name
+    for char in taxonName:
+        # keep the character if it is allowed
+        if char in ALLOWED_CHARS:
+            newName += char
+        
+        # otherwise replace the character with an underscore
+        else:
+            newName += '_'
+    
+    return newName
+
+
 def __printSummary(paramO:Parameters) -> None:
     """ printSummary:
             Accepts a Parameters object as input. Prints the number of core ge-
@@ -598,52 +735,6 @@ def __getSummary(paramO:Parameters) -> tuple:
         break
     
     return numCoreGenes, lenAlignment
-
-
-def __rootTree(treeFN, outGroupTaxaL) -> None:
-    """ rootTree:
-            Accepts a tree file name and a list of outgroup taxa as inputs. Lo-
-            ads the tree and roots it on the specified taxa. Overwites the the
-            original file with the rooted tree. Does not return.
-    """
-    # constants
-    ROOT_NODE = 's0'
-
-    # load the tree into memory as an Rtree object
-    speciesRtreeO = xenoGI.Tree.Rtree()
-    speciesRtreeO.fromNewickFileLoadSpeciesTree(treeFN, outGroupTaxaL, \
-                                                             includeBrLen=True)
-
-    # initialize the total distance and a list of keys that need to be revised
-    totalRootDist = 0
-    keysToChange = list()
-
-    # for each branch length (keys are pairs of node names as a tuple) ...
-    for key in speciesRtreeO.branchLenD.keys():
-        # ... if the branch is directly connected to the root ...
-        if ROOT_NODE in key:
-            # ... update the distance and add the key to the list
-            totalRootDist += speciesRtreeO.branchLenD[key]
-            keysToChange.append(key)
-    
-    # determine what the new "to-root" distance should be
-    newRootDist = totalRootDist / len(keysToChange)
-
-    # for each key that needs to change, update with the "to-root" distance
-    for key in keysToChange:
-        speciesRtreeO.branchLenD[key] = newRootDist
-    
-    # convert the object to a newick string
-    treeStr = speciesRtreeO.toNewickStr(includeBrLength=True)
-
-    # ensure the newick string ends in a semicolon (important for heatmap!)
-    if treeStr[-1] != ";":
-        treeStr += ";"
-
-    # write the rooted tree to file
-    handle = open(treeFN, "w")
-    handle.write(treeStr)
-    handle.close()
 
 
 def rankPhylogeneticMarkers(paramO:Parameters) -> None:
