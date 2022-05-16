@@ -145,13 +145,9 @@ def _calculateAAI(paramO:Parameters) -> dict:
             blastFN1 = os.path.join(blastDir, strA + joinStr + strB + blastExt)
             blastFN2 = os.path.join(blastDir, strB + joinStr + strA + blastExt)
 
-            # save the AAI for strainA versus strainB (forward comparison)
-            aaiD[(strA,strB)] = __calculateAaiForOnePair(blastFN1, blastFN2, \
-                                                                 evl, aln, pid)
-            
-            # save the AAI for strainB versus strainA (reverse comparison)
-            aaiD[(strB,strA)] = __calculateAaiForOnePair(blastFN2, blastFN1, \
-                                                                 evl, aln, pid)
+            # calculate and save the AAI for strainA versus strainB
+            aai = __calculateAaiForOnePair(blastFN1, blastFN2, evl, aln, pid)
+            aai[(strA,strB)] = aai
     
     return aaiD
 
@@ -160,15 +156,15 @@ def __getAllStrainPairsFromHumanMapFile(wgsMapFN:str) -> list:
     """ getAllStrainPairsFromHumanMapFile:
             Accepts a human map file (str) as input. Uses it to determine the
             strains present in the analysis directoy. Creates and returns a li-
-            st of all unique pairwise combinations of strains as tuples.
+            st of all pairwise combinations of strains as tuples.
     """
     # get a list of all the strains
     allStrainsL = list(_loadHumanMap(wgsMapFN).values())
 
-    # make a list of all the pairs: (a,a), (a,b), but not (b,a)
+    # make a list of all the pairs
     allStrainPairsL = list()
     for idxA in range(len(allStrainsL)):
-        for idxB in range(idxA,len(allStrainsL)):
+        for idxB in range(len(allStrainsL)):
             allStrainPairsL.append((allStrainsL[idxA], allStrainsL[idxB]))
     
     return allStrainPairsL
@@ -192,32 +188,32 @@ def __calculateAaiForOnePair(blastFN1:str, blastFN2:str, evalue:float, \
     blastL2 = xenoGI.blast.parseBlastFile(blastFN2, evalue, alignCover, percId)
 
     # convert the parsed blast tables to best hit dictionaries
-    bestHits1D = xenoGI.blast.getBestHitsDictionary(blastL1)
-    bestHits2D = xenoGI.blast.getBestHitsDictionary(blastL2)
+    bestHitsD1 = xenoGI.blast.getBestHitsDictionary(blastL1)
+    bestHitsD2 = xenoGI.blast.getBestHitsDictionary(blastL2)
 
     # initialize two runnings sums
     weightedPid = 0
     totalAlnLen = 0
 
     # for each reciprocal best hit
-    for key1 in bestHits1D.keys():
+    for key1 in bestHitsD1.keys():
         # get the best hit name
-        hit1 = bestHits1D[key1][NAME_IDX]
+        hit1 = bestHitsD1[key1][NAME_IDX]
 
         # get the hit's best hit (if possible)
-        if hit1 in bestHits2D.keys():
+        if hit1 in bestHitsD2.keys():
             key2 = hit1
-            hit2 = bestHits2D[key2][NAME_IDX]
+            hit2 = bestHitsD2[key2][NAME_IDX]
 
             # if the best hits are reciprocal
             if hit2 == key1:
                 # determine pid forward and pid reverse
-                pid1 = bestHits1D[key1][PID_IDX]
-                pid2 = bestHits2D[key2][PID_IDX]
+                pid1 = bestHitsD1[key1][PID_IDX]
+                pid2 = bestHitsD2[key2][PID_IDX]
 
                 # determine the alignment lengths
-                alLen1 = bestHits1D[key1][ALN_LEN_IDX]
-                alLen2 = bestHits2D[key2][ALN_LEN_IDX]
+                alLen1 = bestHitsD1[key1][ALN_LEN_IDX]
+                alLen2 = bestHitsD2[key2][ALN_LEN_IDX]
         
                 # update the weighted pid sum
                 weightedPid += pid1 * alLen1
