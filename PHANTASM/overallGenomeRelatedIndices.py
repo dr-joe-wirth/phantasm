@@ -147,7 +147,7 @@ def _calculateAAI(paramO:Parameters) -> dict:
 
             # calculate and save the AAI for strainA versus strainB
             aai = __calculateAaiForOnePair(blastFN1, blastFN2, evl, aln, pid)
-            aai[(strA,strB)] = aai
+            aaiD[(strA,strB)] = aai
     
     return aaiD
 
