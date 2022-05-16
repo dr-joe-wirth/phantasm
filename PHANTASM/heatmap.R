@@ -61,7 +61,7 @@ generateHeatmap <- function(treeFN=NULL, axiFN=NULL, pdfOutFN=NULL, numDecimals=
 	
 	# import files
 	tree <- ReadDendrogram(treeFN, internalLabels=FALSE)
-	axi.df <- read.delim(axiFN, row.names=1)
+	axi.df <- read.delim(axiFN, row.names=1, check.names=FALSE)
 	
 	# convert all underscores to spaces in axi.df
 	rownames(axi.df) <- gsub("_", " ", rownames(axi.df))
