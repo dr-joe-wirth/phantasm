@@ -359,6 +359,9 @@ def getRelatives(oldParamO:Parameters, newParamO:Parameters, lpsnD:dict, \
         # this greatly improves runtime (copy.deepcopy is too slow )
         speciesToPickL = [spe.taxid for spe in relativesL]
 
+        # empty relativesL to allow repopulation with fewer relatives
+        relativesL = list()
+
         # reverse the indices and the list for on-the-fly popping
         speIndicesL = list(range(len(speciesToPickL)))
         speIndicesL.reverse()
@@ -384,7 +387,7 @@ def getRelatives(oldParamO:Parameters, newParamO:Parameters, lpsnD:dict, \
         # speciesToPickL will not have any overlap in relatives
         while len(relativesL) < maxNumSeqs and len(speciesToPickL) > 0:
             # this will functionally loop through the remaining species
-            relativesL.append(taxO.getDescendantByTaxId(speciesToPickL.pop(0)))
+            relativesL.append(taxO.getDescendantByTaxId(speciesToPickL.pop(-1)))
         
     # get the index of the next unused genus
     idx = generaSortedL.index(generaUsed[-1]) + 1
