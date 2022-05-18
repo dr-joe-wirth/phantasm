@@ -222,6 +222,7 @@ def getRelatives(oldParamO:Parameters, newParamO:Parameters, lpsnD:dict, \
     blastFN = oldParamO.blastpResultFN
     newTaxDir = os.path.dirname(newParamO.taxonomyObjectFilePath)
     newTaxExt = os.path.splitext(newParamO.taxonomyObjectFilePath)[1]
+    excludedTaxidsFN = newParamO.excludedTaxidsFN
 
     # set entrez email
     Entrez.email = oldParamO.email
@@ -312,6 +313,14 @@ def getRelatives(oldParamO:Parameters, newParamO:Parameters, lpsnD:dict, \
     newTaxFN = os.path.join(newTaxDir, taxO.sciName + newTaxExt)
     taxO.save(newTaxFN)
 
+    # get a list of Taxonomy objects that should be excluded
+    if os.path.exists(excludedTaxidsFN):
+        excludedTaxa = __getExcludedTaxa(taxO, excludedTaxidsFN)
+
+    # create an empty list if a file was not specified
+    else:
+        excludedTaxa = list()
+
     # initialize a list to store the related species
     relativesL = list()
 
@@ -352,11 +361,22 @@ def getRelatives(oldParamO:Parameters, newParamO:Parameters, lpsnD:dict, \
                 # otherwise, the list is sorted; it is safe to stop looping
                 else: break
 
+    # for each taxon to be excluded
+    for exTax in excludedTaxa:
+        # reverse the indices for on-the-fly popping
+        reverseIndices = list(range(len(relativesL)))
+        reverseIndices.reverse()
+        
+        # go through relativesL in reverse order and remove excluded taxa
+        for idx in reverseIndices:
+            if relativesL[idx] in exTax:
+                relativesL.pop(idx)
+
     # it is possible that too many relatives were selected in the previous step
     # if this is the case, then we need to select a subset of them
     if len(relativesL) > maxNumSeqs:
         # only store the taxids for each species in the relatives list
-        # this greatly improves runtime (copy.deepcopy is too slow )
+        # this greatly improves runtime (copy.deepcopy is too slow)
         speciesToPickL = [spe.taxid for spe in relativesL]
 
         # empty relativesL to allow repopulation with fewer relatives
@@ -545,6 +565,44 @@ def __findMissingAssemblies(blastFN:str, taxO:Taxonomy, lpsnD:dict) -> tuple:
                     missingD[sciName].append(assId)
     
     return queriesD, existNoAssD, missingD
+
+
+def __getExcludedTaxa(taxO:Taxonomy, excludedTaxidsFN:str) -> list:
+    """ getExcludedTaxa:
+            Accepts a Taxonomy object and the filename (str) of a text file
+            containing one NCBI Taxonomy taxid per line. Determines which taxa
+            listed in the file are also present in the input Taxonomy object.
+            Constructs and returns a list of Taxonomy objects that correspond
+            to those taxids in the provided file.
+    """
+    # constants
+    ERR_MSG = "invalid file format for "
+
+    # navigate to the root
+    root = taxO.getRoot()
+
+    # initialize the output list
+    result = list()
+
+    # open the file
+    handle = open(excludedTaxidsFN, 'r')
+
+    # for each line in the file
+    for line in handle:
+        # convert the string to an integer
+        try:
+            taxid = int(line)
+        except:
+            raise Exception(ERR_MSG + os.path.basename(excludedTaxidsFN))
+
+        # look up taxonomy object
+        excludedTax = root.getDescendantByTaxId(taxid)
+
+        # append to list if found
+        if excludedTax:
+            result.append(excludedTax)
+    
+    return result
 
 
 def __getUniqueGeneraFromAssembliesD(assembliesD:dict, lpsnD:dict) -> dict:
