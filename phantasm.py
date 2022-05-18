@@ -26,20 +26,31 @@ ERR_MSG_5B = "\ntype '<path>/phantasm.py help' for information."
 HELP_MSG = "\nPHANTASM: PHylogenomic ANalyses for the TAxonomy and Systematics of Microbes\n\n" + \
            "In order to run PHANTASM, first follow these steps:\n" + \
            GAP + "1. cd into the desired working directory\n" + \
-           GAP + "2. identify a suitable phylogenetic marker:\n" + \
+           GAP + "2. identify a suitable phylogenetic marker:\n\n" + \
            GAP*2 + "'python3 <path>/phantasm.py getPhyloMarker <gbff file> <email address>'\n\n" + \
            GAP + "3. examine the file 'initialAnalysis/putativePhylogeneticMarkers.txt'\n" + \
-           GAP + "4. refine the phylogeny and perform phylogenomic analyses:\n" + \
+           GAP + "4. refine the phylogeny and perform phylogenomic analyses:\n\n" + \
            GAP*2 + "'python3 <path>/phantasm.py refinePhylogeny --locus_tag <locus_tag> <gbff file> <email address>'\n" + \
            GAP*3 + "OR\n" + \
-           GAP*2 + "'python3 <path>/phantasm.py refinePhylogeny --gene_num <gene_number> <gbff file> <email address>'\n" + \
-           GAP + "5. results can be found in the following files:\n" + \
+           GAP*2 + "'python3 <path>/phantasm.py refinePhylogeny --gene_num <gene_number> <gbff file> <email address>'\n\n" + \
+           GAP + "5. results can be found in the following files:\n\n" + \
            GAP*2 + "'finalAnalysis/aai_matrix.txt'\n" + \
            GAP*2 + "'finalAnalysis/aai_heatmap.pdf'\n" + \
            GAP*2 + "'finalAnalysis/ani_matrix.txt'\n" + \
            GAP*2 + "'finalAnalysis/ani_heatmap.pdf'\n" + \
            GAP*2 + "'finalAnalysis/speciesTree.nwk'\n" + \
-           GAP*2 + "'finalAnalysis/speciesTree_outgroupPruned.nwk'\n"
+           GAP*2 + "'finalAnalysis/speciesTree_outgroupPruned.nwk'\n\n" + \
+           "Optional Features\n" + \
+           GAP + "multiple input genomes:\n" + \
+           GAP*2 + "replace '<gbff file>' with '<gbff directory>'\n" + \
+           GAP*2 + "the specified directory must contain all of the input genome files\n\n" + \
+           GAP + "refining the phylogeny with multiple phylogenetic markers:\n" + \
+           GAP*2 + "list each desired marker separated by a comma (no spaces)\n" + \
+           GAP*2 + "include at least one gene per input genome if using multiple input genomes\n\n" + \
+           GAP + "excluding specific taxa from the final analysis:\n" + \
+           GAP*2 + "create a file in the working directory named 'excludedTaxids.txt'\n" + \
+           GAP*2 + "the file should contain exactly one NCBI Taxonomy taxid to be excluded per line\n" + \
+           GAP*2 + "WARNING: this feature is experimental and should be used with caution.\n"
 
 # begin main function
 if __name__ == "__main__":
