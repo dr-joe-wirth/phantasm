@@ -10,6 +10,7 @@ from PHANTASM.coreGenes import rankPhylogeneticMarkers, xenogiInterfacer_1, \
                         calculateCoreGenes, makeSpeciesTree
 from PHANTASM.findMissingNeighbors import phyloMarkerBlastRunner, xenogiInterfacer_2
 from PHANTASM.overallGenomeRelatedIndices import overallGenomeRelatedIndices, makeAaiHeatmap, makeAniHeatmap
+from param import BOOTSTRAP_FINAL_TREE
 from Bio import Entrez
 
 
@@ -102,7 +103,10 @@ def finalAnalysesWrapper(allQryGbksL:list, outgroup:Taxonomy, \
                                                   paramO_2:Parameters) -> None:
     """ makes the second species tree and calculates OGRIs.
     """
-    makeSpeciesTree(allQryGbksL, paramO_2, outgroup, 'iqtree')
+    if BOOTSTRAP_FINAL_TREE:
+        makeSpeciesTree(allQryGbksL, paramO_2, outgroup, 'iqtree')
+    else:
+        makeSpeciesTree(allQryGbksL, paramO_2, outgroup, 'fasttree')
     overallGenomeRelatedIndices(paramO_2, outgroup)
     makeAaiHeatmap(paramO_2, outgroup)
     makeAniHeatmap(paramO_2, outgroup)

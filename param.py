@@ -4,7 +4,13 @@ NUM_PROCESSORS:int = 1
 # specify the maximum number of taxa in a given analysis
 MAX_LEAVES:int = 50
 
+# specify if the final tree should have bootstrap supports
+#### `True` indicates yes
+#### `False` indicates no
+BOOTSTRAP_FINAL_TREE:bool = False
+
 # specify the number of bootstrap supports for the final species tree
+#### this is only relevant if BOOTSTRAP_FINAL_TREE is True
 NUM_BOOTSTRAPS:int = 100
 
 # specify the path to the folder containing the blast+ executables
