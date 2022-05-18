@@ -145,6 +145,57 @@ class Taxonomy:
         return SELF_LEN + len(self.getAllDescendants())
 
 
+    def __contains__(self, item) -> bool:
+        """ __contains__:
+                Accepts either a Taxonomy object, a taxid (int or str), or a
+                scientific name (str) as input. Returns a boolean indicating if
+                the input is present within the calling object.
+        """
+        # constants
+        ERR_MSG_PREFIX = "'in <Taxonomy>' requires Taxonomy, taxid " + \
+                         "(int or str), or sciName (str) as left operand, not "
+        ERR_GREP_FIND = r"^<class '([^']+)'>$"
+        ERR_GREP_REPL = r"\1"
+
+        # if the item is a Taxonomy object
+        if type(item) is Taxonomy:
+            # attempt lookup by its taxid; True if found, False if not
+            if self.getDescendantByTaxId(item.taxid):
+                return True
+            else:
+                return False
+        
+        # if the item is an integer, then it must be a taxid
+        elif type(item) is int:
+            # attempt lookup by the taxid
+            if self.getDescendantByTaxId(item):
+                return True
+            else:
+                return False
+
+        # if the item is a string
+        elif type(item) is str:
+            # first try to coerce it to an integer
+            try:
+                # if it can be coerced, then it must be a taxid; attempt lookup
+                item = int(item)
+                if self.getDescendantByTaxId(item):
+                    return True
+                else:
+                    return False
+            
+            # if the item is not an integer, then it must be a sciName
+            except ValueError:
+                if self.getDescendantBySciName(item):
+                    return True
+                else:
+                    return False
+        
+        else:
+            error = re.sub(ERR_GREP_FIND, ERR_GREP_REPL, str(type(item)))
+            raise ValueError(ERR_MSG_PREFIX + error)
+
+
     def __hash__(self) -> int:
         return int(self.taxid)
 
