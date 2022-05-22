@@ -161,7 +161,7 @@ class Taxonomy:
         if type(item) is Taxonomy:
             # attempt lookup by its taxid; True if found, False if not
             if self.getDescendantByTaxId(item.taxid):
-                return True
+                return self.getDescendantByTaxId(item.taxid) == item
             else:
                 return False
         
@@ -1217,7 +1217,6 @@ class Taxonomy:
         # constants
         ERR_MSG_1 = "The calling object's rank does not exceed the input's rank."
         ERR_MSG_2 = "failed to find a suitable parent"
-        TEMP_TAXID = '0'
 
         # other must be at a rank below self
         if self.rank <= other.rank:
@@ -1303,21 +1302,41 @@ class Taxonomy:
                 # update the list so that they contain only roots 
                 taxaL[idx] = tax2
 
-        # initialize variables used for looping
-        mrca = None
-        found = False
-        taxO:Taxonomy
+        # get a set of all the unique root taxids
+        uniqRoots = set([x.getRoot().taxid for x in taxaL])
+
+        # if there is only one unique taxid
+        if len(uniqRoots) == 1:
+            # then the mrca has already been found
+            found = True
+        
+        # otherwise, mrca has not yet been found
+        else:
+            found = False
 
         # keep track of the current rank
         curRank = copy.deepcopy(tax1.rank)
 
-        # if the current rank is domain, then root needs to be defined
-        if curRank == Taxonomy.DOMAIN:
+        # if the current rank is domain or mrca is already found
+        # then root needs to be defined.
+        if curRank == Taxonomy.DOMAIN or found:
             # get the highest ranking object from the list (first item!)
             highestRankingObject:Taxonomy = taxaL[0]
 
             # get the root of the highest ranking object
             root = highestRankingObject.getRoot()
+
+            # indicate if the elements in the list are also the roots
+            # this is important for how _importExistingSubTax functions
+            taxaAreMrca = True
+        
+        # if not a domain or not already found, then the taxa will not be roots
+        else:
+            taxaAreMrca = False
+
+        # initialize variables for looping
+        mrca = None
+        taxO:Taxonomy
 
         # continue to deepen the root of each object until an mrca is found
         while not found and curRank != Taxonomy.DOMAIN:
@@ -1394,9 +1413,9 @@ class Taxonomy:
                     # remove the old id from its parent's dict
                     del desc.parent.descendantsD[txid]
 
-            # handle domains separately
-            if taxO.rank == Taxonomy.DOMAIN:
-                # two different domains cannot be merged
+            # handle when the items in the list are also roots
+            if taxaAreMrca:
+                # two different taxa cannot be merged
                 if root.sciName != taxO.sciName:
                     raise AttributeError(ERR_3)
                 
@@ -1408,7 +1427,7 @@ class Taxonomy:
                 for child in children:
                     root._importExistingSubTax(child, lpsnD)
 
-            # if the rank is not a domain
+            # if the items in the list are not roots, then import them
             else:
                 # nest taxO beneath the root
                 root._importExistingSubTax(taxO, lpsnD)
@@ -2370,8 +2389,7 @@ class Taxonomy:
         # work from species up
         while curRank < self.rank:
             # get a list of all the children at the current rank
-            children = self.getDescendantsAtRank(curRank)
-            children = list(children.values())
+            children = self.getDescendantsAtRank(curRank, list)
 
             # for each child
             child:Taxonomy
@@ -2429,12 +2447,12 @@ class Taxonomy:
                     # this ensures that we reference the immediate parent
                     newParent = newParent.getDescendantBySciName(lpsnParentName)
 
-                    # if an artificial taxid has been created, then replace it
-                    if newParent.taxid == TEMP_TAXID:
-                        newParent.taxid = self.__getUnusedArtificialTaxId()
-
                     # if getDescendantBySciName fails, newParent will be False
-                    if newParent:  
+                    if newParent:
+                        # if an artificial taxid has been created, then replace it
+                        if newParent.taxid == TEMP_TAXID:
+                            newParent.taxid = self.__getUnusedArtificialTaxId()
+                        
                         # nest self under the new parent
                         newParent._importDirectDescendant(self)
 
@@ -2494,6 +2512,10 @@ class Taxonomy:
                             if futureParent:
                                 curParent = curRoot.getDescendantBySciName(newRoot.sciName)
                                 curParent._importDirectDescendant(newParent.getAncestorAtRank(curParent.rank.getRankBelow()))
+                            
+                            # if a suitable parent was not found, then attempt to merge roots
+                            else:
+                                curRoot = Taxonomy._mergeMultipleRoots([curRoot, newRoot], lpsnD)
 
 
     def _findNewParent(self, lpsnD:dict, newParName:str=None) -> Taxonomy:
