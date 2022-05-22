@@ -31,11 +31,7 @@ def phyloMarkerBlastRunner(geneNumsL:list, paramO:Parameters) -> None:
     # constants
     PRINT_1 = 'Using the phylogenetic marker(s) to search for closely-related genomes ... '
     DONE = 'Done.'
-    TEMP_FAA_FN = "temp.faa"
-    TEMP_BLAST_FN = 'temp.blastp'
     FORMAT = 'fasta'
-    DB_1 = "nr"
-    DB_2 = "refseq_protein"
 
     # print status
     print(PRINT_1, end='', flush=True)
@@ -54,53 +50,8 @@ def phyloMarkerBlastRunner(geneNumsL:list, paramO:Parameters) -> None:
     # save the file as a fasta
     SeqIO.write(allSeqRecs, faaFN, FORMAT)
 
-    # determine the temporary filenames
-    tempFaaFN = os.path.join(os.path.dirname(faaFN), TEMP_FAA_FN)
-    tempBlastFN = os.path.join(os.path.dirname(blastFN), TEMP_BLAST_FN)
-
-    # make sure the blast file is empty
-    blastFH = open(blastFN, 'w')
-    blastFH.close()
-
-    # for each seq record
-    #### doing it this way should ease the strain on remote blast computation
-    #### this way is more likely to successfully get a result back
-    for seqRec in allSeqRecs:
-        # write the record to file
-        SeqIO.write(seqRec, tempFaaFN, FORMAT)
-
-        # run the blastp with the new fasta against nr
-        __blastFaaAgainstDb(tempFaaFN, tempBlastFN, blastExecutDirPath, DB_1)
-
-        # check that the blast was successful
-        if os.path.getsize(tempBlastFN) == 0:
-
-            # if not, then run a blast against refseq_protein
-            __blastFaaAgainstDb(tempFaaFN, tempBlastFN, blastExecutDirPath, DB_2)
-        
-        # check that the blast was successful
-        if os.path.getsize(tempBlastFN) == 0:
-            # if not, then raise an error
-            raise RuntimeError("blastp failed.")
-        
-        # open the temp file
-        tempBlastFH = open(tempBlastFN, 'r')
-
-        # move the data from the temp file into the blast file
-        # open the blast file to begin saving results
-        blastFH = open(blastFN, 'a')
-        for line in tempBlastFH:
-            blastFH.write(line)
-        
-        # close the blast file
-        blastFH.close()
-        
-        # close the temp blast file
-        tempBlastFH.close()
-
-        # remove the temp files
-        os.remove(tempFaaFN)
-        os.remove(tempBlastFN)
+    # use the sequence records to perform blastp(s)
+    __blastPhyloMarkerSeqRecords(allSeqRecs, faaFN, blastFN, blastExecutDirPath)
 
     print(DONE)
 
@@ -156,6 +107,74 @@ def __getSeqRecordFromGeneNum(geneNum:int, paramO:Parameters) -> SeqRecord:
     
     # if record was not found, then raise an exception
     raise Exception("invalid gene number provided")
+
+
+def __blastPhyloMarkerSeqRecords(seqRecL:list, faaFN:str, blastFN:str, \
+                                                      blastExeDir:str) -> None:
+    """ blastPhyloMarkerSeqRecords:
+            Accepts a list of SeqRecord objects, the filename of the amino acid
+            fasta file, the filename of the blastp output file, and the path to
+            the BLAST+ executables directory (str) as inputs. Blasts each indi-
+            vidual gene remotely against NCBI's nr (or refseq_protein) database
+            and saves the input/output files to temporary locations. Appends
+            the results from the temporary output file into the specified blast
+            output file. Deletes both of the temporary input and temporary out-
+            put files. Does not return.
+    """
+    # constants
+    TEMP_FAA_FN = "_temp.faa"
+    TEMP_BLAST_FN = '_temp.blastp'
+    FORMAT = 'fasta'
+    DB_1 = "nr"
+    DB_2 = "refseq_protein"
+
+    # determine the temporary filenames
+    tempFaaFN = os.path.join(os.path.dirname(faaFN), TEMP_FAA_FN)
+    tempBlastFN = os.path.join(os.path.dirname(blastFN), TEMP_BLAST_FN)
+
+    # make sure the blast file is empty
+    blastFH = open(blastFN, 'w')
+    blastFH.close()
+
+    # for each seq record
+    #### doing it this way should ease the strain on remote blast computation
+    #### this way is more likely to successfully get a result back
+    for seqRec in seqRecL:
+        # write the record to file
+        SeqIO.write(seqRec, tempFaaFN, FORMAT)
+
+        # run the blastp with the new fasta against nr
+        __blastFaaAgainstDb(tempFaaFN, tempBlastFN, blastExeDir, DB_1)
+
+        # check that the blast was successful
+        if os.path.getsize(tempBlastFN) == 0:
+
+            # if not, then run a blast against refseq_protein
+            __blastFaaAgainstDb(tempFaaFN, tempBlastFN, blastExeDir, DB_2)
+        
+        # check that the blast was successful
+        if os.path.getsize(tempBlastFN) == 0:
+            # if not, then raise an error
+            raise RuntimeError("blastp failed.")
+        
+        # open the temp file
+        tempBlastFH = open(tempBlastFN, 'r')
+
+        # move the data from the temp file into the blast file
+        # open the blast file to begin saving results
+        blastFH = open(blastFN, 'a')
+        for line in tempBlastFH:
+            blastFH.write(line)
+        
+        # close the blast file
+        blastFH.close()
+        
+        # close the temp blast file
+        tempBlastFH.close()
+
+        # remove the temp files
+        os.remove(tempFaaFN)
+        os.remove(tempBlastFN)
 
 
 def _locusTagToGeneNum(locusTag:str, geneInfoFN:str) -> int:
@@ -313,64 +332,115 @@ def getRelatives(oldParamO:Parameters, newParamO:Parameters, lpsnD:dict, \
     newTaxFN = os.path.join(newTaxDir, taxO.sciName + newTaxExt)
     taxO.save(newTaxFN)
 
-    # get a list of Taxonomy objects that should be excluded
-    if os.path.exists(excludedTaxidsFN):
-        excludedTaxa = __getExcludedTaxa(taxO, excludedTaxidsFN)
+    return __finalizeRelativesSelection(queriesD, taxO, lpsnD, excludedTaxidsFN, maxNumSeqs)
 
-    # create an empty list if a file was not specified
-    else:
-        excludedTaxa = list()
 
-    # initialize a list to store the related species
-    relativesL = list()
+def __findMissingAssemblies(blastFN:str, taxO:Taxonomy, lpsnD:dict) -> tuple:
+    """ findMissingAssemblies:
+            Accepts a string indicating a blastp result file in outfmt 6 with
+            custom headers (see parseBlastpFile for more info), a Taxonomy obj-
+            ect, and the LPSN dictionary as inputs. Creates and returns three 
+            dictionaries: the first is a dictionary whose keys are query ids
+            and whose values are dictionaries of assembly data keyed by assemb-
+            ly ids. The second is a dictionary keyed by the taxids of objects
+            already present in the Taxonomy object that currently lack assembl-
+            ies. The third is a dictionary keyed by the names of validly publi-
+            shed species present in the blast result but absent from the Taxon-
+            omy object. Both the second and third dictionaries have the corres-
+            ponding assembly uid as their values.
+    """
+    # get a dictionary with both the assembly and blastp data
+    rawAssembliesD:dict
+    rawAssembliesD = __linkAssembliesWithBlastpResults(blastFN)
+    
+    # make a dictionary keyed by the query to hold the assembly data
+    queriesD = dict()
 
-    # initialize a list to track which genera have been used
-    generaUsed = list()
+    # for each query id and assembly id pair
+    for qid,aid in rawAssembliesD.keys():
+        # initialize a nested dictionary within queriesD
+        if qid not in queriesD.keys():
+            queriesD[qid] = dict()
+        
+        # store the assembly data within the nested dictionary
+        queriesD[qid][aid] = rawAssembliesD[(qid,aid)]
+
+    # initialize additional dictiontaries with hits that need to be resolved
+    existNoAssD = dict() # species within taxO that lack assemblies
+    missingD = dict() # species not present in taxO
 
     # for each query
     for qid in queriesD.keys():
-        # extract the assemblies hit by the current query
+        # extract the assemblies with hits to the query
         assembliesD:dict = queriesD[qid]
 
-        # get the unique genera with their min and max bitscores
-        uniqueGeneraD = __getUniqueGeneraFromAssembliesD(assembliesD, lpsnD)
-
-        # sort unique genera from highest max bitscore to lowest max bitscore
-        sortMethod = lambda genName: uniqueGeneraD[genName]['max']
-        generaSortedL = sorted(uniqueGeneraD.keys(), key=sortMethod, \
-                                                                  reverse=True)
-
-        # get the minimum score for the genus with the highest maximum score
-        closestGenusMinScore = uniqueGeneraD[generaSortedL[0]]['min']
-    
-        # for each genus name
-        for genusName in generaSortedL:
-            # if the current genus hasn't already been used
-            if genusName not in generaUsed:
-                # if the max score for the genus >= min score for best genus
-                if uniqueGeneraD[genusName]['max'] >= closestGenusMinScore:
-                    # get a handle to the current genus
-                    genus = taxO.getDescendantBySciName(genusName)
-
-                    # add all the species with assemblies to the relatives list
-                    relativesL.extend(genus.getAllSpeciesWithAssemblies(list))
-
-                    # mark the genus as used
-                    generaUsed.append(genusName)
-
-                # otherwise, the list is sorted; it is safe to stop looping
-                else: break
-
-    # for each taxon to be excluded
-    for exTax in excludedTaxa:
-        # reverse the indices for on-the-fly popping
-        reverseIndices = list(range(len(relativesL)))
-        reverseIndices.reverse()
+        # for each assembly
+        for assId in assembliesD.keys():
+            # extract values from the assembly dictionary
+            taxid = assembliesD[assId]['taxid']
+            name = assembliesD[assId]['name']
         
-        # go through relativesL in reverse order and remove excluded taxa
-        for idx in reverseIndices:
-            if relativesL[idx] in exTax:
-                relativesL.pop(idx)
+            # make sure name is not a synonym
+            sciName = __renameSpeciesByLpsn(name, lpsnD)
+            
+            # attempt to lookup an existing object by taxid
+            desc = taxO.getDescendantByTaxId(taxid)
+
+            # if lookup by taxid failed, then try lookup by sciName
+            if not desc:
+                desc = taxO.getDescendantBySciName(sciName)
+            
+            # if lookup by taxid and sciName failed try lookup by ncbiName
+            if not desc:
+                desc = taxO.getDescendantByNcbiName(name)
+            
+            # if an existing descendant was found 
+            if desc:
+                # make sure the descendant is marked as internal
+                desc.isExternal = False
+
+                # if the existing descendant lacks an assembly
+                if desc.assemblyFtp is None:
+                    # make a list of assembly ids if the taxid isn't a key
+                    if desc.taxid not in existNoAssD.keys():
+                        existNoAssD[desc.taxid] = [assId]
+                    
+                    # update the list of assembly ids if the taxid is already a key
+                    elif assId not in existNoAssD[desc.taxid]:
+                        existNoAssD[desc.taxid].append(assId)
+            
+            # if no existing descendant was found in taxO, but it is a valid name
+            elif sciName is not None:
+                # make a list of assembly ids if the sciName isn't a key
+                if sciName not in missingD.keys():
+                    missingD[sciName] = [assId]
+                
+                # update the list of assembly ids if the sciName is already a key
+                elif assId not in missingD[sciName]:
+                    missingD[sciName].append(assId)
+    
+    return queriesD, existNoAssD, missingD
+
+
+def __finalizeRelativesSelection(queriesD:dict, taxO:Taxonomy, lpsnD:dict, \
+                                 excludedTaxidsFN:str, maxNumSeqs:int) -> list:
+    """ finalizeRelativesSelection:
+            Accepts a dictionary of assembly data keyed by query, a Taxonomy
+            object, the lpsn dictionary, a filename for the excludedTaxidsFN,
+            and an integer indicating the maximum number of sequences to select
+            as inputs.
+    """
+    # get three lists from queriesD:
+    #### a list of related species (Taxonomy) that are related
+    #### a list of all genera sorted by max bitscore (highest -> lowest)
+    #### a list of the genera used to populate relativesL
+    relativesL:list
+    generaSortedL:list
+    generaUsed:list
+    relativesL, generaSortedL, generaUsed = __relativesFromQueriesD(queriesD, taxO, lpsnD)
+
+    # eclude any specified taxids
+    __excludeTaxa(excludedTaxidsFN, taxO, relativesL)
 
     # it is possible that too many relatives were selected in the previous step
     # if this is the case, then we need to select a subset of them
@@ -480,91 +550,84 @@ def getRelatives(oldParamO:Parameters, newParamO:Parameters, lpsnD:dict, \
     return relativesL
 
 
-def __findMissingAssemblies(blastFN:str, taxO:Taxonomy, lpsnD:dict) -> tuple:
-    """ findMissingAssemblies:
-            Accepts a string indicating a blastp result file in outfmt 6 with
-            custom headers (see parseBlastpFile for more info), a Taxonomy obj-
-            ect, and the LPSN dictionary as inputs. Creates and returns three 
-            dictionaries: the first is a dictionary whose keys are query ids
-            and whose values are dictionaries of assembly data keyed by assemb-
-            ly ids. The second is a dictionary keyed by the taxids of objects
-            already present in the Taxonomy object that currently lack assembl-
-            ies. The third is a dictionary keyed by the names of validly publi-
-            shed species present in the blast result but absent from the Taxon-
-            omy object. Both the second and third dictionaries have the corres-
-            ponding assembly uid as their values.
+def __relativesFromQueriesD(queriesD:dict, taxO:Taxonomy, lpsnD:dict) -> tuple:
+    """ relativesFromQueriesD:
+            Accepts a dictionary of assembly data keyed by query, a Taxonomy
+            object, and the lpsn dictionary as inputs. Parses the data into a
+            list of relatives (Taxonomy) with assemblies, a list of genera sor-
+            ted from highest maximum bitscore to lowest maximum bitscore, and
+            a list of all the genera used (taxids) to populate the list of rel-
+            atives. Returns these three lists as a tuple in the order described
+            above.
     """
-    # get a dictionary with both the assembly and blastp data
-    rawAssembliesD:dict
-    rawAssembliesD = __linkAssembliesWithBlastpResults(blastFN)
-    
-    # make a dictionary keyed by the query to hold the assembly data
-    queriesD = dict()
+    # initialize a list to store the related species
+    relativesL = list()
 
-    # for each query id and assembly id pair
-    for qid,aid in rawAssembliesD.keys():
-        # initialize a nested dictionary within queriesD
-        if qid not in queriesD.keys():
-            queriesD[qid] = dict()
-        
-        # store the assembly data within the nested dictionary
-        queriesD[qid][aid] = rawAssembliesD[(qid,aid)]
-
-    # initialize additional dictiontaries with hits that need to be resolved
-    existNoAssD = dict() # species within taxO that lack assemblies
-    missingD = dict() # species not present in taxO
+    # initialize a list to track which genera have been used
+    generaUsedL = list()
 
     # for each query
     for qid in queriesD.keys():
-        # extract the assemblies with hits to the query
+        # extract the assemblies hit by the current query
         assembliesD:dict = queriesD[qid]
 
-        # for each assembly
-        for assId in assembliesD.keys():
-            # extract values from the assembly dictionary
-            taxid = assembliesD[assId]['taxid']
-            name = assembliesD[assId]['name']
-        
-            # make sure name is not a synonym
-            sciName = __renameSpeciesByLpsn(name, lpsnD)
-            
-            # attempt to lookup an existing object by taxid
-            desc = taxO.getDescendantByTaxId(taxid)
+        # get the unique genera with their taxids and min/max bitscores
+        uniqueGeneraD = __getUniqueGeneraFromAssembliesD(assembliesD, lpsnD)
 
-            # if lookup by taxid failed, then try lookup by sciName
-            if not desc:
-                desc = taxO.getDescendantBySciName(sciName)
-            
-            # if lookup by taxid and sciName failed try lookup by ncbiName
-            if not desc:
-                desc = taxO.getDescendantByNcbiName(name)
-            
-            # if an existing descendant was found 
-            if desc:
-                # make sure the descendant is marked as internal
-                desc.isExternal = False
+        # sort unique genera from highest max bitscore to lowest max bitscore
+        sortMethod = lambda genName: uniqueGeneraD[genName]['max']
+        generaSortedL = sorted(uniqueGeneraD.keys(), key=sortMethod, \
+                                                                  reverse=True)
 
-                # if the existing descendant lacks an assembly
-                if desc.assemblyFtp is None:
-                    # make a list of assembly ids if the taxid isn't a key
-                    if desc.taxid not in existNoAssD.keys():
-                        existNoAssD[desc.taxid] = [assId]
-                    
-                    # update the list of assembly ids if the taxid is already a key
-                    elif assId not in existNoAssD[desc.taxid]:
-                        existNoAssD[desc.taxid].append(assId)
-            
-            # if no existing descendant was found in taxO, but it is a valid name
-            elif sciName is not None:
-                # make a list of assembly ids if the sciName isn't a key
-                if sciName not in missingD.keys():
-                    missingD[sciName] = [assId]
-                
-                # update the list of assembly ids if the sciName is already a key
-                elif assId not in missingD[sciName]:
-                    missingD[sciName].append(assId)
+        # get the minimum score for the genus with the highest maximum score
+        closestGenusMinScore = uniqueGeneraD[generaSortedL[0]]['min']
     
-    return queriesD, existNoAssD, missingD
+        # for each genus name
+        for genusName in generaSortedL:
+            # if the current genus hasn't already been used
+            if genusName not in generaUsedL:
+                # if the max score for the genus >= min score for best genus
+                if uniqueGeneraD[genusName]['max'] >= closestGenusMinScore:
+                    # get a handle to the current genus
+                    genus = taxO.getDescendantBySciName(genusName)
+
+                    # add all the species with assemblies to the relatives list
+                    relativesL.extend(genus.getAllSpeciesWithAssemblies(list))
+
+                    # mark the genus as used
+                    generaUsedL.append(genusName)
+
+                # otherwise, the list is sorted; it is safe to stop looping
+                else: break
+
+        return relativesL, generaSortedL, generaUsedL
+
+
+def __excludeTaxa(excludedTaxidsFN:str, taxO:Taxonomy, relativesL:list) -> None:
+    """ excludeTaxa:
+            Accepts a filename containing the taxids to exclude, a Taxonomy ob-
+            ject, and a list of related species (Taxonomy) as inputs. Reads the
+            taxids from the file, and uses them to remove any matching objects
+            from relativesL. Modifies relativesL, but does not return.
+    """
+     # get a list of Taxonomy objects that should be excluded
+    if os.path.exists(excludedTaxidsFN):
+        excludedTaxa = __getExcludedTaxa(taxO, excludedTaxidsFN)
+
+    # create an empty list if a file was not specified
+    else:
+        excludedTaxa = list()
+
+    # for each taxon to be excluded
+    for exTax in excludedTaxa:
+        # reverse the indices for on-the-fly popping
+        reverseIndices = list(range(len(relativesL)))
+        reverseIndices.reverse()
+        
+        # go through relativesL in reverse order and remove excluded taxa
+        for idx in reverseIndices:
+            if relativesL[idx] in exTax:
+                relativesL.pop(idx)
 
 
 def __getExcludedTaxa(taxO:Taxonomy, excludedTaxidsFN:str) -> list:
@@ -610,16 +673,17 @@ def __getUniqueGeneraFromAssembliesD(assembliesD:dict, lpsnD:dict) -> dict:
             Accepts the assembly and LPSN dictionaries as inputs. Extracts the
             unique genera for all the blastp hits to species known by the LPSN
             as well as each genus's min and max bitscores. Creates a dictionary
-            of dictionaries. The nested dictionary is keyed by 'min' and 'max'
-            and contains the corresponding bitscores. The parental dictionary 
-            is keyed by genus name with the corresponding min/max dictionary as
-            its value. Returns the newly created dictionary.
+            of dictionaries. The nested dictionary is keyed by 'min', 'max',
+            and 'taxids' and whose values are the min/max bitscores and a set
+            of all the taxids present. Returns a dictionary keyed by genus name
+            with the nested dictionary as its value.
     """
     # constants
     GREP_FIND = r'^(\S+) .+$'
     GREP_REPL = r'\1'
     MIN = 'min'
     MAX = 'max'
+    TAX = 'taxids'
 
     # for each assembly id
     outD = dict()
@@ -627,8 +691,9 @@ def __getUniqueGeneraFromAssembliesD(assembliesD:dict, lpsnD:dict) -> dict:
         # get the entry from the dictionary
         entry:dict = assembliesD[assmId]
 
-        # extract the name and the blast bitscore from the entry
-        fullName:str  = entry['name']
+        # extract the name, taxid, and blast bitscore from the entry
+        fullName:str = entry['name']
+        taxid:str = entry['taxid']
         score = float(entry['blast']['bitscore'])
 
         # rename the hit with its LPSN name
@@ -643,11 +708,15 @@ def __getUniqueGeneraFromAssembliesD(assembliesD:dict, lpsnD:dict) -> dict:
             if genusName not in outD.keys():
                 # save the current score as both the min and the max values
                 entry = {MIN: score,
-                         MAX: score}
+                         MAX: score,
+                         TAX: {taxid}}
                 outD[genusName] = entry
             
             # update an entry if the genus name has already been encountered
             else:
+                if taxid not in outD[genusName][TAX]:
+                    outD[genusName][TAX].add(taxid)
+                
                 # update the min score if it is greater than the current score
                 if outD[genusName][MIN] > score:
                     outD[genusName][MIN] = score
