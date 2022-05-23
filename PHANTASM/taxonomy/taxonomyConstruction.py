@@ -20,7 +20,7 @@ def constructTaxonomy(taxids:list, saveTax:bool=False, dir:str='./') -> Taxonomy
     """
     # constants
     GAP = " " * 4
-    PRNT_1 = "Constructing taxonomy for the query genome ... "
+    PRNT_1 = "Constructing taxonomy for the query genome(s) ... "
     PRNT_2 = GAP + "Reconciling taxonomy with LPSN taxonomy ... "
     PRNT_3 = GAP + "Merging multiple orders into a single taxonomy ... "
     PRNT_4 = GAP + "Mapping blast hits onto the taxonomy ... "
@@ -55,7 +55,7 @@ def constructTaxonomy(taxids:list, saveTax:bool=False, dir:str='./') -> Taxonomy
         print(DONE)
     
     # otherwise, no orders were made; raise an error
-    else: raise BaseException("Failed to create a Taxonomy object; aborting")
+    else: raise BaseException("Failed to create a Taxonomy object. Aborting")
     
     # use the taxids to update which taxa are considered interal/external
     print(PRNT_4, end="", flush=True)
