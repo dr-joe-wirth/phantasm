@@ -5,19 +5,18 @@
 ## If you use this software, please email me at jwirth \<at> g \<dot> hmc \<dot> edu
 
 ## Running the software
-### To run the software, perform the following steps:
+### To get set up, perform the following steps:
   * Make a working directory containing either a single input genome in genbank file format or a directory of multiple input genomes in genbank file format
-  * Modify ```<path to phantasm>/param.py``` appropriately
-  * From within the working directory, call the following command on the commandline:
+  * From within the working directory, call the following command on the commandline (modify ```<path to phantasm>/param.py``` appropriately):
 
         $ python3 <path to phantasm>/phantasm.py help
 
-## Identifying a suitable phylogenetic marker for your input genome
+## Identifying suitable phylogenetic markers for your input genome(s)
 ### Run the following command:
 
         $ python3 <path to phantasm>/phantasm.py getPhyloMarker <gbff filename> <email address>
  
-  * After it finishes running, open ```initialAnalysis/putativePhylogeneticMarkers.txt``` and determine which gene you wish to use as the phylogenetic marker of the group. Make a note of the gene number or the locus tag as this will be used as input in the next step.
+  * After it finishes running, open ```initialAnalysis/putativePhylogeneticMarkers.txt``` and determine which gene(s) you wish to use as the phylogenetic marker(s) of the group. Make a note of the gene number or the locus tag as this will be used as input in the next step.
   * If using PHANTASM on multiple input genomes, replace ```<gbff filename>``` with ```<gbff directory>```
 
     * example for a single genome:
@@ -65,7 +64,34 @@
 
         $ python3 ~/phantasm/phantasm.py refinePhylogeny --locus_tag RUA4292_04770,SPO3507,RUA4292_00884,SPO0155 input_genomes email@address.org
 
-### Optional: Excluding taxa from the refined phylogeny
+## Running PHANTASM with known phylogenetic markers
+### Run the following command:
+
+        $ python3 <path to phantasm>/phantasm.py knownPhyloMarker <locus tag> <email address>
+
+  * The results can be found in the folder ```finalAnalysis```.
+  * If using PHANTASM on multiple input genomes, replace ```<gbff filename>``` with ```<gbff directory>```
+  * If using PHANTASM with multiple phylogenetic markers:
+      * List each locus tag separated by a comma (no spaces allowed)
+      * Include the same number of locus tags for each input genome
+
+  * example using one genome and one phylogenetic marker:
+
+        $ python3 ~/phantasm/phantasm.py knownPhyloMarker SPO_RS17765 R_pomeroyi.gbff email@address.org
+
+  * example using one genome and multiple (two) phylogenetic markers:
+
+        $ python3 ~/phantasm/phantasm.py knownPhyloMarker SPO3507,SPO0155 R_pomeroyi.gbff email@address.org
+
+  * example using multiple genomes and one (per genome) phylogenetic marker:
+
+        $ python3 ~/phantasm/phantasm.py knownPhyloMarker RUA4292_04770,SPO3507 input_genomes email@address.org
+  
+  * example using multiple genomes and multiple (two per genome) phylogenetic markers:
+
+        $ python3 ~/phantasm/phantasm.py knownPhyloMarker RUA4292_04770,SPO3507,RUA4292_00884,SPO0155 input_genomes email@address.org
+
+## Optional: Excluding taxa from phylogenomic analyses
 It is possible to exclude specific taxa from the refined phylogeny. To do so, create a file named ```excludedTaxids.txt``` containing exactly one NCBI Taxonomy id per line. The excluded ids can represent any taxonomic rank (eg. species, genus, family, etc.). This file should be in the same directory in which PHANTASM is called (```~/workdir``` in the examples above). This feature is largely experimental and should be used with caution.
 
 ## Description of the workflow
@@ -89,6 +115,19 @@ It is possible to exclude specific taxa from the refined phylogeny. To do so, cr
       * several species from more distant genera
   * Downloads the assemblies for the new ingroup and the outgroup
   * Calculates the core genes for the refined set of genomes.
+  * Creates a species tree based on a concatenated alignment of the core genes.
+  * Calculates the average amino acid identity (AAI) for the species in the tree (excluding the outgroup).
+  * Calculates the average nucleotide identity (ANI) for the species in the tree (excluding the outgroup).
+
+### Using a known phylogenetic marker(s)
+  * Using the phylogenetic marker(s) specified by the user, finds the most closely-related taxa to the input genome via BLASTp against either NCBI's nr or refseq_protein databases.
+  * Uses the BLASTp results to determine which taxonomic orders are related to the input.
+  * Retreives data from NCBI's Taxonomy database to create a single taxonomy encompassing all the identified orders.
+  * Reconciles the NCBI-based taxonomy with LPSN's taxonomic structure.
+  * Imports data from NCBI's Assembly database for the species represented in the taxonomy.
+  * Uses the BLASTp results and the taxonomic structure to determine which taxa could serve as the ingroup/outgroup.
+  * Downloads assemblies for the ingroup and the outgroup the number to download is specified in ```<path to phatasm>/param.py``` in the ```MAX_LEAVES``` variable.
+  * Calculates core genes for the set of gbff files.
   * Creates a species tree based on a concatenated alignment of the core genes.
   * Calculates the average amino acid identity (AAI) for the species in the tree (excluding the outgroup).
   * Calculates the average nucleotide identity (ANI) for the species in the tree (excluding the outgroup).
