@@ -3917,7 +3917,6 @@ class Taxonomy:
                     
                     # otherwise, create a new parent
                     else:
-                        raise RuntimeError("hooray! this is untested!")
                         parentD[parent.taxid] = parentD[match.taxid]
                     
                     # either way, delete the match from parentD
