@@ -1,17 +1,15 @@
 # Author: Joseph S. Wirth
 
+from Bio import Entrez
+from param import BOOTSTRAP_FINAL_TREE
+from PHANTASM.utilities import cleanup
+from PHANTASM.Parameter import Parameters
 from PHANTASM.rRNA.runRnaBlast import rnaBlastRunner
 from PHANTASM.rRNA.processRnaBlast import getTaxIdsFromRnaBlast
-from PHANTASM.Parameter import Parameters
-from PHANTASM.utilities import cleanup
 from PHANTASM.taxonomy.taxonomyConstruction import Taxonomy, constructTaxonomy, _getLpsnData
-from PHANTASM.coreGenes import rankPhylogeneticMarkers, xenogiInterfacer_1, \
-                        parseGenbank, allVsAllBlast, copyExistingBlastFiles, \
-                        calculateCoreGenes, makeSpeciesTree
-from PHANTASM.findMissingNeighbors import phyloMarkerBlastRunner, xenogiInterfacer_2
+from PHANTASM.findMissingNeighbors import phyloMarkerBlastRunner, xenogiInterfacer_2, xenogiInterfacer_3
 from PHANTASM.overallGenomeRelatedIndices import overallGenomeRelatedIndices, makeAaiHeatmap, makeAniHeatmap
-from param import BOOTSTRAP_FINAL_TREE
-from Bio import Entrez
+from PHANTASM.coreGenes import rankPhylogeneticMarkers, xenogiInterfacer_1, parseGenbank, allVsAllBlast, copyExistingBlastFiles, calculateCoreGenes, makeSpeciesTree
 
 
 def getPhyloMarker(allQueryGenbanksL:list, paramO:Parameters) -> None:
@@ -35,6 +33,19 @@ def refinePhylogeny(geneNumsL:list, allQueryGenbanksL:list, paramO_1:Parameters,
     cleanup(paramO_2)
 
 
+def knownPhyloMarker(allQueryGenbanksL:list, locusTagsL:list, \
+                                                            paramO:Parameters):
+    """ run phantasm with known markers in a single step
+    """
+    lpsnD = _getLpsnData()
+    outgroup = xenogiInterfacer_3(allQueryGenbanksL, locusTagsL, paramO, lpsnD)
+    coreGenesWrapper_1(paramO)
+    finalAnalysesWrapper(allQueryGenbanksL, outgroup, paramO)
+    cleanup(paramO)
+###############################################################################
+
+
+###############################################################################
 def taxonomyWrapper(allQueryGenbanksL:list, paramO_1:Parameters) -> Taxonomy:
     """ creates a Taxonomy object, downloads gbffs, and makes the human map.
         returns the outgroup species as a Taxonomy object.
@@ -110,4 +121,3 @@ def finalAnalysesWrapper(allQryGbksL:list, outgroup:Taxonomy, \
     overallGenomeRelatedIndices(paramO_2, outgroup)
     makeAaiHeatmap(paramO_2, outgroup)
     makeAniHeatmap(paramO_2, outgroup)
-

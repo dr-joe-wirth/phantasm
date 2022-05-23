@@ -3,13 +3,16 @@
 import sys, os, re, glob, copy
 from PHANTASM.Parameter import Parameters
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
+from PHANTASM.taxonomy.taxonomyConstruction import constructTaxonomy
 from PHANTASM.rRNA.runRnaBlast import __makeOutfmtString
 from PHANTASM.utilities import parseCsv, ncbiIdsFromSearchTerm, ncbiSummaryFromIdList, ncbiELinkFromIdList, extractIdsFromELink, removeFileExtension
 from PHANTASM.downloadGbff import __downloadGbffFromSpeciesList, _makeHumanMapString
 from PHANTASM.coreGenes import _humanNameFromQueryGenbankFN
-from Bio import Entrez, SeqIO, SeqFeature
+from Bio import Entrez, SeqIO
 from Bio.SeqRecord import SeqRecord
+from Bio.SeqFeature import SeqFeature
 from Bio.SeqIO.FastaIO import FastaIterator
+from Bio.SeqIO.InsdcIO import GenBankIterator
 from Bio.Blast.Applications import NcbiblastpCommandline
 from param import XENOGI_DIR
 sys.path.insert(0,os.path.join(sys.path[0],XENOGI_DIR))
@@ -34,7 +37,7 @@ def phyloMarkerBlastRunner(geneNumsL:list, paramO:Parameters) -> None:
     FORMAT = 'fasta'
 
     # print status
-    print(PRINT_1, end='', flush=True)
+    print(PRINT_1)
     
     # extract relevant parameters
     faaFN = paramO.phyloMarkerFaaFN
@@ -122,6 +125,11 @@ def __blastPhyloMarkerSeqRecords(seqRecL:list, faaFN:str, blastFN:str, \
             put files. Does not return.
     """
     # constants
+    PRINT_1A = 4*" " + "Searching "
+    PRINT_1B = " against NCBI's "
+    PRINT_1C = " database ... "
+    FAILED = 'Failed.'
+    DONE = 'Done.'
     TEMP_FAA_FN = "_temp.faa"
     TEMP_BLAST_FN = '_temp.blastp'
     FORMAT = 'fasta'
@@ -139,22 +147,32 @@ def __blastPhyloMarkerSeqRecords(seqRecL:list, faaFN:str, blastFN:str, \
     # for each seq record
     #### doing it this way should ease the strain on remote blast computation
     #### this way is more likely to successfully get a result back
+    seqRec:SeqRecord
     for seqRec in seqRecL:
         # write the record to file
         SeqIO.write(seqRec, tempFaaFN, FORMAT)
 
         # run the blastp with the new fasta against nr
+        printStatement = PRINT_1A + seqRec.id + PRINT_1B + DB_1 + PRINT_1C
+        print(printStatement, end='', flush=True)
         __blastFaaAgainstDb(tempFaaFN, tempBlastFN, blastExeDir, DB_1)
 
         # check that the blast was successful
         if os.path.getsize(tempBlastFN) == 0:
+            # if not, then blast against nr failed
+            print(FAILED)
 
-            # if not, then run a blast against refseq_protein
+            # so try to run a blast against refseq_protein
+            printStatement = PRINT_1A + seqRec.id + PRINT_1B + DB_2 + PRINT_1C
+            print(printStatement, end='', flush=True)
             __blastFaaAgainstDb(tempFaaFN, tempBlastFN, blastExeDir, DB_2)
         
         # check that the blast was successful
         if os.path.getsize(tempBlastFN) == 0:
-            # if not, then raise an error
+            # if not, then clean up and raise an error
+            print(FAILED)
+            os.remove(tempFaaFN)
+            os.remove(tempBlastFN)
             raise RuntimeError("blastp failed.")
         
         # open the temp file
@@ -175,6 +193,9 @@ def __blastPhyloMarkerSeqRecords(seqRecL:list, faaFN:str, blastFN:str, \
         # remove the temp files
         os.remove(tempFaaFN)
         os.remove(tempBlastFN)
+
+        # print status
+        print(DONE)
 
 
 def _locusTagToGeneNum(locusTag:str, geneInfoFN:str) -> int:
@@ -1124,3 +1145,211 @@ def xenogiInterfacer_2(allQryGbksL:list, oldParamO:Parameters, newParamO:Paramet
     filehandle.close()
 
     return outgroup
+###############################################################################
+
+
+###############################################################################
+def xenogiInterfacer_3(allQueryGenbanksL:list, locusTagsL:list, \
+                                    paramO:Parameters, lpsnD:dict) -> Taxonomy:
+    """ xenogiInterfacer_3:
+            Accepts a list of query genbank filenames (str), a list of locus
+            tags (str), a Parameters object, and the lpsn dictionary as inputs.
+            Uses the locus tags to extract the respective protein sequences fr-
+            om the query genomes and blasts these protein sequences against NC-
+            BI's nr or refseq_protein databases. Uses the resulting blastp hits
+            to construct a Taxonomy object and identify a suitable set of refe-
+            rence genomes for phylogenomic analyses including an outgroup. Dow-
+            nloads the identified genomes from NCBI Assembly, and creates the
+            human map file necessary for xenoGI. Returns the outgroup as a Tax-
+            onomy object.
+    """
+    # constants
+    ERR_MSG = "Failed to extract protein sequences for all locus tags."
+    PRINT_1 = 'Using the phylogenetic marker(s) to search for closely-related genomes ... '
+    PRINT_2 = 'Identifying a suitable set of whole genome sequences ... '
+    PRINT_3 = 'Downloading genbank files from NCBI ... '
+    DONE = 'Done.'
+    FORMAT = 'fasta'
+    TAXIDS_KEY = 'taxids'
+
+    # set Entrez.email
+    Entrez.email = paramO.email
+
+    # extract relevant parameters from paramO
+    workdir = paramO.workdir
+    faaFN = paramO.phyloMarkerFaaFN
+    blastFN = paramO.blastpResultFN
+    blastExecutDirPath = paramO.blastExecutDirPath
+    excludedTaxidsFN = paramO.excludedTaxidsFN
+    maxNumSeqs = paramO.maxNumTreeLeaves - len(allQueryGenbanksL) - 1
+    taxFilePath = paramO.taxonomyObjectFilePath
+    humanMapFN = paramO.fileNameMapFN
+    genbankWorkdir = os.path.dirname(paramO.genbankFilePath)
+
+    # make working directory
+    if not os.path.exists(workdir):
+        os.mkdir(workdir)
+
+    # print status
+    print(PRINT_1)
+
+    # get the sequence records from the input locus tags
+    seqRecordsL = __seqRecordsFromLocusTags(locusTagsL, allQueryGenbanksL)
+
+    # write the sequences to file
+    SeqIO.write(seqRecordsL, faaFN, FORMAT)
+
+    # raise an error if num seqRecords does not match num locus tags
+    if len(seqRecordsL) != len(locusTagsL):
+        raise RuntimeError(ERR_MSG)
+
+    # perform the blastp
+    __blastPhyloMarkerSeqRecords(seqRecordsL, faaFN, blastFN, blastExecutDirPath)
+
+    # print status
+    print(DONE)
+
+    # parse the blast file and link results to assemblies
+    assemblyD = __linkAssembliesWithBlastpResults(blastFN)
+
+    # initialize a new dictionary
+    queriesD = dict()
+
+    # restructure the assembly dictionary so that assemblies are keyed by query
+    for qid,aid in assemblyD.keys():
+        if qid not in queriesD.keys():
+            queriesD[qid] = dict()
+        queriesD[qid][aid] = assemblyD[(qid,aid)]
+
+    # initialize a set to store taxids found in the blastp hits
+    taxids = set()
+    
+    # for each query
+    for qid in queriesD.keys():
+        # extract the assemblies hit by the current query
+        assembliesD:dict = queriesD[qid]
+
+        # get the unique genera with their taxids and min/max bitscores
+        uniqueGeneraD = __getUniqueGeneraFromAssembliesD(assembliesD, lpsnD)
+
+        # add all observed taxids to the set
+        for genusName in uniqueGeneraD.keys():
+            taxids = taxids.union(uniqueGeneraD[genusName][TAXIDS_KEY])
+    
+    # convert taxids to a list
+    taxids = list(taxids)
+
+    # construct a taxonomy object for the observed taxids
+    taxO = constructTaxonomy(taxids, saveTax=True, dir=workdir)
+
+    # print status
+    print(PRINT_2, end="", flush=True)
+
+    # get a suitable set of ingroup species
+    speciesL = __finalizeRelativesSelection(queriesD, taxO, lpsnD, excludedTaxidsFN, maxNumSeqs) 
+
+    # select an outgroup
+    taxO:Taxonomy
+    outgroup:Taxonomy
+    taxO,outgroup = taxO._pickOutgroup(lpsnD)
+
+    # print status
+    print(DONE)
+
+    # determine the taxonomy object filename
+    taxDir = os.path.dirname(taxFilePath)
+    taxExt = os.path.splitext(taxFilePath)[1]
+    taxFN = os.path.join(taxDir, taxO.sciName + taxExt)
+
+    # write the taxonomy object to file
+    taxO.save(taxFN)
+
+    # add the outgroup to the list of species
+    speciesL.append(outgroup)
+
+    # make the directory to store the downloaded genbank files
+    os.mkdir(genbankWorkdir)
+
+    # print status
+    print(PRINT_3, end='', flush=True)
+
+    # download the genomes
+    __downloadGbffFromSpeciesList(speciesL, humanMapFN, genbankWorkdir)
+
+    # print status
+    print(DONE)
+
+    # open the human map file
+    mapFH = open(humanMapFN, 'a')
+
+    # for each input genome
+    for genomeFN in allQueryGenbanksL:
+        # get the absolute path to the original file
+        oldFN = os.path.abspath(genomeFN)
+
+        # get the basename of the original file
+        basename = os.path.basename(oldFN)
+
+        # determine the new filename
+        newFN = os.path.join(genbankWorkdir + basename)
+
+        # make a symlink for the input genome
+        os.symlink(oldFN, newFN)
+
+        # get the human name for the query file name
+        humanName = _humanNameFromQueryGenbankFN(basename)
+
+        # make the human map string and append it to the human map file
+        humanMapStr = _makeHumanMapString(humanName, basename)
+        mapFH.write(humanMapStr)
+
+    # close the human map file
+    mapFH.close()
+
+    return outgroup
+
+
+def __seqRecordsFromLocusTags(locusTagsL:list, inputGenomesL:list) -> list:
+    """ seqRecordsFromLocusTags:
+            Accepts a list of locus tags (str) and a list of input genome file-
+            names (str) as inputs. Extracts the sequence for each desired locus
+            tag and creates a SeqRecord object containing the translation for
+            the specified gene. Returns a list of the SeqRecords.
+    """
+    # constants
+    FORMAT = 'genbank'
+    CDS = 'CDS'
+    LOCUS_TAG = 'locus_tag'
+
+    # initialize a list to store the SeqRecord objects
+    recordsL = list()
+
+    # for each input genome
+    for gbFN in inputGenomesL:
+        # parse the file into an iterator
+        parsed:GenBankIterator = SeqIO.parse(gbFN, FORMAT)
+
+        # for each record in the genbank
+        record:SeqRecord
+        for record in parsed:
+            # for each feature in the record
+            feature:SeqFeature
+            for feature in record.features:
+                # if the feature is a CDS
+                if feature.type == CDS:
+                    # extract the locus tag for the feature
+                    tag = feature.qualifiers[LOCUS_TAG][0]
+
+                    # if the tag is one that was requested
+                    if tag in locusTagsL:
+                        # get the translation of the feature as a SeqRecord
+                        newRecord:SeqRecord = feature.translate(record)
+
+                        # make sure the SeqRecord is named by its locus tag
+                        newRecord.id = tag
+                        newRecord.description = ""
+
+                        # add the new SeqRecord object to the list
+                        recordsL.append(newRecord)
+        
+    return recordsL
