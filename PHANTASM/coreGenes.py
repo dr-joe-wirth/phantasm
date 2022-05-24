@@ -588,9 +588,8 @@ def __printSummary(paramO:Parameters) -> None:
 
     # determine where the full results will be saved
     workdir = os.path.basename(paramO.workdir)
-    treedir = os.path.basename(paramO.makeSpeciesTreeWorkingDir)
     deetsFN = os.path.basename(paramO.coreGenesSummaryFN)
-    deetsFN = os.path.join(workdir, treedir, deetsFN)
+    deetsFN = os.path.join(workdir, deetsFN)
 
     print(PRINT_3A + deetsFN + PRINT_3B)
 
