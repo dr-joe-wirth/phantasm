@@ -33,7 +33,7 @@ def phyloMarkerBlastRunner(geneNumsL:list, paramO:Parameters) -> None:
     """
     # constants
     PRINT_1 = 'Using the phylogenetic marker(s) to search for closely-related genomes ... '
-    DONE = 'Done.'
+    DONE = 'Done.\n'
     FORMAT = 'fasta'
 
     # print status
@@ -1207,7 +1207,7 @@ def xenogiInterfacer_3(allQueryGenbanksL:list, locusTagsL:list, \
     __blastPhyloMarkerSeqRecords(seqRecordsL, faaFN, blastFN, blastExecutDirPath)
 
     # print status
-    print(DONE)
+    print(DONE + "\n")
 
     # parse the blast file and link results to assemblies
     assemblyD = __linkAssembliesWithBlastpResults(blastFN)
