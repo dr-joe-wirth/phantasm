@@ -39,6 +39,7 @@ HELP_MSG = "\nPHANTASM: PHylogenomic ANalyses for the TAxonomy and Systematics o
            GAP*2 + "'finalAnalysis/aai_heatmap.pdf'\n" + \
            GAP*2 + "'finalAnalysis/ani_matrix.txt'\n" + \
            GAP*2 + "'finalAnalysis/ani_heatmap.pdf'\n" + \
+           GAP*2 + "'finalAnalysis/coreGenesSummary.txt\n" + \
            GAP*2 + "'finalAnalysis/speciesTree.nwk'\n" + \
            GAP*2 + "'finalAnalysis/speciesTree_outgroupPruned.nwk'\n\n" + \
            "In order to run PHANTASM with a known phylogenetic marker, follow these steps:\n" + \
@@ -50,6 +51,7 @@ HELP_MSG = "\nPHANTASM: PHylogenomic ANalyses for the TAxonomy and Systematics o
            GAP*2 + "'finalAnalysis/aai_heatmap.pdf'\n" + \
            GAP*2 + "'finalAnalysis/ani_matrix.txt'\n" + \
            GAP*2 + "'finalAnalysis/ani_heatmap.pdf'\n" + \
+           GAP*2 + "'finalAnalysis/coreGenesSummary.txt\n" + \
            GAP*2 + "'finalAnalysis/speciesTree.nwk'\n" + \
            GAP*2 + "'finalAnalysis/speciesTree_outgroupPruned.nwk'\n\n" + \
            "Optional Features\n" + \

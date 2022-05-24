@@ -31,6 +31,7 @@ class Parameters:
     __aabrhFN = 'aabrhHardCore.out'
     __speciesTreeFN = 'speciesTree.nwk'
     __makeSpeciesTreeWorkingDir = 'makeSpeciesTreeWorkDir'
+    __coreGenesSummaryFN = 'coreGenesSummary.txt'
     __concatenatedAlignmentFN = os.path.join(__makeSpeciesTreeWorkingDir, 'aabrhHardCore_concatenated.afa')
     __famToGeneKeyFN = os.path.join(__makeSpeciesTreeWorkingDir, 'aabrhHardCoreFamToGeneKey.txt')
     __phyloMarkersFN = 'putativePhylogeneticMarkers.txt'
@@ -92,6 +93,7 @@ class Parameters:
         self.aabrhFN = os.path.join(self.workdir, Parameters.__aabrhFN)
         self.speciesTreeFN = os.path.join(self.workdir, Parameters.__speciesTreeFN)
         self.makeSpeciesTreeWorkingDir = os.path.join(self.workdir, Parameters.__makeSpeciesTreeWorkingDir)
+        self.coreGenesSummaryFN = os.path.join(self.workdir, Parameters.__coreGenesSummaryFN)
         self.concatenatedAlignmentFN = os.path.join(self.workdir, Parameters.__concatenatedAlignmentFN)
         self.famToGeneKeyFN = os.path.join(self.workdir, Parameters.__famToGeneKeyFN)
         self.phyloMarkersFN = os.path.join(self.workdir, Parameters.__phyloMarkersFN)
