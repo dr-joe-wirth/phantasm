@@ -86,6 +86,9 @@ generateHeatmap <- function(treeFN=NULL, axiFN=NULL, pdfOutFN=NULL, numDecimals=
 		axi.mx[i,i] <- NA
 	}
 	
+	# convert scores of 0 to NA
+	axi.mx[which(axi.mx == 0)] <- NA
+	
 	# get the cell values for the matrix (rounded)
 	axi.cells <- round(axi.mx, digits=numDecimals)
 	
