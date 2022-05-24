@@ -1166,8 +1166,9 @@ def xenogiInterfacer_3(allQueryGenbanksL:list, locusTagsL:list, \
     # constants
     ERR_MSG = "Failed to extract protein sequences for all locus tags."
     PRINT_1 = 'Using the phylogenetic marker(s) to search for closely-related genomes ... '
-    PRINT_2 = 'Identifying a suitable set of whole genome sequences ... '
-    PRINT_3 = 'Downloading genbank files from NCBI ... '
+    PRINT_2 = 'Linking blastp results with NCBI Assembly data and extracting taxids ... '
+    PRINT_3 = 'Identifying a suitable set of whole genome sequences ... '
+    PRINT_4 = 'Downloading genbank files from NCBI ... '
     DONE = 'Done.'
     FORMAT = 'fasta'
     TAXIDS_KEY = 'taxids'
@@ -1208,6 +1209,7 @@ def xenogiInterfacer_3(allQueryGenbanksL:list, locusTagsL:list, \
 
     # print status
     print(DONE + "\n")
+    print(PRINT_2, end='', flush=True)
 
     # parse the blast file and link results to assemblies
     assemblyD = __linkAssembliesWithBlastpResults(blastFN)
@@ -1239,11 +1241,14 @@ def xenogiInterfacer_3(allQueryGenbanksL:list, locusTagsL:list, \
     # convert taxids to a list
     taxids = list(taxids)
 
+    # print status
+    print(DONE + "\n")
+
     # construct a taxonomy object for the observed taxids
     taxO = constructTaxonomy(taxids, saveTax=True, dir=workdir)
 
     # print status
-    print(PRINT_2, end="", flush=True)
+    print(PRINT_3, end="", flush=True)
 
     # get a suitable set of ingroup species
     speciesL = __finalizeRelativesSelection(queriesD, taxO, lpsnD, excludedTaxidsFN, maxNumSeqs) 
@@ -1271,7 +1276,7 @@ def xenogiInterfacer_3(allQueryGenbanksL:list, locusTagsL:list, \
     os.mkdir(genbankWorkdir)
 
     # print status
-    print(PRINT_3, end='', flush=True)
+    print(PRINT_4, end='', flush=True)
 
     # download the genomes
     __downloadGbffFromSpeciesList(speciesL, humanMapFN, genbankWorkdir)
