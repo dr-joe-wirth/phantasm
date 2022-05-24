@@ -1291,7 +1291,7 @@ def xenogiInterfacer_3(allQueryGenbanksL:list, locusTagsL:list, \
         basename = os.path.basename(oldFN)
 
         # determine the new filename
-        newFN = os.path.join(genbankWorkdir + basename)
+        newFN = os.path.join(genbankWorkdir, basename)
 
         # make a symlink for the input genome
         os.symlink(oldFN, newFN)
