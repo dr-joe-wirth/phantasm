@@ -670,6 +670,9 @@ def __saveCoreGenesDetails(allQryGbkL:list, paramO:Parameters) -> None:
 
     # for each genome file
     for gbFN in allQryGbkL:
+        # make sure the filename is the basename
+        gbFN = os.path.basename(gbFN)
+
         # strain name for input genomes is just the name without extension
         strainName = os.path.splitext(gbFN)[0]
 
