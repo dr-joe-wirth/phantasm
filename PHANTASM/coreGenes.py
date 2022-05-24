@@ -359,12 +359,6 @@ def makeSpeciesTree(allQryGbksL:list, paramO:Parameters, outgroup:Taxonomy, \
     print(PRINT_1, end='', flush=True)
     __makeGeneTreesWrapper(paramO)
     print(DONE)
-    
-    # print the summary
-    __printSummary(paramO)
-
-    # save more detailed core gene summary file
-    __saveCoreGenesDetails(allQryGbksL, paramO)
 
     # parse data from paramO
     speTreWorkDir = paramO.makeSpeciesTreeWorkingDir
@@ -386,6 +380,12 @@ def makeSpeciesTree(allQryGbksL:list, paramO:Parameters, outgroup:Taxonomy, \
                             catAlnFN,
                             keyFN,
                             wgsFN)
+
+    # print the summary
+    __printSummary(paramO)
+
+    # save more detailed core gene summary file
+    __saveCoreGenesDetails(allQryGbksL, paramO)
 
     # determine the outgroup's name
     outgroupTaxonName = _makeTaxonName(outgroup)
