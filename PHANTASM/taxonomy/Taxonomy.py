@@ -3793,8 +3793,8 @@ class Taxonomy:
 
     def _pickIngroup(self, maxNumSeqs:int) -> list:
         """ pickIngroup:
-                Accepts an integer indicating the maximum number of ingroup
-                species to pick as input. Returns a list containing the ingroup
+                Accepts an integer indicating the maximum number of ingroup sp-
+                ecies to pick as input. Returns a list containing the ingroup
                 species.
         """
         # constants
@@ -3802,7 +3802,8 @@ class Taxonomy:
 
         # make sure the max number is greater than the minimum
         if maxNumSeqs < MIN_NUM_SEQS:
-            raise ValueError('max sequences must be greater than 2')
+            raise ValueError('max sequences must be greater than ' + \
+                                                             str(MIN_NUM_SEQS))
 
         # evenly distribute the sequences across the "internal" Taxonomy
         ingroupRaw:list
