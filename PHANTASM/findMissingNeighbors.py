@@ -7,7 +7,7 @@ from PHANTASM.taxonomy.taxonomyConstruction import constructTaxonomy
 from PHANTASM.rRNA.runRnaBlast import __makeOutfmtString
 from PHANTASM.utilities import parseCsv, ncbiIdsFromSearchTerm, ncbiSummaryFromIdList, ncbiELinkFromIdList, extractIdsFromELink, removeFileExtension
 from PHANTASM.downloadGbff import __downloadGbffFromSpeciesList, _makeHumanMapString
-from PHANTASM.coreGenes import _humanNameFromQueryGenbankFN
+from PHANTASM.coreGenes import _humanNameFromQueryGenbankFN, __distanceMatrixFromNewickFile
 from Bio import Entrez, SeqIO
 from Bio.SeqRecord import SeqRecord
 from Bio.SeqFeature import SeqFeature
@@ -249,12 +249,14 @@ def __blastFaaAgainstDb(faaFN:str, outFN:str, blastExecutDirPath:str, \
 
 ###############################################################################
 def getRelatives(oldParamO:Parameters, newParamO:Parameters, lpsnD:dict, \
-                                                       maxNumSeqs:int) -> list:
+                                     maxNumSeqs:int, allQryGbksL:list) -> list:
     """ getRelatives:
-            Accepts the old and new Parameters objects and the LPSN dictionary
-            as inputs. Uses the blastp results for the phylogenetic marker to
-            determine which species should be used for downstream phylogenomic
-            analyses. Returns a list of the selected species.
+            Accepts the old and new Parameters objects, the LPSN dictionary, an
+            integer indicating the maximum number of relatives to select, and a
+            list of the input genome as inputs. Uses the blastp results for the
+            phylogenetic marker to determine which species should be used for
+            downstream phylogenomic analyses. Returns the selected species as a
+            list of Taxonomy objects.
     """
 
     # extract relevant data from parameter dictionaries
@@ -263,6 +265,14 @@ def getRelatives(oldParamO:Parameters, newParamO:Parameters, lpsnD:dict, \
     newTaxDir = os.path.dirname(newParamO.taxonomyObjectFilePath)
     newTaxExt = os.path.splitext(newParamO.taxonomyObjectFilePath)[1]
     excludedTaxidsFN = newParamO.excludedTaxidsFN
+    oldSpeciesTreeFN = oldParamO.speciesTreeFN
+
+    # make a list of the human names for the query genomes
+    inputHumanNamesL = list()
+    for qryGbk in allQryGbksL:
+        basename = os.path.basename(qryGbk)
+        humanName = os.path.splitext(basename)[0]
+        inputHumanNamesL.append(humanName)
 
     # set entrez email
     Entrez.email = oldParamO.email
@@ -353,7 +363,8 @@ def getRelatives(oldParamO:Parameters, newParamO:Parameters, lpsnD:dict, \
     newTaxFN = os.path.join(newTaxDir, taxO.sciName + newTaxExt)
     taxO.save(newTaxFN)
 
-    return __finalizeRelativesSelection(queriesD, taxO, lpsnD, excludedTaxidsFN, maxNumSeqs)
+    return __finalizeRelativesSelection(queriesD, taxO, lpsnD, \
+              excludedTaxidsFN, maxNumSeqs, inputHumanNamesL, oldSpeciesTreeFN)
 
 
 def __findMissingAssemblies(blastFN:str, taxO:Taxonomy, lpsnD:dict) -> tuple:
@@ -444,13 +455,23 @@ def __findMissingAssemblies(blastFN:str, taxO:Taxonomy, lpsnD:dict) -> tuple:
 
 
 def __finalizeRelativesSelection(queriesD:dict, taxO:Taxonomy, lpsnD:dict, \
-                                 excludedTaxidsFN:str, maxNumSeqs:int) -> list:
+                               excludedTaxidsFN:str, maxNumSeqs:int, \
+                               inputNamesL:list, oldSpeciesTreeFN:str) -> list:
     """ finalizeRelativesSelection:
             Accepts a dictionary of assembly data keyed by query, a Taxonomy
             object, the lpsn dictionary, a filename for the excludedTaxidsFN,
-            and an integer indicating the maximum number of sequences to select
-            as inputs.
+            an integer indicating the maximum number of sequences to select, a
+            list of human names for the input genomes, and the filename for the
+            original species tree as inputs. Selects species containing assemb-
+            lies as the ingroup. Returns the selection as a list of Taxonomy
+            objects.
     """
+    # constants
+    MIN_NUM_SEQS = 10
+    REPRESENTATIVE = 'representative genome'
+    GREP_FIND = r'^([^_]+)_.+$'
+    GREP_REPL = r'\1'
+
     # get three lists from queriesD:
     #### a list of related species (Taxonomy) that are related
     #### a list of all genera sorted by max bitscore (highest -> lowest)
@@ -542,7 +563,7 @@ def __finalizeRelativesSelection(queriesD:dict, taxO:Taxonomy, lpsnD:dict, \
                     # complete ...
                     if cand.assIsComplete:
                         # ... and representative
-                        if cand.refSeqCategory == 'representative genome':
+                        if cand.refSeqCategory == REPRESENTATIVE:
                             bin1.append(cand)
                         # ... and not representative
                         else:
@@ -550,7 +571,7 @@ def __finalizeRelativesSelection(queriesD:dict, taxO:Taxonomy, lpsnD:dict, \
                     # incomplete ...
                     else:
                         # ... and representative
-                        if cand.refSeqCategory == 'representative genome':
+                        if cand.refSeqCategory == REPRESENTATIVE:
                             bin3.append(cand)
                         # ... and not representative
                         else:
@@ -565,9 +586,75 @@ def __finalizeRelativesSelection(queriesD:dict, taxO:Taxonomy, lpsnD:dict, \
                     relativesL.append(bin2[0])
                 elif bin3 != []:
                     relativesL.append(bin3[0])
-                else:
+                elif bin4 != []:
                     relativesL.append(bin4[0])
     
+    # if we still haven't found enough relatives (and we have a species tree)
+    if len(relativesL) < MIN_NUM_SEQS and oldSpeciesTreeFN is not None:
+        # calculate cophenetic distance matrix from the original species tree
+        distMatD:dict = __distanceMatrixFromNewickFile(oldSpeciesTreeFN)
+
+        # initialize a dictionary to store a subset of values from the matrix
+        subsetD = dict()
+
+        # for each entry in the distance matrix
+        for matKey in distMatD.keys():
+            # don't store values for "input vs input"
+            if not (matKey[0] in inputNamesL and matKey[1] in inputNamesL):
+                # if an input name is the first element of the tuple
+                if matKey[0] in inputNamesL:
+                    # then save what the input was compared to (second element)
+                    subKey = matKey[1]
+                
+                # otherwise if an input name is the second element of the tuple
+                elif matKey[1] in inputNamesL:
+                    # then save what the input was compared to (first element)
+                    subKey = matKey[0]
+                
+                # otherwise an input is not part of this comparison; skip it
+                else: continue
+            
+            # extract the genus name from the subKey
+            genus = re.sub(GREP_FIND, GREP_REPL, subKey)
+
+            # only include the genus if it has not already been used
+            if genus not in generaUsed:
+                generaUsed.append(genus)
+
+                # make sure that the subset dictionary values are lists
+                if genus not in subsetD.keys():
+                    subsetD[genus] = list()
+                
+                # append the distance matrix value to the list
+                subsetD[genus].append(distMatD[matKey])
+
+        # for each entry in the subset dictionary
+        for genus in subsetD.keys():
+            # replace the list with the average of its cophenetic distances
+            subsetD[genus] = sum(subsetD[genus]) / len(subsetD[genus])
+        
+        # sort the subset genera by average distance (low to high) from inputs
+        sortMethod = lambda genus: subsetD[genus]
+        generaSortedL = sorted(subsetD.keys(), key=sortMethod)
+
+        # begin adding relatives until minimum reached or no genera left
+        while len(relativesL) < MIN_NUM_SEQS and generaSortedL != []:
+            # get the current genus name and a handle to the corresponding object
+            curGenusName = generaSortedL.pop(0)
+            curGenus = taxO.getDescendantBySciName(curGenusName)
+            
+            # only proceed if a genus was found (curGenus=False on a failed search)
+            if curGenus:
+                # get a list of all possible candidate species
+                allCandidates = curGenus.getAllIngroupCandidateSpecies()
+
+                # sort the candidate species by assembly coverage
+                sortMethod = lambda speciesO: speciesO.assCoverage
+                allCandidates = sorted(allCandidates, key=sortMethod, reverse=True)
+            
+                while len(relativesL) < maxNumSeqs and allCandidates != []:
+                    relativesL.append(allCandidates.pop(0))
+
     return relativesL
 
 
@@ -1008,8 +1095,8 @@ def __refineAssemblySelection(assmD:dict) -> None:
 
 
 ###############################################################################
-def xenogiInterfacer_2(allQryGbksL:list, oldParamO:Parameters, newParamO:Parameters, \
-                                                       lpsnD:dict) -> Taxonomy:
+def xenogiInterfacer_2(allQryGbksL:list, oldParamO:Parameters, \
+                                   newParamO:Parameters, lpsnD:dict) -> Taxonomy:
     """ xenogiInterfacer_2:
             Accepts a list of strings indicating the filenames of the query ge-
             nbanks, a Parameters object for the first analysis, the Parameters
@@ -1038,7 +1125,7 @@ def xenogiInterfacer_2(allQryGbksL:list, oldParamO:Parameters, newParamO:Paramet
 
     # get the new relatives based on phylogenetic marker blastp
     print(PRINT_1, end='', flush=True)
-    speciesL = getRelatives(oldParamO, newParamO, lpsnD, maxNumSeqs)
+    speciesL = getRelatives(oldParamO,newParamO,lpsnD,maxNumSeqs,allQryGbksL)
     print(DONE)
 
     # load the taxonomy object created by getRelatives
@@ -1250,8 +1337,16 @@ def xenogiInterfacer_3(allQueryGenbanksL:list, locusTagsL:list, \
     # print status
     print(PRINT_3, end="", flush=True)
 
+    # make a list of the human names for the query genomes
+    inputNamesL = list()
+    for qryGbk in allQueryGenbanksL:
+        basename = os.path.basename(qryGbk)
+        humanName = os.path.splitext(basename)[0]
+        inputNamesL.append(humanName)
+
     # get a suitable set of ingroup species
-    speciesL = __finalizeRelativesSelection(queriesD, taxO, lpsnD, excludedTaxidsFN, maxNumSeqs) 
+    speciesL = __finalizeRelativesSelection(queriesD, taxO, lpsnD, \
+                               excludedTaxidsFN, maxNumSeqs, inputNamesL, None)
 
     # select an outgroup
     taxO:Taxonomy
