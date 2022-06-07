@@ -146,6 +146,7 @@ def copyExistingBlastFiles(oldParamO:Parameters, newParamO:Parameters) -> None:
 
     # extract the new blast directory from newParamD
     newBlastDir = os.path.splitext(newParamO.blastFilePath)[0][:-1]
+    blastJoinStr = newParamO.blastFileJoinStr
 
     # create the new blast directory (if it doesn't already exist)
     if glob.glob(newBlastDir) == []:
@@ -164,7 +165,8 @@ def copyExistingBlastFiles(oldParamO:Parameters, newParamO:Parameters) -> None:
 
         # modify the query and subject names to match the new gene numbers
         # save the modified string to the new filename
-        __updateQuerySubjectNames(oldFilename, newFilename, locusTagToNewNameD)
+        __updateQuerySubjectNames(oldFilename, newFilename, blastJoinStr, \
+                                                            locusTagToNewNameD)
     
     print(DONE)
 
@@ -234,29 +236,36 @@ def __getLocusTagToNameD(paramO:Parameters) -> dict:
     # constants
     LOCUS_TAG_IDX  = 2
     BLAST_NAME_IDX = 0
+    GREP_FIND_PREFIX = r'\d+_(.+)-'
+    GREP_REPL = r'\1'
 
     # get the genesO object for the new folder and initialize its geneInfoD
     paramD = paramO.toDict()
     newGenesO = xenoGI.xenoGI.loadGenomeRelatedData(paramD)[1] # genesO object
     newGenesO.initializeGeneInfoD(paramO.geneInfoFN)
 
-    # create a new dictionary: key = locus_tag, val = blast name
+    # create a new dictionary: key = human name + locus_tag, val = blast name
     locusTagToNameD = dict()
     for geneNum in newGenesO.geneInfoD.keys():
+        # extract relevant data from genesInfoD
         locusTag  = newGenesO.geneInfoD[geneNum][LOCUS_TAG_IDX]
         blastName = newGenesO.geneInfoD[geneNum][BLAST_NAME_IDX]
-        locusTagToNameD[locusTag] = blastName
+        humanName = re.sub(GREP_FIND_PREFIX+locusTag, GREP_REPL, blastName)
+
+        # store the data in the dictionary
+        locusTagToNameD[(humanName, locusTag)] = blastName    
     
     return locusTagToNameD
 
 
-def __updateQuerySubjectNames(existingFile:str, newFile:str, \
+def __updateQuerySubjectNames(existingFile:str, newFile:str, blastJoinStr:str,\
                                               locusTagToNewNameD:dict) -> None:
     """ updateQuerySubjectNames:
             Accepts a path to an existing blast file, the path to save the mod-
-            ified file, and a dictionary as inputs. Reads the blast file and
-            changes the names of the query and subject so that their gene numb-
-            ers are compatible with the current folder. Does not return.
+            ified file, the blast join string, and a dictionary as inputs. Rea-
+            ds the blast file and changes the names of the query and subject so
+            that their gene numbers are compatible with the current folder. Do-
+            es not return.
     """
     # constants
     DELIM = "\t"
@@ -274,6 +283,9 @@ def __updateQuerySubjectNames(existingFile:str, newFile:str, \
     newHandle = open(newFile, "w", newline='')
     newWriter = csv.writer(newHandle, delimiter=DELIM)
     
+    # get the human names from the filename
+    comparison = os.path.splitext(os.path.basename(newFile))[0]
+    qryName,sbjName = comparison.split(blastJoinStr)
 
     # for each row in the blast table ...
     for row in oldReader:
@@ -290,8 +302,8 @@ def __updateQuerySubjectNames(existingFile:str, newFile:str, \
             locusTag_sbj = re.sub(GREP_FIND_2, GREP_REPL, row[SBJ_COL])
 
         # ... replace the query and subject names with the new names
-        row[QRY_COL] = locusTagToNewNameD[locusTag_qry]
-        row[SBJ_COL] = locusTagToNewNameD[locusTag_sbj]
+        row[QRY_COL] = locusTagToNewNameD[(qryName,locusTag_qry)]
+        row[SBJ_COL] = locusTagToNewNameD[(sbjName,locusTag_sbj)]
 
         # ... write the row to the new file
         newWriter.writerow(row)
