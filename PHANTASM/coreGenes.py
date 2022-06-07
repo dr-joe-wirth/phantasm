@@ -4,7 +4,8 @@ from __future__ import annotations
 import csv, glob, os, re, scipy.stats, string, subprocess, sys
 from PHANTASM.utilities import parseCsv
 from PHANTASM.Parameter import Parameters
-from Bio import SeqIO
+from Bio import Phylo, SeqIO
+from Bio.Phylo import Newick
 from Bio.SeqRecord import SeqRecord
 from PHANTASM.downloadGbff import downloadGbffsForRootTaxonomy, _makeHumanMapString, _makeTaxonName
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
@@ -857,43 +858,16 @@ def __rootTree(treeFN, outGroupTaxaL) -> None:
             original file with the rooted tree. Does not return.
     """
     # constants
-    ROOT_NODE = 's0'
+    FORMAT = 'newick'
 
-    # load the tree into memory as an Rtree object
-    speciesRtreeO = xenoGI.Tree.Rtree()
-    speciesRtreeO.fromNewickFileLoadSpeciesTree(treeFN, outGroupTaxaL, \
-                                                             includeBrLen=True)
+    # read tree
+    tree:Newick.Tree = Phylo.read(treeFN, FORMAT)
 
-    # initialize the total distance and a list of keys that need to be revised
-    totalRootDist = 0
-    keysToChange = list()
+    # root tree
+    tree.root_with_outgroup(outGroupTaxaL)
 
-    # for each branch length (keys are pairs of node names as a tuple) ...
-    for key in speciesRtreeO.branchLenD.keys():
-        # ... if the branch is directly connected to the root ...
-        if ROOT_NODE in key:
-            # ... update the distance and add the key to the list
-            totalRootDist += speciesRtreeO.branchLenD[key]
-            keysToChange.append(key)
-    
-    # determine what the new "to-root" distance should be
-    newRootDist = totalRootDist / len(keysToChange)
-
-    # for each key that needs to change, update with the "to-root" distance
-    for key in keysToChange:
-        speciesRtreeO.branchLenD[key] = newRootDist
-    
-    # convert the object to a newick string
-    treeStr = speciesRtreeO.toNewickStr(includeBrLength=True)
-
-    # ensure the newick string ends in a semicolon (important for heatmap!)
-    if treeStr[-1] != ";":
-        treeStr += ";"
-
-    # write the rooted tree to file
-    handle = open(treeFN, "w")
-    handle.write(treeStr)
-    handle.close()
+    # write tree
+    Phylo.write(tree, treeFN, FORMAT)
 
 
 def __formatNamesForIqTree(taxonName:str) -> str:
