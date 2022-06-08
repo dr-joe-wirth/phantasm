@@ -2,6 +2,7 @@
 NUM_PROCESSORS:int = 1
 
 # specify the maximum number of taxa in a given analysis
+# do not set this value below 10
 MAX_LEAVES:int = 50
 
 # specify if the final tree should have bootstrap supports
