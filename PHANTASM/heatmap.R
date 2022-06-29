@@ -9,7 +9,7 @@ heatmapRunner <- function(treeFN=NULL, axiFN=NULL, rootsVec=NULL, pdfOutFN=NULL,
 
 prepareTree <- function(treeFN=NULL, rootsVec=NULL, pruneRoot=TRUE){
 	# dependencies
-	require(ape)
+  suppressPackageStartupMessages(require(ape))
 	
 	# generate the output filename
 	treeOutFN <- gsub("\\.nwk$", "_outgroupPruned.nwk", treeFN)
@@ -54,10 +54,10 @@ meanSquareMatrix <- function(squareMat){
 
 generateHeatmap <- function(treeFN=NULL, axiFN=NULL, pdfOutFN=NULL, numDecimals=0, numColors=16, height=32, width=32){
 	# dependencies
-	require(ape)
-	require(gplots)
-	require(dendextend)
-	require(DECIPHER)
+  suppressPackageStartupMessages(require(ape))
+  suppressPackageStartupMessages(require(gplots))
+  suppressPackageStartupMessages(require(dendextend))
+  suppressPackageStartupMessages(require(DECIPHER))
 	
 	# import files
 	tree <- ReadDendrogram(treeFN, internalLabels=FALSE)
