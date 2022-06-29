@@ -3,13 +3,13 @@
 import glob, math, os, sys, subprocess
 import rpy2.robjects as robjects
 from Bio import SeqIO
-from param import XENOGI_DIR, PHANTASM_DIR
-sys.path.insert(0,os.path.join(sys.path[0],XENOGI_DIR))
-import xenoGI.blast
 from PHANTASM.Parameter import Parameters
 from PHANTASM.utilities import parseCsv
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
 from PHANTASM.downloadGbff import _makeTaxonName
+from param import XENOGI_DIR, PHANTASM_DIR
+sys.path.insert(0,os.path.join(sys.path[0],XENOGI_DIR))
+import xenoGI.analysis
 
 
 ###############################################################################
@@ -121,123 +121,21 @@ def _calculateAAI(paramO:Parameters, outgroup:Taxonomy) -> dict:
     """
     # extract relevant data from paramO
     wgsMapFN = paramO.fileNameMapFN
-    joinStr  = paramO.blastFileJoinStr
-    blastDir = os.path.dirname(paramO.blastFilePath)
-    blastExt = os.path.splitext(paramO.blastFilePath)[1]
-    evl = paramO.evalueThresh
-    aln = paramO.alignCoverThresh
-    pid = paramO.percIdentThresh
 
     # get the outgroup name
     outgroupName = _makeTaxonName(outgroup)
 
-    # get a list of all strain pairs, excluding the outgroup
-    allStrainPairsL = __getAllStrainPairs(wgsMapFN, outgroupName)
-
-    # initialize the output dictionary
-    aaiD = dict()
-
-    # for each strain pair
-    for strA,strB in allStrainPairsL:
-        # for self versus self comparisons
-        if strA == strB:
-            # no need to do any work; the answer is 100
-            aaiD[(strA,strB)] = 100.0
-        
-        # for self versus non-self comparisons
-        else:
-            # determine the two file names to compare
-            blastFN1 = os.path.join(blastDir, strA + joinStr + strB + blastExt)
-            blastFN2 = os.path.join(blastDir, strB + joinStr + strA + blastExt)
-
-            # calculate and save the AAI for strainA versus strainB
-            aai = __calculateAaiForOnePair(blastFN1, blastFN2, evl, aln, pid)
-            aaiD[(strA,strB)] = aai
-    
-    return aaiD
-
-
-def __getAllStrainPairs(wgsMapFN:str, outgroupStr:str) -> list:
-    """ getAllStrainPairs:
-            Accepts a human map filename and an outgroup name as inputs. Deter-
-            mines the strains present in the analysis directoy, not including
-            the outgroup. Creates and returns a list of tuples containing all
-            pairwise combinations of strains.
-    """
     # get a list of all the strains
     allStrainsL = list(_loadHumanMap(wgsMapFN).values())
 
     # remove the outgroup from the list
-    allStrainsL.remove(outgroupStr)
+    allStrainsL.remove(outgroupName)
 
-    # make a list of all the pairs
-    allStrainPairsL = list()
-    for idxA in range(len(allStrainsL)):
-        for idxB in range(len(allStrainsL)):
-            allStrainPairsL.append((allStrainsL[idxA], allStrainsL[idxB]))
-    
-    return allStrainPairsL
+    # convert the list to a tuple
+    allStrainsT = tuple(allStrainsL)
 
-
-def __calculateAaiForOnePair(blastFN1:str, blastFN2:str, evalue:float, \
-                                      alignCover:float, percId:float) -> float:
-    """ calculateAaiForOnePair:
-            Accepts two blast files (str), and three cutoffs (float) as inputs.
-            Determines the reciprocal best hits for the pair of blast files and
-            uses them to calculate the average amino acid identity (AAI) for
-            the pair. Returns the AAI value as a float.
-    """
-    # constants
-    NAME_IDX = 0
-    PID_IDX = 1
-    ALN_LEN_IDX = 3
-
-    # load the blastp files
-    blastL1 = xenoGI.blast.parseBlastFile(blastFN1, evalue, alignCover, percId)
-    blastL2 = xenoGI.blast.parseBlastFile(blastFN2, evalue, alignCover, percId)
-
-    # convert the parsed blast tables to best hit dictionaries
-    bestHitsD1 = xenoGI.blast.getBestHitsDictionary(blastL1)
-    bestHitsD2 = xenoGI.blast.getBestHitsDictionary(blastL2)
-
-    # initialize two runnings sums
-    weightedPid = 0
-    totalAlnLen = 0
-
-    # for each reciprocal best hit
-    for key1 in bestHitsD1.keys():
-        # get the best hit name
-        hit1 = bestHitsD1[key1][NAME_IDX]
-
-        # get the hit's best hit (if possible)
-        if hit1 in bestHitsD2.keys():
-            key2 = hit1
-            hit2 = bestHitsD2[key2][NAME_IDX]
-
-            # if the best hits are reciprocal
-            if hit2 == key1:
-                # determine pid forward and pid reverse
-                pid1 = bestHitsD1[key1][PID_IDX]
-                pid2 = bestHitsD2[key2][PID_IDX]
-
-                # determine the alignment lengths
-                alLen1 = bestHitsD1[key1][ALN_LEN_IDX]
-                alLen2 = bestHitsD2[key2][ALN_LEN_IDX]
-        
-                # update the weighted pid sum
-                weightedPid += pid1 * alLen1
-                weightedPid += pid2 * alLen2
-
-                # update the total alignment length
-                totalAlnLen += alLen1 + alLen2
-
-    # calculate AAI from the data; prevent division by zero
-    if totalAlnLen > 0:
-        aai = weightedPid / totalAlnLen
-    else:
-        aai = 0
-    
-    return aai
+    # calculate and return the aai
+    return xenoGI.analysis.calculateAAI(paramO.toDict(), allStrainsT)
 
 
 def makeAaiHeatmap(paramO:Parameters, outgroup:Taxonomy) -> None:

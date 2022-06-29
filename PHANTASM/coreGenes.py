@@ -406,7 +406,7 @@ def makeSpeciesTree(allQryGbksL:list, paramO:Parameters, outgroup:Taxonomy, \
     # use fast tree if requested
     if program == FAST_TREE:
         print(PRINT_2A, end='', flush=True)
-        __runFastTree(outgroupTaxonName, paramO)
+        __runFastTree(paramO)
     
     # use iqtree if requested
     elif program == IQTREE:
@@ -459,12 +459,12 @@ def __makeGeneTreesWrapper(paramO:Parameters) -> None:
         newAabrhHardCoreL.append((orthoNum,orthoT))
     
     # make the gene trees
-    xenoGI.trees.makeGeneTrees(paramD,
-                               True,
-                               genesO,
-                               workDir,
-                               gtFileStem,
-                               newAabrhHardCoreL)
+    xenoGI.trees.makeGeneTreesFastTree(paramD,
+                                       True,
+                                       genesO,
+                                       workDir,
+                                       gtFileStem,
+                                       newAabrhHardCoreL)
 
 
 def __concatenateAlignments(qryHumanNamesL:list, speciesTreeWorkDir:str, \
@@ -784,10 +784,10 @@ def __saveCoreGenesDetails(allQryGbkL:list, paramO:Parameters) -> None:
     fh.close()
 
 
-def __runFastTree(outgroupTaxonName:str, paramO:Parameters) -> None:
+def __runFastTree(paramO:Parameters) -> None:
     """ runFastTree:
-            Accepts an outgroup name (str) and a Parameters object as inputs.
-            Calls FastTree on the concatenated alignment. Does not return.
+            Accepts a Parameters object as input. Calls FastTree on the concat-
+            enated alignment. Does not return.
     """
     # extrac the necessary data from paramO
     fastTree = paramO.fastTreePath
