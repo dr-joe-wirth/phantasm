@@ -3161,14 +3161,10 @@ class Taxonomy:
                 boolean indicating whether or not the strain is type material.
 
                 This function should only ever be called on a species object.
-
-                Because strain information is not stored in a consistent manner
-                this function will be conservative and only extract strain data
-                if the strain found matches one of the type strains stored in
-                self.typeMaterial. 
         """
         # constants
         ERR_MSG = 'calling object is not a species'
+        SEP_CHAR = "; "
         STRN_F1 = 'Biosource'
         STRN_F2_A = 'InfraspeciesList'
         STRN_F2_B = 'Isolate'
@@ -3184,10 +3180,14 @@ class Taxonomy:
         # extract the strain name from the assembly
         allStrainsL = list()
         for strains in assSum[STRN_F1][STRN_F2_A]:
-            allStrainsL.append(strains[STRN_F3])
+            # make sure that strains is a list of strains (split on SEP_CHAR)
+            strains = strains[STRN_F3].split(SEP_CHAR)
 
-        # grab strain from alternate field
-        allStrainsL.append(assSum[STRN_F1][STRN_F2_B])
+            # add the strains to the growing list
+            allStrainsL.extend(strains)
+
+        # grab strain from alternate field (split on SEP_CHAR)
+        allStrainsL.extend(assSum[STRN_F1][STRN_F2_B].split(SEP_CHAR))
         
         # if strain data still not found
         if allStrainsL == []:
@@ -3219,8 +3219,7 @@ class Taxonomy:
             for strain in allStrainsL:
                 # done if a type strain was identified
                 if strain in self.typeMaterial:
-                    strainIsType = True
-                    return str(strain), strainIsType
+                    return str(strain), True
         
         # if we reach this point, then return the first strain and False
         return allStrainsL[0], False
