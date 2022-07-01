@@ -789,10 +789,17 @@ def __runFastTree(paramO:Parameters) -> None:
             Accepts a Parameters object as input. Calls FastTree on the concat-
             enated alignment. Does not return.
     """
-    # extrac the necessary data from paramO
+    # constants
+    ENV_VAR = "OMP_NUM_THREADS"
+
+    # extract the necessary data from paramO
     fastTree = paramO.fastTreePath
     speTreeFN = paramO.speciesTreeFN
     catAlnFN = paramO.concatenatedAlignmentFN
+    numThreads = paramO.numProcesses
+
+    # set the number of threads for fasttree
+    os.putenv(ENV_VAR, str(numThreads))
 
     # run fasttree on the concatenated alignment
     cmd = [fastTree, "-quiet", "-out", speTreeFN, catAlnFN]
@@ -859,12 +866,28 @@ def __rootTree(treeFN, outGroupTaxaL) -> None:
     """
     # constants
     FORMAT = 'newick'
+    OUTGROUP_IDX = -1
+    INGROUP_IDX = 1
 
     # read tree
     tree:Newick.Tree = Phylo.read(treeFN, FORMAT)
 
     # root tree
     tree.root_with_outgroup(outGroupTaxaL)
+
+    # get a list of clades
+    cladesL = list(tree.find_clades())
+
+    # get the outgroup and ingroup clades
+    outgroup:Newick.Clade = cladesL[OUTGROUP_IDX]
+    ingroup:Newick.Clade = cladesL[INGROUP_IDX]
+
+    # get the total distance between the two clades
+    totalDist = outgroup.branch_length + ingroup.branch_length
+    
+    # evenly distribute the distance between the two nodes
+    outgroup.branch_length = totalDist / 2
+    ingroup.branch_length  = totalDist / 2
 
     # write tree
     Phylo.write(tree, treeFN, FORMAT)
