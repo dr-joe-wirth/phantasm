@@ -2705,7 +2705,7 @@ class Taxonomy:
                     newTxid = newTxid.pop()
 
                     # make sure no collisions will occur
-                    if self.getDescendantByTaxId(newTxid, resolveSynonym=True):
+                    if self.getRoot().getDescendantByTaxId(newTxid, resolveSynonym=True):
                         return
 
                     newRank = self.rank.getRankBelow()
