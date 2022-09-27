@@ -9,7 +9,7 @@ FROM ubuntu:22.04
 # unminimize the image so that manpages exist
 RUN yes | unminimize
 
-# install nano, wget, git, python, curl, libcurl, mummer, and blast+
+# install nano, wget, git, python, curl, libcurl, mummer, blast+, and locales
 RUN apt-get update
 RUN apt-get -y install nano
 RUN apt-get -y install wget
@@ -18,6 +18,11 @@ RUN apt-get -y install python3.9 python3-pip python3-setuptools python3-dev
 RUN apt-get -y install curl libcurl4-openssl-dev
 RUN apt-get -y install mummer
 RUN apt-get -y install ncbi-blast+
+RUN apt-get -y install locales
+
+# update locales (required for R)
+RUN LC_ALL=C.UTF-8
+RUN dpkg-reconfigure locales
 
 # install R
 ENV DEBIAN_FRONTEND=noninteractive
