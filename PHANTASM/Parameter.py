@@ -1,4 +1,5 @@
 # Author: Joseph S. Wirth
+# Last edit: September 27, 2022
 
 from __future__ import annotations
 import os
@@ -45,6 +46,7 @@ class Parameters:
     __aniWorkDir = 'aniWorkdir'
     __aniBlastFilePath = os.path.join(__aniWorkDir, 'blast', '*.blastn')
     __excludedTaxidsFN = 'excludedTaxids.txt'
+    __taxidsFN = 'taxids.txt'
 
     # these objects will never change
     __dnaBasedGeneTrees = False
@@ -107,6 +109,7 @@ class Parameters:
         self.aniWorkDir = os.path.join(self.workdir, Parameters.__aniWorkDir)
         self.aniBlastFilePath = os.path.join(self.workdir, Parameters.__aniBlastFilePath)
         self.excludedTaxidsFN = os.path.join(os.path.dirname(self.workdir), Parameters.__excludedTaxidsFN)
+        self.taxidsFN = os.path.join(os.path.dirname(self.workdir), Parameters.__taxidsFN)
 
         # import remaining variables from static class members
         self.dnaBasedGeneTrees = Parameters.__dnaBasedGeneTrees
