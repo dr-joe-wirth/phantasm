@@ -2,7 +2,7 @@
 
 ## A docker image for this software can be found at https://hub.docker.com/r/jwirth/phantasm
 
-## If you use this software, please email me at jwirth \<at> g \<dot> hmc \<dot> edu
+## This software is still under active development and the manuscript is under review. If you intend to use this software in your research, please email me at jwirth \<at> g \<dot> hmc \<dot> edu
 
 ##### Note: PHANTASM requires an email address for communicating with NCBI as described in python's [Bio.Entrez](https://biopython.org/docs/latest/api/Bio.Entrez.html) package. The email address is not stored or used for any other purposes.
 
