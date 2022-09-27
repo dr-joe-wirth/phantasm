@@ -1420,6 +1420,7 @@ def __seqRecordsFromLocusTags(locusTagsL:list, inputGenomesL:list) -> list:
     FORMAT = 'genbank'
     CDS = 'CDS'
     LOCUS_TAG = 'locus_tag'
+    TRANS = 'translation'
 
     # initialize a list to store the SeqRecord objects
     recordsL = list()
@@ -1442,14 +1443,19 @@ def __seqRecordsFromLocusTags(locusTagsL:list, inputGenomesL:list) -> list:
 
                     # if the tag is one that was requested
                     if tag in locusTagsL:
-                        # get the translation of the feature as a SeqRecord
-                        newRecord:SeqRecord = feature.translate(record)
+                        # try to extract translation directly from feature
+                        try:
+                            newRec = SeqRecord(feature.qualifiers[TRANS][0])
+                        
+                        # translate the feature if necessary
+                        except:
+                            newRec:SeqRecord = feature.translate(record)
 
                         # make sure the SeqRecord is named by its locus tag
-                        newRecord.id = tag
-                        newRecord.description = ""
+                        newRec.id = tag
+                        newRec.description = ""
 
                         # add the new SeqRecord object to the list
-                        recordsL.append(newRecord)
+                        recordsL.append(newRec)
         
     return recordsL
