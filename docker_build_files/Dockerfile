@@ -1,16 +1,27 @@
 # syntax=docker/dockerfile:1
 
-# use R installation as the base
-FROM r-base:4.1.2
+# Author: Joseph S. Wirth
+# Last edit: September 27, 2022
 
-# install nano, git, python, curl, libcurl, and mummer
-RUN apt update
-RUN apt-get install nano
+# start with ubuntu base
+FROM ubuntu:22.04
+
+# unminimize the image so that manpages exist
+RUN yes | unminimize
+
+# install nano, wget, git, python, curl, libcurl, mummer, and blast+
+RUN apt-get update
+RUN apt-get -y install nano
+RUN apt-get -y install wget
 RUN apt-get -y install git
-RUN apt-get install -y python3.9 python3-pip python3-setuptools python3-dev
-RUN apt-get install -y curl
-RUN apt-get -y install libcurl4-openssl-dev
-RUN apt-get install -y mummer
+RUN apt-get -y install python3.9 python3-pip python3-setuptools python3-dev
+RUN apt-get -y install curl libcurl4-openssl-dev
+RUN apt-get -y install mummer
+RUN apt-get -y install ncbi-blast+
+
+# install R
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get -y install r-base
 
 # install required R libraries
 RUN R -e "install.packages('ape',dependencies=TRUE, repos='http://cran.rstudio.com/')"
@@ -27,12 +38,6 @@ RUN pip3 install numpy
 RUN pip3 install parasail
 RUN pip3 install rpy2
 RUN pip3 install pyani
-
-# install blast+
-RUN wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.12.0/ncbi-blast-2.12.0+-x64-linux.tar.gz && \
-    tar xzf ncbi-blast-2.12.0+-x64-linux.tar.gz
-RUN mv ncbi-blast-2.12.0+ blast
-RUN rm ncbi-blast-2.12.0+-x64-linux.tar.gz
 
 # create the exec directory to hold muscle, fasttree, and iqtree
 RUN mkdir /exec
@@ -55,7 +60,7 @@ RUN rm iqtree-1.6.12-Linux.tar.gz
 RUN mv iqtree-1.6.12-Linux /exec/iqtree
 
 # clone xenoGI and phantasm
-RUN git clone -b devel https://github.com/ecbush/xenoGI.git
+RUN git clone https://github.com/ecbush/xenoGI.git
 RUN git clone https://github.com/dr-joe-wirth/phantasm.git
 
 # copy the param file
@@ -63,3 +68,7 @@ COPY ./docker_param.py /phantasm/param.py
 
 # make an alias for easily calling phantasm
 RUN echo "alias phantasm='python3 /phantasm/phantasm.py'" >> ~/.bashrc
+
+# add executables directory (fastree, muscle, iqtree) to PATH
+RUN echo 'export PATH="$PATH:/exec"' >> ~/.bashrc
+RUN echo 'export PATH="$PATH:/exec/iqtree/bin"' >> ~/.bashrc

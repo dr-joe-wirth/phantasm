@@ -16,7 +16,7 @@ BOOTSTRAP_FINAL_TREE:bool = False
 NUM_BOOTSTRAPS:int = 100
 
 # modifying these variables may cause phantasm to fail
-BLASTPLUS_DIR:str = '/blast/bin'
+BLASTPLUS_DIR:str = '/usr/bin'
 MUSCLE_EXE:str = '/exec/muscle'
 FASTTREE_EXE:str = '/exec/FastTreeMP'
 IQTREE_EXE:str = '/exec/iqtree/bin/iqtree'
