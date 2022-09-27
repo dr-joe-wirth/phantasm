@@ -53,10 +53,9 @@ RUN mv FastTreeMP /exec/FastTreeMP
 RUN chmod +x /exec/FastTreeMP
 
 # install muscle
-RUN wget https://drive5.com/muscle/downloads3.8.31/muscle3.8.31_i86linux64.tar.gz
-RUN tar xzf muscle3.8.31_i86linux64.tar.gz
-RUN rm muscle3.8.31_i86linux64.tar.gz
-RUN mv muscle3.8.31_i86linux64 /exec/muscle
+RUN wget https://github.com/rcedgar/muscle/releases/download/v5.1/muscle5.1.linux_intel64
+RUN mv muscle5.1.linux_intel64 /exec/muscle
+RUN chmod +x /exec/muscle
 
 # install iqtree
 RUN wget https://github.com/Cibiv/IQ-TREE/releases/download/v1.6.12/iqtree-1.6.12-Linux.tar.gz
