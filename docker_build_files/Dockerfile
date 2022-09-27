@@ -20,9 +20,10 @@ RUN apt-get -y install mummer
 RUN apt-get -y install ncbi-blast+
 RUN apt-get -y install locales
 
-# update locales (required for R)
+# update locales (required for R to function properly)
 RUN LC_ALL=C.UTF-8
 RUN dpkg-reconfigure locales
+RUN echo 'export LC_ALL=C.UTF-8' >> ~/.bashrc
 
 # install R
 ENV DEBIAN_FRONTEND=noninteractive
