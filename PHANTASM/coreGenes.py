@@ -480,7 +480,7 @@ def __concatenateAlignments(qryHumanNamesL:list, speciesTreeWorkDir:str, \
     # constants
     FILE_NAME_PATTERN = 'align*afa'
     FORMAT = 'fasta'
-    GREP_FIND_1 = r'^.+align(\d+)\.afa$'
+    GREP_FIND_1 = r'^.+align-aabrhHardCoreFam-(\d+)\.afa$'
     GREP_FIND_2 = r'^\S+ (\d+)$'
     GREP_REPL = r'\1'
     DELIM = "\t"
