@@ -1,8 +1,9 @@
 # Author: Joseph S. Wirth
+# Last edit: September 27, 2022
 
 from Bio import Entrez
 from param import BOOTSTRAP_FINAL_TREE
-from PHANTASM.utilities import cleanup
+from PHANTASM.utilities import cleanup, getTaxidsFromFile
 from PHANTASM.Parameter import Parameters
 from PHANTASM.rRNA.runRnaBlast import rnaBlastRunner
 from PHANTASM.rRNA.processRnaBlast import getTaxIdsFromRnaBlast
@@ -12,14 +13,18 @@ from PHANTASM.overallGenomeRelatedIndices import overallGenomeRelatedIndices, ma
 from PHANTASM.coreGenes import rankPhylogeneticMarkers, xenogiInterfacer_1, parseGenbank, allVsAllBlast, copyExistingBlastFiles, calculateCoreGenes, makeSpeciesTree
 
 
-def getPhyloMarker(allQueryGenbanksL:list, paramO:Parameters) -> None:
+def getPhyloMarker(allQueryGenbanksL:list, paramO_1:Parameters) -> None:
     """ run the entire first portion from start to finish
     """
+    # try to skip the 16s sequences; otherwise do business as usual
+    try:
+        outgroup = skip16sWrapper(allQueryGenbanksL, paramO_1)
+    except:
+        outgroup = taxonomyWrapper(allQueryGenbanksL, paramO_1)
 
-    outgroup = taxonomyWrapper(allQueryGenbanksL, paramO)
-    coreGenesWrapper_1(paramO)
-    findPhylogeneticMarkersWrapper(allQueryGenbanksL, outgroup, paramO)
-    cleanup(paramO)
+    coreGenesWrapper_1(paramO_1)
+    findPhylogeneticMarkersWrapper(allQueryGenbanksL, outgroup, paramO_1)
+    cleanup(paramO_1)
 
 
 def refinePhylogeny(geneNumsL:list, allQueryGenbanksL:list, paramO_1:Parameters, \
@@ -61,6 +66,25 @@ def taxonomyWrapper(allQueryGenbanksL:list, paramO_1:Parameters) -> Taxonomy:
     taxids = getTaxIdsFromRnaBlast(blastResultsFile)
 
     # construct a taxonomy object for the taxids
+    taxO = constructTaxonomy(taxids, saveTax=True, dir=paramO_1.workdir)
+
+    # make/download all files required for the first pass of xenoGI
+    outgroup = xenogiInterfacer_1(taxO, allQueryGenbanksL, paramO_1)
+
+    return outgroup
+
+
+def skip16sWrapper(allQueryGenbanksL:list, paramO_1:Parameters) -> Taxonomy:
+    """ creates a Taxonomy object, downloads gbffs, and makes the human map.
+        returns the outgroup species as a Taxonomy object.
+    """
+    # set the entrez email address
+    Entrez.email = paramO_1.email
+
+    # extract the taxids from the file
+    taxids = getTaxidsFromFile(paramO_1.taxidsFN)
+
+    # constrcut a taxonomy object for the taxids
     taxO = constructTaxonomy(taxids, saveTax=True, dir=paramO_1.workdir)
 
     # make/download all files required for the first pass of xenoGI
