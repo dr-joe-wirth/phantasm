@@ -1,4 +1,5 @@
 # Author: Joseph S. Wirth
+# Last edit: September 27, 2022
 
 import csv, ftplib, glob, gzip, math, os, re, shutil
 from Bio import Entrez
@@ -55,6 +56,45 @@ def getParamO_2(email:str) -> Parameters:
                             NUM_BOOTSTRAPS)
     
     return parameterO
+
+
+def getTaxidsFromFile(taxidsFN:str) -> list[str]:
+    """ getTaxidsFromFile:
+            Accepts the filename of the taxids file. Expects the file to cont-
+            ain one taxid per line. Returns a list of the taxids present.
+    """
+    # constants
+    ERR_MSG = "No such file: '" + taxidsFN + "'"
+    EOL = " ... "
+    PRNT_1 = "Extracting taxids from the specified file" + EOL
+    DONE = "Done.\n"
+    
+    # raise an error if the file is not available
+    if not os.path.exists(taxidsFN):
+        raise FileNotFoundError(ERR_MSG)
+
+    # print status
+    print(PRNT_1, end="", flush=True)
+
+    # open the file
+    fh = open(taxidsFN, "r")
+
+    # go through each row
+    outL = list()
+    for row in fh:
+        # drop the new line character if present
+        if row[-1] == "\n":
+            row = row[:-1]
+        
+        # append the extracted taxid to the list
+        outL.append(row)
+    
+    fh.close()
+
+    # print status
+    print(DONE)
+
+    return outL
 
 
 def validEmailAddress(email:str) -> bool:
