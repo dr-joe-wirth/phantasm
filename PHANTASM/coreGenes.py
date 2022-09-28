@@ -688,8 +688,11 @@ def __saveCoreGenesDetails(allQryGbkL:list, paramO:Parameters) -> None:
         # strain name for input genomes is just the name without extension
         strainName = os.path.splitext(gbFN)[0]
 
+        # hyphens will be replaced by underscores in the keys
+        genesO_key = re.sub("-","_",strainName)
+
         # get the range of gene numbers for the input genome
-        minGeneNum,maxGeneNum = genesO.geneRangeByStrainD[strainName]
+        minGeneNum,maxGeneNum = genesO.geneRangeByStrainD[genesO_key]
 
         # determine which index (column) corresponds to the genome
         for idx in range(len(parsed[0])):
