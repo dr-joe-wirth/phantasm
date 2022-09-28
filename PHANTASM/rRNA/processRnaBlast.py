@@ -10,8 +10,8 @@ def getTaxIdsFromRnaBlast(blastResultFile:str) -> list:
             extracts the NCBI taxonomy IDs as a list. Returns the list.
     """
     # constants
-    ERR_MSG_1 = "The file "
-    ERR_MSG_2 = " does not contain any valid blastn hits."
+    ERR_MSG_1 = "The file '"
+    ERR_MSG_2 = "' does not contain any valid blastn hits."
 
     # get subjects from file
     subjects = __readRnaBlastFile(blastResultFile)
@@ -23,7 +23,7 @@ def getTaxIdsFromRnaBlast(blastResultFile:str) -> list:
     __fixTaxIds(taxids)
 
     if len(taxids) == 0:
-        raise Exception(ERR_MSG_1 + blastResultFile + ERR_MSG_2)
+        raise RuntimeError(ERR_MSG_1 + blastResultFile + ERR_MSG_2)
     
     return taxids
 
