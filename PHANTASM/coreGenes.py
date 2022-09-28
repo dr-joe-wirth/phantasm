@@ -689,10 +689,10 @@ def __saveCoreGenesDetails(allQryGbkL:list, paramO:Parameters) -> None:
         strainName = os.path.splitext(gbFN)[0]
 
         # hyphens will be replaced by underscores in the keys
-        genesO_key = re.sub("-","_",strainName)
+        genesKey = _humanNameFromQueryGenbankFN(strainName)
 
         # get the range of gene numbers for the input genome
-        minGeneNum,maxGeneNum = genesO.geneRangeByStrainD[genesO_key]
+        minGeneNum,maxGeneNum = genesO.geneRangeByStrainD[genesKey]
 
         # determine which index (column) corresponds to the genome
         for idx in range(len(parsed[0])):
