@@ -83,8 +83,9 @@ def getTaxidsFromFile(taxidsFN:str) -> list[str]:
         if row[-1] == "\n":
             row = row[:-1]
         
-        # append the extracted taxid to the list
-        outL.append(row)
+        # append the extracted taxid to the list (no empty strings allowed)
+        if len(row) > 1:
+            outL.append(row)
     
     fh.close()
 
