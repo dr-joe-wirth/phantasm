@@ -126,7 +126,7 @@ def __rnaFastaFromGbk(filename:str, outFH:TextIOWrapper) -> None:
     recs = __rnaSeqGrabber(filename)
 
     if len(recs) == 0:
-        raise Exception(ERR_MSG)
+        raise BaseException(ERR_MSG)
 
     # write the records to file
     SeqIO.write(recs, outFH, 'fasta')
