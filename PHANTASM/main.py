@@ -85,6 +85,9 @@ def skip16sWrapper(allQueryGenbanksL:list, paramO_1:Parameters) -> Taxonomy:
     # set the entrez email address
     Entrez.email = paramO_1.email
 
+    # create the working directory
+    os.mkdir(paramO_1.workdir)
+
     # extract the taxids from the file
     taxids = getTaxidsFromFile(paramO_1.taxidsFN)
 
