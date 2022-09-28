@@ -23,6 +23,10 @@ def getPhyloMarker(allQueryGenbanksL:list, paramO_1:Parameters) -> None:
     # use 16s if file is not present
     except FileNotFoundError:
         outgroup = taxonomyWrapper(allQueryGenbanksL, paramO_1)
+    
+    # no warnings if stopped by user
+    except KeyboardInterrupt:
+        raise KeyboardInterrupt()
 
     # any other error means problem with taxids file
     except:
