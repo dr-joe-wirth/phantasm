@@ -385,6 +385,7 @@ def makeSpeciesTree(allQryGbksL:list, paramO:Parameters, outgroup:Taxonomy, \
     for qryGbk in allQryGbksL:
         basename = os.path.basename(qryGbk)
         humanName = os.path.splitext(basename)[0]
+        humanName = _humanNameFromQueryGenbankFN(humanName)
         queryHumanNamesL.append(humanName)
 
     # concatenate the alignments
