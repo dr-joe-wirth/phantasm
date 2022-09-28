@@ -1,6 +1,7 @@
 # Author: Joseph S. Wirth
 # Last edit: September 27, 2022
 
+import os
 from Bio import Entrez
 from param import BOOTSTRAP_FINAL_TREE
 from PHANTASM.utilities import cleanup, getTaxidsFromFile
@@ -16,21 +17,13 @@ from PHANTASM.coreGenes import rankPhylogeneticMarkers, xenogiInterfacer_1, pars
 def getPhyloMarker(allQueryGenbanksL:list, paramO_1:Parameters) -> None:
     """ run the getPhyloMarker process
     """
-    # try to skip the 16s sequences
-    try:
+    # skip the 16s sequences if taxids file is present
+    if os.path.exists(paramO_1.taxidsFN):
         outgroup = skip16sWrapper(allQueryGenbanksL, paramO_1)
 
-    # use 16s if file is not present
-    except FileNotFoundError:
+    # use 16s if taxids file is absent
+    else:
         outgroup = taxonomyWrapper(allQueryGenbanksL, paramO_1)
-    
-    # no warnings if stopped by user
-    except KeyboardInterrupt:
-        raise KeyboardInterrupt()
-
-    # any other error means problem with taxids file
-    except:
-        raise BaseException("taxids.txt is not properly formatted.")
 
     # rank the phylogenetic markers
     coreGenesWrapper_1(paramO_1)

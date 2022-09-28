@@ -26,11 +26,18 @@ def constructTaxonomy(taxids:list, saveTax:bool=False, dir:str='./') -> Taxonomy
     PRNT_4 = GAP + "Mapping blast hits onto the taxonomy ... "
     PRNT_5 = GAP + "Importing data from NCBI Assembly ... "
     DONE   = "Done."
+    ERR_MSG_1 = "Taxonomic order could not be identified from provided taxids."
+    ERR_MSG_2 = "Failed to create a Taxonomy object. Aborting"
+    ERR_MSG_3 = "Resulting taxonomy is not consistent. Aborting."
 
     # retrieve a list of Taxonomy objects at the order-level 
     # that are represented by the input taxids
     print(PRNT_1)
     allOrders = __initializeTaxonomy(taxids)
+
+    # raise an error if no orders were found
+    if len(allOrders) == 0:
+        raise RuntimeError(ERR_MSG_1)
 
     # for each order ...
     print(PRNT_2, end='', flush=True)
@@ -55,7 +62,7 @@ def constructTaxonomy(taxids:list, saveTax:bool=False, dir:str='./') -> Taxonomy
         print(DONE)
     
     # otherwise, no orders were made; raise an error
-    else: raise BaseException("Failed to create a Taxonomy object. Aborting")
+    else: raise BaseException(ERR_MSG_2)
     
     # use the taxids to update which taxa are considered interal/external
     print(PRNT_4, end="", flush=True)
@@ -69,7 +76,7 @@ def constructTaxonomy(taxids:list, saveTax:bool=False, dir:str='./') -> Taxonomy
 
     # make sure the resulting object is consistent
     if not taxonomy._isConsistent():
-        raise RuntimeError("Resulting taxonomy is not consistent. Aborting.")
+        raise RuntimeError(ERR_MSG_3)
 
     # write object to file (if requested)
     if saveTax:

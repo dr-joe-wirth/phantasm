@@ -64,15 +64,12 @@ def getTaxidsFromFile(taxidsFN:str) -> list[str]:
             ain one taxid per line. Returns a list of the taxids present.
     """
     # constants
-    ERR_MSG = "No such file: '" + taxidsFN + "'"
+    ERR_MSG_1 = "'" + taxidsFN + "' is empty."
+    ERR_MSG_2 = "'" + taxidsFN + "' is improperly formatted."
     EOL = " ... "
     PRNT_1 = "Extracting taxids from the specified file" + EOL
     DONE = "Done.\n"
     
-    # raise an error if the file is not available
-    if not os.path.exists(taxidsFN):
-        raise FileNotFoundError(ERR_MSG)
-
     # print status
     print(PRNT_1, end="", flush=True)
 
@@ -90,6 +87,17 @@ def getTaxidsFromFile(taxidsFN:str) -> list[str]:
         outL.append(row)
     
     fh.close()
+
+    # check that the file was not empty
+    if len(outL) == 0:
+        raise BaseException(ERR_MSG_1)
+    
+    for txid in outL:
+        # all ids should be coerceable to int
+        try:
+            int(txid)
+        except:
+            raise BaseException(ERR_MSG_2)
 
     # print status
     print(DONE)
