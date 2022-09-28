@@ -14,14 +14,21 @@ from PHANTASM.coreGenes import rankPhylogeneticMarkers, xenogiInterfacer_1, pars
 
 
 def getPhyloMarker(allQueryGenbanksL:list, paramO_1:Parameters) -> None:
-    """ run the entire first portion from start to finish
+    """ run the getPhyloMarker process
     """
-    # try to skip the 16s sequences; otherwise do business as usual
+    # try to skip the 16s sequences
     try:
         outgroup = skip16sWrapper(allQueryGenbanksL, paramO_1)
-    except:
+
+    # use 16s if file is not present
+    except FileNotFoundError:
         outgroup = taxonomyWrapper(allQueryGenbanksL, paramO_1)
 
+    # any other error means problem with taxids file
+    except:
+        raise BaseException("taxids.txt is not properly formatted.")
+
+    # rank the phylogenetic markers
     coreGenesWrapper_1(paramO_1)
     findPhylogeneticMarkersWrapper(allQueryGenbanksL, outgroup, paramO_1)
     cleanup(paramO_1)
@@ -29,7 +36,7 @@ def getPhyloMarker(allQueryGenbanksL:list, paramO_1:Parameters) -> None:
 
 def refinePhylogeny(geneNumsL:list, allQueryGenbanksL:list, paramO_1:Parameters, \
                                                   paramO_2:Parameters) -> None:
-    """ run the entire second portion from start to finish
+    """ run the refinePhylogeny job (only used after getPhyloMarker)
     """
     outgroup = findMissingRelativesWrapper(geneNumsL, allQueryGenbanksL, \
                                                             paramO_1, paramO_2)
