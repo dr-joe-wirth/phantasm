@@ -9,6 +9,7 @@ from PHANTASM.utilities import parseCsv, ncbiIdsFromSearchTerm, ncbiSummaryFromI
 from PHANTASM.downloadGbff import __downloadGbffFromSpeciesList, _makeHumanMapString
 from PHANTASM.coreGenes import _humanNameFromQueryGenbankFN, __distanceMatrixFromNewickFile
 from Bio import Entrez, SeqIO
+from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.SeqFeature import SeqFeature
 from Bio.SeqIO.FastaIO import FastaIterator
@@ -1284,12 +1285,12 @@ def xenogiInterfacer_3(allQueryGenbanksL:list, locusTagsL:list, \
     # get the sequence records from the input locus tags
     seqRecordsL = __seqRecordsFromLocusTags(locusTagsL, allQueryGenbanksL)
 
-    # write the sequences to file
-    SeqIO.write(seqRecordsL, faaFN, FORMAT)
-
     # raise an error if num seqRecords does not match num locus tags
     if len(seqRecordsL) != len(locusTagsL):
         raise RuntimeError(ERR_MSG)
+
+    # write the sequences to file
+    SeqIO.write(seqRecordsL, faaFN, FORMAT)
 
     # perform the blastp
     __blastPhyloMarkerSeqRecords(seqRecordsL, faaFN, blastFN, blastExecutDirPath)
@@ -1445,7 +1446,7 @@ def __seqRecordsFromLocusTags(locusTagsL:list, inputGenomesL:list) -> list:
                     if tag in locusTagsL:
                         # try to extract translation directly from feature
                         try:
-                            newRec = SeqRecord(feature.qualifiers[TRANS][0])
+                            newRec = SeqRecord(Seq(feature.qualifiers[TRANS][0]))
                         
                         # translate the feature if necessary
                         except:
