@@ -1,4 +1,5 @@
 # Author: Joseph S. Wirth
+# Last edit: September 29, 2022
 
 from __future__ import annotations
 import re, copy, random, textdistance, os
@@ -1215,6 +1216,7 @@ class Taxonomy:
                 es not return.
         """
         # constants
+        TEMP_TAXID = '0'
         ERR_MSG_1 = "The calling object's rank does not exceed the input's rank."
         ERR_MSG_2 = "failed to find a suitable parent"
 
@@ -1235,6 +1237,23 @@ class Taxonomy:
             
             # find a new parent
             root2 = root2._findNewParent(lpsnD)
+
+            # handle the introduction of artificial ids
+            if root2.taxid == TEMP_TAXID:
+                # first check if name is already present in root1
+                if root2.sciName in root1:
+                    newId = root1.getDescendantBySciName(root2.sciName).taxid
+
+                else:
+                    # get the next unused id from root1
+                    newId = root1.__getUnusedArtificialTaxId()
+
+                    # make sure it hasn't already been used in root2
+                    while newId in root2:
+                        newId = str(int(newId) - 1)
+
+                # replace the temporary id with the next unused artificial one
+                root2.taxid = newId
 
             # a merge is required if the ranks are equal but taxids differ
             if root1.rank == root2.rank and root1.taxid != root2.taxid:
