@@ -2921,16 +2921,22 @@ class Taxonomy:
                         # need to find a safe node to connect this lineage
                         mergeRequired = False
                         newRoot:Taxonomy = parentalGenus.getRoot()
-                        while not root.getDescendantBySciName(newRoot.sciName):
+                        while not newRoot.sciName in root:
                             # keep track of the previous deepest ancestor
                             prevRoot = newRoot
                             newRoot  = newRoot._findNewParent(lpsnD)
 
                             # handle the introduction of artificial taxids
                             if newRoot.taxid == TEMP_TAXID:
-                                newRoot.taxid = \
-                                           newRoot.__getUnusedArtificialTaxId()
+                                # get a the next available id from calling obj
+                                newId = self.__getUnusedArtificialTaxId()
 
+                                # make sure it is not already in use in newRoot
+                                while newId in newRoot.getRoot():
+                                    newId = str(int(newId) - 1)
+
+                                newRoot.taxid = newId
+                            
                             # a merge is required if the ranks ever match
                             if newRoot.rank == root.rank:
                                 mergeRequired = True
