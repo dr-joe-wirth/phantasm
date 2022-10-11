@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Author: Joseph S. Wirth
-# Last edit: October 11, 2022
+# Last edit: September 27, 2022
 
 # start with ubuntu base
 FROM ubuntu:22.04
@@ -19,15 +19,6 @@ RUN apt-get -y install curl libcurl4-openssl-dev
 RUN apt-get -y install mummer
 RUN apt-get -y install ncbi-blast+
 
-# install required python modules
-RUN pip3 install scipy
-RUN pip3 install Bio
-RUN pip3 install textdistance
-RUN pip3 install numpy
-RUN pip3 install parasail
-RUN pip3 install rpy2
-RUN pip3 install pyani
-
 # install and update locales (required for R to function properly)
 RUN apt-get -y install locales
 RUN LC_ALL=C.UTF-8
@@ -44,6 +35,15 @@ RUN R -e "install.packages('gplots',dependencies=TRUE, repos='http://cran.rstudi
 RUN R -e "install.packages('dendextend',dependencies=TRUE, repos='http://cran.rstudio.com/')"
 RUN R -e "install.packages('BiocManager',dependencies=TRUE, repos='http://cran.rstudio.com/')"
 RUN R -e "BiocManager::install('DECIPHER')"
+
+# install required python modules
+RUN pip3 install scipy
+RUN pip3 install Bio
+RUN pip3 install textdistance
+RUN pip3 install numpy
+RUN pip3 install parasail
+RUN pip3 install rpy2
+RUN pip3 install pyani
 
 # create the exec directory to hold muscle, fasttree, and iqtree
 RUN mkdir /exec
@@ -74,6 +74,6 @@ COPY ./docker_param.py /phantasm/param.py
 # make an alias for easily calling phantasm
 RUN echo "alias phantasm='python3 /phantasm/phantasm.py'" >> ~/.bashrc
 
-# add executables directories (fastree, muscle, iqtree) to PATH
+# add executables directory (fastree, muscle, iqtree) to PATH
 RUN echo 'export PATH="$PATH:/exec"' >> ~/.bashrc
 RUN echo 'export PATH="$PATH:/exec/iqtree/bin"' >> ~/.bashrc
