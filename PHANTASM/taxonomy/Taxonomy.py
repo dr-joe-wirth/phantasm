@@ -1210,8 +1210,10 @@ class Taxonomy:
                     if not self.typeMaterial.ncbiNameIsCorrect and \
                                                        other.ncbiNameIsCorrect:
                         # then update the field
-                        self.typeMaterial = other                    
-
+                        self.typeMaterial = other
+        
+        # resolve any duplicate names that have been introduced
+        self.__resolveDuplicateNames()
 
     def _importExistingSubTax(self, other:Taxonomy, lpsnD:dict) -> None:
         """ importExistingSubTax:
@@ -3407,15 +3409,20 @@ class Taxonomy:
 
         # if that's not possible ...
         except:
+            # if the coverage is absent (empty string)
+            if coverage == "":
+                # then set it to the default value (0.0)
+                coverage = 0.0
+
             # if first character is '>', then coerce remaining chars and add 1
-            if coverage[0] == ">":
+            elif coverage[0] == ">":
                 coverage = float(coverage[1:]) + 1
             
             # if first character is '<', then coerce remaining chars and sub 1
             elif coverage[0] == "<":
                 coverage = float(coverage[1:]) - 1
             
-            # otherwise, something bad is happening...raise an error
+            # otherwise, something unexpected is happening...raise an error
             else:
                 raise ValueError(ERR_MSG)
         
