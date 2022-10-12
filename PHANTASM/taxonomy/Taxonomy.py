@@ -255,6 +255,11 @@ class Taxonomy:
     
         # recurse through the children
         for key in sChildren:
+            # false if the key is not available
+            if key not in oChildren.keys():
+                return False
+
+            # get the children           
             sChild = sChildren[key]
             oChild = oChildren[key]
 
