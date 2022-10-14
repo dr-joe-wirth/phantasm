@@ -3432,7 +3432,7 @@ class Taxonomy:
 
 
     ### PICKING GENOMES FOR PHYLOGENOMIC ANALYSES
-    def _pickOutgroup(self, lpsnD:dict) -> tuple:
+    def _pickOutgroup(self, lpsnD:dict) -> tuple[Taxonomy,Taxonomy]:
         """ pickOutgroup:
                 Accepts the LPSN dictionary as input. Finds a species that pos-
                 sesses an assembly and is external to the ingroup candidates.
