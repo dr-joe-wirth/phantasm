@@ -605,10 +605,10 @@ class TestTaxonomy(unittest.TestCase):
                 has an assembly available for download.
         """
         # constants
-        ASSEMBLY_EXT   = '.gbff.gz'
-        LEN_ASS_EXT    = len(ASSEMBLY_EXT)
-        ASSEMBLY_PRE_1 = 'ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/'
-        LEN_ASS_PRE    = len(ASSEMBLY_PRE_1)
+        ASSEMBLY_EXT = '.gbff.gz'
+        LEN_ASS_EXT  = len(ASSEMBLY_EXT)
+        ASSEMBLY_PRE = 'ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/'
+        LEN_ASS_PRE  = len(ASSEMBLY_PRE)
 
         # it's possible pickOutgroup will modify taxO to find an outgroup
         # make a copy so that we can know if a modification occurred
@@ -622,7 +622,7 @@ class TestTaxonomy(unittest.TestCase):
         self.assertTrue(taxO._isConsistent())
 
         # the object should not have '0' as a taxid
-        self.assertFalse(taxO.getRoot().getDescendantByTaxId(0))
+        self.assertNotIn(0, taxO)
 
         # outgroup should never be None
         self.assertNotEqual(outgroup, None)
@@ -631,7 +631,7 @@ class TestTaxonomy(unittest.TestCase):
         self.assertIsInstance(outgroup, Taxonomy)
         self.assertEqual(outgroup.rank, Taxonomy.SPECIES)
 
-        # outgroup have a string for its assembly
+        # outgroup has a string for its assembly
         self.assertNotEqual(outgroup.assemblyFtp, None)
         self.assertIsInstance(outgroup.assemblyFtp, str)
 
@@ -644,12 +644,14 @@ class TestTaxonomy(unittest.TestCase):
       
         # the string should have the expected file extension and prefix
         self.assertEqual(outgroup.assemblyFtp[-LEN_ASS_EXT:], ASSEMBLY_EXT)
-        self.assertEqual(outgroup.assemblyFtp[:LEN_ASS_PRE], ASSEMBLY_PRE_1)
+        self.assertEqual(outgroup.assemblyFtp[:LEN_ASS_PRE], ASSEMBLY_PRE)
     
         # if taxO has been modified, it should still pass all other tests
         if taxO != copyO:
             self.suiteCaller1(taxO.getRoot())
-            self.suiteCaller2(taxO.getRoot())
+
+            # do not recurse on the root! Causes problems with pickOutgroup?
+            self.suiteCaller2(taxO)
         
         # pickOutgroup should return the same value if ran a second time
         # taxO should no longer require modification to find an outgroup
@@ -720,8 +722,8 @@ class TestTaxonomy(unittest.TestCase):
         else:
             self.suiteCaller1(root)
 
-        # run the recursive tests on the root of the object
-        self.suiteCaller2(root)
+        # run the recursive tests on the object; do not run on root!
+        self.suiteCaller2(taxO)
 
 
 
