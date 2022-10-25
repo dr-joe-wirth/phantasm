@@ -382,8 +382,14 @@ def __makeHeatmap(outgroup:Taxonomy, treeFN:str, matFN:str, pdfFN:str) -> None:
     # create the python function that can call the R function
     heatmapRunner = robjects.globalenv['heatmapRunner']
 
-    # get the taxon name for the outgroup
-    outgroupTaxonName = _makeTaxonName(outgroup)
+    # the outgroup will not be the root if phantasm selected reference genomes
+    if not outgroup.isRoot():
+        # get the outgroup name
+        outgroupTaxonName = _makeTaxonName(outgroup)
+    
+    # the outgroup will be the root if the user specified reference genomes
+    else:
+        outgroupTaxonName = outgroup.ncbiName
 
     # make the outgroup an R vector
     outgroupVec = robjects.StrVector([outgroupTaxonName])
