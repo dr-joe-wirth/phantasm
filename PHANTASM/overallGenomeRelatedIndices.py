@@ -167,8 +167,14 @@ def _calculateANI(paramO:Parameters, outgroup:Taxonomy) -> dict:
             ing pairs of species names and whose values are the ANI for the sp-
             ecified pair.
     """
-    # determine the outgroup name
-    outgroupName = _makeTaxonName(outgroup)
+    # the outgroup will not be the root if phantasm selected reference genomes
+    if not outgroup.isRoot():
+        # determine the outgroup name
+        outgroupName = _makeTaxonName(outgroup)
+    
+    # the outgroup will be the root if the user specified reference genomes
+    else:
+        outgroupName = outgroup.ncbiName
 
     # prepare all files needed to pyani to run
     fnaDir = __aniPrep(paramO, outgroupName)
