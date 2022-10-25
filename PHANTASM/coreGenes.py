@@ -402,8 +402,14 @@ def makeSpeciesTree(allQryGbksL:list, paramO:Parameters, outgroup:Taxonomy, \
     # save more detailed core gene summary file
     __saveCoreGenesDetails(allQryGbksL, paramO)
 
-    # determine the outgroup's name
-    outgroupTaxonName = _makeTaxonName(outgroup)
+    # outgroup will not be the root if phantasm identified reference genomes
+    if not outgroup.isRoot():
+        # determine the outgroup's name
+        outgroupTaxonName = _makeTaxonName(outgroup)
+    
+    # the outgroup will be the root if user is specifying their own genomes
+    else:
+        outgroupTaxonName = outgroup.ncbiName
 
     # use fast tree if requested
     if program == FAST_TREE:
