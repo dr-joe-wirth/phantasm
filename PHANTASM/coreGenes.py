@@ -470,7 +470,7 @@ def __makeGeneTreesWrapper(paramO:Parameters) -> None:
 
 
 def __concatenateAlignments(qryHumanNamesL:list, speciesTreeWorkDir:str, \
-                                 alnOutFN:str, keyFN:str,wgsMapFN:str) -> None:
+                                alnOutFN:str, keyFN:str, wgsMapFN:str) -> None:
     """ concatenateAlignments:
             Accepts a list of human names for the query genomes, a string indi-
             cating the make species tree working directory, a string indicating
