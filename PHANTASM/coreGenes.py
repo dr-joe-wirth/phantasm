@@ -663,6 +663,7 @@ def __saveCoreGenesDetails(allQryGbkL:list, paramO:Parameters) -> None:
     workdir = paramO.workdir
     aabrhFN = paramO.aabrhFN
     geneInfoFN = paramO.geneInfoFN
+    humanMapFN = paramO.fileNameMapFN
     alnDir = paramO.makeSpeciesTreeWorkingDir
     summaryFN = paramO.coreGenesSummaryFN
                                                              
@@ -679,6 +680,9 @@ def __saveCoreGenesDetails(allQryGbkL:list, paramO:Parameters) -> None:
     # get a list of core genes (tuple:int) grouped by alignment file
     aabrhHardCoreL = xenoGI.scores.loadOrthos(aabrhFN)
 
+    # load the human map file
+    humanMapD = _loadHumanMap(humanMapFN)
+
     strainToCoreD = dict()
     numToAlignD = dict()
 
@@ -688,13 +692,13 @@ def __saveCoreGenesDetails(allQryGbkL:list, paramO:Parameters) -> None:
         gbFN = os.path.basename(gbFN)
 
         # strain name for input genomes is just the name without extension
-        strainName = os.path.splitext(gbFN)[0]
+        strainName = humanMapD[gbFN]
 
         # hyphens will be replaced by underscores in the keys
         genesKey = _humanNameFromQueryGenbankFN(strainName)
 
         # get the range of gene numbers for the input genome
-        minGeneNum,maxGeneNum = genesO.geneRangeByStrainD[genesKey]
+        minGeneNum,maxGeneNum = genesO.geneRangeByStrainD[strainName]
 
         # determine which index (column) corresponds to the genome
         for idx in range(len(parsed[0])):
