@@ -122,8 +122,14 @@ def _calculateAAI(paramO:Parameters, outgroup:Taxonomy) -> dict:
     # extract relevant data from paramO
     wgsMapFN = paramO.fileNameMapFN
 
-    # get the outgroup name
-    outgroupName = _makeTaxonName(outgroup)
+    # the outgroup will not be the root if phantasm selected reference genomes
+    if not outgroup.isRoot():
+        # get the outgroup name
+        outgroupName = _makeTaxonName(outgroup)
+    
+    # the outgroup will be the root if the user specified reference genomes
+    else:
+        outgroupName = outgroup.ncbiName
 
     # get a list of all the strains
     allStrainsL = list(_loadHumanMap(wgsMapFN).values())
