@@ -21,7 +21,7 @@ ERR_MSG_2 = "Invalid email address"
 ERR_MSG_3 = "The number of genes is not a multiple of the number of input genomes."
 ERR_MSG_4 = "Invalid flag: "
 ERR_MSG_5A = "Invalid task: "
-ERR_MSG_5B = "\ntype '<path>/phantasm.py help' for information."
+ERR_MSG_5B = "\n\ntype '<path>/phantasm.py help' for information."
 
 # help message
 HELP_MSG = "\nPHANTASM: PHylogenomic ANalyses for the TAxonomy and Systematics of Microbes\n\n" + \
