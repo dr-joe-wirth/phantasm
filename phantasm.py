@@ -1,8 +1,8 @@
 # Author: Joseph S. Wirth
 
-from PHANTASM.main import getPhyloMarker, refinePhylogeny, knownPhyloMarker
+from PHANTASM.main import getPhyloMarker, refinePhylogeny, knownPhyloMarker, analyzeSpecifiedGenomes
 from PHANTASM.findMissingNeighbors import _locusTagToGeneNum
-from PHANTASM.utilities import validEmailAddress, getParamO_1, getParamO_2
+from PHANTASM.utilities import validEmailAddress, getParamO_1, getParamO_2, getParamO_3, genomeListConsistentWithHumanMap
 import glob, os, sys
 
 # constants
@@ -10,6 +10,7 @@ JOB_0 = 'help'
 JOB_1 = 'getPhyloMarker'
 JOB_2 = 'refinePhylogeny'
 JOB_3 = 'knownPhyloMarker'
+JOB_4 = 'analyzeGenomes'
 SEP = ","
 GAP = " "*4
 LOCUS_TAG = "--locus_tag"
@@ -20,8 +21,19 @@ ERR_MSG_1 = "Incorrect syntax used.\nType 'python3 <path>/phantasm.py help' for 
 ERR_MSG_2 = "Invalid email address"
 ERR_MSG_3 = "The number of genes is not a multiple of the number of input genomes."
 ERR_MSG_4 = "Invalid flag: "
-ERR_MSG_5A = "Invalid task: "
-ERR_MSG_5B = "\n\ntype '<path>/phantasm.py help' for information."
+ERR_MSG_5 = "The specified genome directory is not a directory."
+ERR_MSG_6 = "Less than 2 files were found in the specified genome directory."
+ERR_MSG_7 = "The human map file is not consistent with the contents of the genome directory."
+ERR_MSG_8 = "The specified output directory already exists."
+ERR_MSG_10A = "Invalid task: "
+ERR_MSG_10B = "\n\ntype '<path>/phantasm.py help' for information."
+
+# reference message
+REF_MSG = "\nIf you use this software in your research, please cite our paper:\n" + \
+          GAP + "Automating microbial taxonomy workflows with PHANTASM: PHylogenomic\n" + \
+          GAP + "ANalyses for the TAxonomy and Systematics of Microbes\n" + \
+          GAP*2 + "Joseph S. Wirth and Eliot C. Bush, 2022\n" + \
+          GAP*2 + "https://www.biorxiv.org/content/10.1101/2022.10.18.512716v1\n"
 
 # help message
 HELP_MSG = "\nPHANTASM: PHylogenomic ANalyses for the TAxonomy and Systematics of Microbes\n\n" + \
@@ -54,6 +66,20 @@ HELP_MSG = "\nPHANTASM: PHylogenomic ANalyses for the TAxonomy and Systematics o
            GAP*2 + "'finalAnalysis/coreGenesSummary.txt\n" + \
            GAP*2 + "'finalAnalysis/speciesTree.nwk'\n" + \
            GAP*2 + "'finalAnalysis/speciesTree_outgroupPruned.nwk'\n\n" + \
+           "In order to run PHANTASM to analyze user-specified genomes, follow these steps:\n" + \
+           GAP + "1. cd into the desired working directory\n" + \
+           GAP + "2. make a directory containing ONLY the genomes you wish to analyze\n" + \
+           GAP + "3. make a 'human map' file with the outgroup as the last entry in file (see readme for more details).\n" + \
+           GAP + "4. call PHANTASM on the specified genomes:\n\n" + \
+           GAP*2 + "'python3 <path>/phantasm.py analyzeGenomes <genome directory> <human map file> <output directory> <email address>'\n\n" + \
+           GAP + "5. results can be found in the following files:\n\n" + \
+           GAP*2 + "'finalAnalysis/aai_matrix.txt'\n" + \
+           GAP*2 + "'finalAnalysis/aai_heatmap.pdf'\n" + \
+           GAP*2 + "'finalAnalysis/ani_matrix.txt'\n" + \
+           GAP*2 + "'finalAnalysis/ani_heatmap.pdf'\n" + \
+           GAP*2 + "'finalAnalysis/coreGenesSummary.txt\n" + \
+           GAP*2 + "'finalAnalysis/speciesTree.nwk'\n" + \
+           GAP*2 + "'finalAnalysis/speciesTree_outgroupPruned.nwk'\n\n" + \
            "Optional Features\n" + \
            GAP + "multiple input genomes:\n" + \
            GAP*2 + "replace '<gbff file>' with '<gbff directory>'\n" + \
@@ -68,6 +94,9 @@ HELP_MSG = "\nPHANTASM: PHylogenomic ANalyses for the TAxonomy and Systematics o
 
 # begin main function
 if __name__ == "__main__":
+    # print the reference message first
+    print(REF_MSG)
+
     # print help message if no arguments are provided
     if len(sys.argv) == 1:
         print(HELP_MSG)
@@ -201,7 +230,55 @@ if __name__ == "__main__":
             # execute JOB_3
             knownPhyloMarker(gbffL, locusTagsL, paramO)
 
+        # if JOB_4 requested
+        elif job == JOB_4:
+            # check that the expected number of arguments has been provided
+            if len(sys.argv) != 6:
+                raise SyntaxError(ERR_MSG_1)
+            
+            # parse command line arguments
+            genomeDir = os.path.abspath(sys.argv[2])
+            humanMapFN = os.path.abspath(sys.argv[3])
+            outdir = sys.argv[4]
+            email = sys.argv[5]
+
+            # ensure that a valid email address is being used
+            if not validEmailAddress(email):
+                raise ValueError(ERR_MSG_2)
+
+            # make sure genomeDir is a directory
+            if not os.path.isdir(genomeDir):
+                raise ValueError(ERR_MSG_5)
+
+            # make a Parameters object
+            paramO = getParamO_3(email, outdir)
+
+            # update the parameters object with the genomes and map locations
+            paramO.genbankFilePath = os.path.join(genomeDir, "*")
+            paramO.fileNameMapFN = humanMapFN
+
+            # get a list of all the genbank files
+            gbffL = glob.glob(paramO.genbankFilePath)
+
+            # make sure there are at least two files in the list
+            if len(gbffL) < 2:
+                raise ValueError(ERR_MSG_6)
+
+            # check for consistency between genomes and human map
+            if not genomeListConsistentWithHumanMap(gbffL, paramO):
+                raise ValueError(ERR_MSG_7)
+
+            # make the output directory; error if it already exists
+            if not os.path.exists(paramO.workdir):
+                os.mkdir(paramO.workdir)
+        
+            else:
+                raise FileExistsError(ERR_MSG_8)
+
+            # analyze the specified genomes
+            analyzeSpecifiedGenomes(gbffL, paramO)
+
         # raise an error if an invalid job was specified
         else:
-            raise ValueError(ERR_MSG_5A + job + ERR_MSG_5B)
+            raise ValueError(ERR_MSG_10A + job + ERR_MSG_10B)
 

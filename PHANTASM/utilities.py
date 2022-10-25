@@ -58,6 +58,30 @@ def getParamO_2(email:str) -> Parameters:
     return parameterO
 
 
+def getParamO_3(email:str, analysisDir:str) -> Parameters:
+    """ getParamO_3:
+            Helper function to facilitate the creation of a Parameters object 
+            for processing user-specified reference genomes. Accepts a valid
+            email address and an output directory as inputs. Returns the newly
+            constructed Parameters object.
+    """
+    from param import BLASTPLUS_DIR, MUSCLE_EXE, FASTTREE_EXE, IQTREE_EXE, \
+                                     NUM_PROCESSORS, MAX_LEAVES, NUM_BOOTSTRAPS
+
+    # build the parameter object
+    parameterO = Parameters(email,
+                            analysisDir,
+                            BLASTPLUS_DIR,
+                            MUSCLE_EXE,
+                            FASTTREE_EXE,
+                            IQTREE_EXE,
+                            NUM_PROCESSORS,
+                            MAX_LEAVES,
+                            NUM_BOOTSTRAPS)
+    
+    return parameterO
+
+
 def getTaxidsFromFile(taxidsFN:str) -> list[str]:
     """ getTaxidsFromFile:
             Accepts the filename of the taxids file. Expects the file to cont-
@@ -140,6 +164,28 @@ def checkEntrezEmail(email:str) -> None:
             Entrez.email = email
         else:
             raise BaseException("Entrez.email has not been set.")
+
+
+def loadHumanMap(humanMapFN:str) -> dict:
+    """ loadHumanMap:
+            Accepts a string indicating the filename of the human map file as
+            input. Constructs a dictionary keyed by gbff filenames with the co-
+            rresponding human names as the values. Returns the dictionary.
+    """
+    # constants
+    FILE_NAME_IDX  = 0
+    HUMAN_NAME_IDX = 1
+
+    # read the file into memory
+    parsed = parseCsv(humanMapFN, '\t')
+
+    # create the dict
+    humanMapD = dict()
+    for row in parsed:
+        # keys are filenames; values are human names
+        humanMapD[row[FILE_NAME_IDX]] = row[HUMAN_NAME_IDX]
+    
+    return humanMapD
 
 
 def ncbiEfetchById(id, database:str, mode:str='text', rettype:str='xml', \
@@ -533,6 +579,30 @@ def decompressGZ(gzFileName:str) -> None:
 
     # remove the gzip file
     os.remove(gzFileName)
+
+
+def genomeListConsistentWithHumanMap(gbffL:list, paramO:Parameters) -> bool:
+    """ genomeListConsistentWithHumanMap:
+            Accepts a list of genome files and a Parameters objects as inputs.
+            Checks that the list is the same length as the human map file, and
+            that all of the files are keys within the human map dictionary. Re-
+            turns a boolean indicating whether or not the two inputs are consi-
+            stent with each other.
+    """
+    # load the human map file
+    humanMapD = loadHumanMap(paramO.fileNameMapFN)
+
+    # inconsistent if the number of entries do not match the number of genomes
+    if len(gbffL) != len(humanMapD):
+        return False
+
+    # for each file in the list of genomes
+    for gbFN in gbffL:
+        # inconsistent if any file is not a key in the dictionary
+        if gbFN not in humanMapD.keys():
+            return False
+    
+    return True
 
 
 def cleanup(paramO:Parameters) -> None:

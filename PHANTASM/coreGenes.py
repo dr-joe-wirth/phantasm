@@ -3,14 +3,13 @@
 
 from __future__ import annotations
 import csv, glob, os, re, scipy.stats, string, subprocess, sys
-from PHANTASM.utilities import parseCsv
+from PHANTASM.utilities import parseCsv, loadHumanMap
 from PHANTASM.Parameter import Parameters
 from Bio import Phylo, SeqIO
 from Bio.Phylo import Newick
 from Bio.SeqRecord import SeqRecord
 from PHANTASM.downloadGbff import downloadGbffsForRootTaxonomy, _makeHumanMapString, _makeTaxonName
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
-from PHANTASM.overallGenomeRelatedIndices import _loadHumanMap
 from param import XENOGI_DIR
 sys.path.insert(0,os.path.join(sys.path[0], XENOGI_DIR))
 import xenoGI.xenoGI, xenoGI.scores, xenoGI.Tree, xenoGI.genomes, xenoGI.trees
@@ -687,7 +686,7 @@ def __saveCoreGenesDetails(allQryGbkL:list, paramO:Parameters) -> None:
     aabrhHardCoreL = xenoGI.scores.loadOrthos(aabrhFN)
 
     # load the human map file
-    humanMapD = _loadHumanMap(humanMapFN)
+    humanMapD = loadHumanMap(humanMapFN)
 
     strainToCoreD = dict()
     numToAlignD = dict()
@@ -860,7 +859,7 @@ def __runIqTree(outgroupName:str, paramO:Parameters) -> None:
     iqtreeFH.close()
 
     # load the human map file
-    humanMapD = _loadHumanMap(humanMapFN)
+    humanMapD = loadHumanMap(humanMapFN)
 
     # use the human map file to replace the names in the tree
     for origName in humanMapD.values():

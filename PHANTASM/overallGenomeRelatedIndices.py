@@ -4,7 +4,7 @@ import glob, math, os, sys, subprocess
 import rpy2.robjects as robjects
 from Bio import SeqIO
 from PHANTASM.Parameter import Parameters
-from PHANTASM.utilities import parseCsv
+from PHANTASM.utilities import parseCsv, loadHumanMap
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
 from PHANTASM.downloadGbff import _makeTaxonName
 from param import XENOGI_DIR, PHANTASM_DIR
@@ -132,7 +132,7 @@ def _calculateAAI(paramO:Parameters, outgroup:Taxonomy) -> dict:
         outgroupName = outgroup.ncbiName
 
     # get a list of all the strains
-    allStrainsL = list(_loadHumanMap(wgsMapFN).values())
+    allStrainsL = list(loadHumanMap(wgsMapFN).values())
 
     # remove the outgroup from the list
     allStrainsL.remove(outgroupName)
@@ -211,7 +211,7 @@ def __aniPrep(paramO:Parameters, outgroupName:str) -> str:
     gbFilesL = glob.glob(gbFilePath)
 
     # look up the outgroup filename
-    humanMapD = _loadHumanMap(wgsMapFN)
+    humanMapD = loadHumanMap(wgsMapFN)
     for filename in humanMapD.keys():
         # assign the variable and stop looping once found
         if humanMapD[filename] == outgroupName:
@@ -296,7 +296,7 @@ def __createAniD(humanMapFN:str, aniFN:str) -> dict:
             species.
     """
     # load the human map as a dictionary
-    humanMapD:dict = _loadHumanMap(humanMapFN)
+    humanMapD:dict = loadHumanMap(humanMapFN)
 
     # keys contain file extensions; remove them from the keys
     tempD = dict()
@@ -331,28 +331,6 @@ def __createAniD(humanMapFN:str, aniFN:str) -> dict:
             aniD[(nameA, nameB)] = float(row[idx]) * 100
     
     return aniD
-
-
-def _loadHumanMap(humanMapFN:str) -> dict:
-    """ loadHumanMap:
-            Accepts a string indicating the filename of the human map file as
-            input. Constructs a dictionary keyed by gbff filenames with the co-
-            rresponding human names as the values. Returns the dictionary.
-    """
-    # constants
-    FILE_NAME_IDX  = 0
-    HUMAN_NAME_IDX = 1
-
-    # read the file into memory
-    parsed = parseCsv(humanMapFN, '\t')
-
-    # create the dict
-    humanMapD = dict()
-    for row in parsed:
-        # keys are filenames; values are human names
-        humanMapD[row[FILE_NAME_IDX]] = row[HUMAN_NAME_IDX]
-    
-    return humanMapD
 
 
 def makeAniHeatmap(paramO:Parameters, outgroup:Taxonomy) -> None:

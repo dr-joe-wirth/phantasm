@@ -4,7 +4,7 @@
 import os
 from Bio import Entrez
 from param import BOOTSTRAP_FINAL_TREE
-from PHANTASM.utilities import cleanup, getTaxidsFromFile
+from PHANTASM.utilities import cleanup, getTaxidsFromFile, parseCsv
 from PHANTASM.Parameter import Parameters
 from PHANTASM.rRNA.runRnaBlast import rnaBlastRunner
 from PHANTASM.rRNA.processRnaBlast import getTaxIdsFromRnaBlast
@@ -31,8 +31,8 @@ def getPhyloMarker(allQueryGenbanksL:list, paramO_1:Parameters) -> None:
     cleanup(paramO_1)
 
 
-def refinePhylogeny(geneNumsL:list, allQueryGenbanksL:list, paramO_1:Parameters, \
-                                                  paramO_2:Parameters) -> None:
+def refinePhylogeny(geneNumsL:list, allQueryGenbanksL:list, \
+                             paramO_1:Parameters, paramO_2:Parameters) -> None:
     """ run the refinePhylogeny job (only used after getPhyloMarker)
     """
     outgroup = findMissingRelativesWrapper(geneNumsL, allQueryGenbanksL, \
@@ -43,13 +43,22 @@ def refinePhylogeny(geneNumsL:list, allQueryGenbanksL:list, paramO_1:Parameters,
 
 
 def knownPhyloMarker(allQueryGenbanksL:list, locusTagsL:list, \
-                                                            paramO:Parameters):
+                                                    paramO:Parameters) -> None:
     """ run phantasm with known markers in a single step
     """
     lpsnD = _getLpsnData()
     outgroup = xenogiInterfacer_3(allQueryGenbanksL, locusTagsL, paramO, lpsnD)
     coreGenesWrapper_1(paramO)
     finalAnalysesWrapper(allQueryGenbanksL, outgroup, paramO)
+    cleanup(paramO)
+
+
+def analyzeSpecifiedGenomes(allGbksL:list, paramO:Parameters) -> None:
+    """ use phantasm to analyze a set of user-specified genomes
+    """
+    coreGenesWrapper_1(paramO)
+    outgroup = makeOutgroupObject(paramO)
+    finalAnalysesWrapper(allGbksL, outgroup, paramO)
     cleanup(paramO)
 ###############################################################################
 
@@ -139,6 +148,32 @@ def coreGenesWrapper_2(paramO_1:Parameters, paramO_2:Parameters) -> None:
     copyExistingBlastFiles(paramO_1, paramO_2)
     allVsAllBlast(paramO_2.toDict())
     calculateCoreGenes(paramO_2)
+
+
+def makeOutgroupObject(paramO:Parameters) -> Taxonomy:
+    """ makeOutgroupObject:
+            Accepts a Parameters object as input. Constructs a Taxonomy object
+            for the last entry in the human map file. The object uses the rese-
+            rved artificial taxid. This function should only be used when users
+            specify their own reference genomes instead of allowing PHANTASM to
+            pick for them. Returns the newly constructed Taxonomy object.
+    """
+    # constants
+    ARTIFICIAL_TAXID = "0"
+    DELIM = "\t"
+    
+    # read the human map file
+    humanMapL = parseCsv(paramO.fileNameMapFN, delim=DELIM)
+
+    # truncate empty lines from the human map file
+    while len(humanMapL[-1]) == 0:
+        humanMapL.pop()
+    
+    # the outgroup will always be the last entry in the human map file
+    outgroupName = humanMapL[-1][1]
+
+    # create and return a Taxonomy object for the outgroup
+    return Taxonomy(ARTIFICIAL_TAXID, outgroupName, 'species')
 
 
 def finalAnalysesWrapper(allQryGbksL:list, outgroup:Taxonomy, \
