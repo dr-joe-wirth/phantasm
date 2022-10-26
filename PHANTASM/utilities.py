@@ -599,7 +599,7 @@ def genomeListConsistentWithHumanMap(gbffL:list, paramO:Parameters) -> bool:
     # for each file in the list of genomes
     for gbFN in gbffL:
         # inconsistent if any file is not a key in the dictionary
-        if gbFN not in humanMapD.keys():
+        if os.path.basename(gbFN) not in humanMapD.keys():
             return False
     
     return True
