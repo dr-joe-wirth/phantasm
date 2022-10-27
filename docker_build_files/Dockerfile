@@ -70,7 +70,6 @@ RUN tar xzf xenoGI-3.1.0.tar.gz
 RUN rm xenoGI-3.1.0.tar.gz
 
 # clone phantasm
-RUN git clone https://github.com/ecbush/xenoGI.git
 RUN git clone https://github.com/dr-joe-wirth/phantasm.git
 
 # copy the param file
