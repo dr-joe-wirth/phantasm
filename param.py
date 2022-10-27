@@ -30,8 +30,8 @@ IQTREE_EXE:str = '/usr/local/bin/iqtree'
 # specify the path to the phantasm directory
 PHANTASM_DIR:str = '/phantasm'
 
-# specify the path to the xenoGI directory
-XENOGI_DIR:str = '/xenoGI'
+# specify the path to the xenoGI v3.1.0 directory
+XENOGI_DIR:str = '/xenoGI-3.1.0'
 
 # specify the paths to each of the required lpsn csv files
 # MODIFYING THIS MAY CAUSE PHANTASM TO FAIL!

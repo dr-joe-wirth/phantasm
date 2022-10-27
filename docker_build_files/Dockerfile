@@ -64,7 +64,12 @@ RUN tar xzf iqtree-1.6.12-Linux.tar.gz
 RUN rm iqtree-1.6.12-Linux.tar.gz
 RUN mv iqtree-1.6.12-Linux /exec/iqtree
 
-# clone xenoGI and phantasm
+# get xenoGI v3.1.0
+RUN wget https://github.com/ecbush/xenoGI/archive/refs/tags/v3.1.0.tar.gz
+RUN tar xzf xenoGI-3.1.0.tar.gz
+RUN rm xenoGI-3.1.0.tar.gz
+
+# clone phantasm
 RUN git clone https://github.com/ecbush/xenoGI.git
 RUN git clone https://github.com/dr-joe-wirth/phantasm.git
 
