@@ -85,7 +85,7 @@ In order for PHANTASM to function properly, you will need to modify the file `pa
 ## When a phylogenetic marker and reference genomes are unknown
 If you have an annotated genome sequence but you do not know a suitable phylogenetic marker and you do not know which reference genomes would be appropriate to use, then PHANTASM can be run in two steps:
 
-1. It uses 16S rRNA gene sequences to estimate a taxonomic placement, then prioritizes taxonomic breadth while in order to find genes that coevolve with the input genome(s) and its relatives.
+1. It uses 16S rRNA gene sequences to estimate a taxonomic placement, then prioritizes taxonomic breadth in order to find genes that coevolve with the input genome(s) and its relatives.
 2. The user selects a phylogenetic marker and uses it to prioritize the taxonomic placement of the input genome(s). It strives to select suitable reference genomes and then uses them to perform phylogenomic analyses.
 
 ### Optional: Bypassing the requirement for annotated 16S rRNA gene sequences in your input genome(s)
@@ -188,8 +188,9 @@ If you already know which genomes you want to analyze, then you can tell PHANTAS
     GCF_001507545.1_ASM150754v1_genomic.gbff	Ruegeria_profundi|ZGT108_T|GCF_001507545
     GCF_009617595.1_ASM961759v1_genomic.gbff	Tritonibacter_aquimaris__invalid|SM1969|GCF_009617595
     my_assembly.gbk	my_input_genome
+    outgroup_genome_seq.gbff  outgroup
 
-Once you have made this file, then you can call the following command to run PHANTASM:
+**Important note: the outgroup is determined by which genome is listed last in the human map file.** Once you have made this file, then you can call the following command to run PHANTASM:
 
 
     $ python3 <path>/phantasm.py analyzeGenomes <input genomes dir> <human map file> <output directory> <email address>
@@ -212,7 +213,7 @@ It is possible to exclude specific taxa from the refined phylogeny. To do so, cr
 ### Option 1a: Identifying a suitable phylogenetic marker for your input genome
   * Extracts the 16S rRNA gene sequences from the input genbank.
   * Uses the 16S rRNA gene sequences and BLASTn to search [NCBI's Targetted Loci database](https://www.ncbi.nlm.nih.gov/refseq/targetedloci/) in order to determine which taxonomic orders are related to the input genome(s).
-  * Retreives data from NCBI's Taxonomy database to create a single taxonomy encompassing all the identified orders.
+  * Retrieves data from NCBI's Taxonomy database to create a single taxonomy encompassing all the identified orders.
   * Reconciles the NCBI-based taxonomy with LPSN's taxonomic structure.
   * Imports data from NCBI's Assembly database for the species represented in the taxonomy.
   * Uses the BLASTn results and the taxonomic structure to determine which taxa could serve as the ingroup/outgroup.
