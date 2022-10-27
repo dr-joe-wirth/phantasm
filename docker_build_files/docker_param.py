@@ -21,7 +21,7 @@ MUSCLE_EXE:str = '/exec/muscle'
 FASTTREE_EXE:str = '/exec/FastTreeMP'
 IQTREE_EXE:str = '/exec/iqtree/bin/iqtree'
 PHANTASM_DIR:str = '/phantasm'
-XENOGI_DIR:str = '/xenoGI'
+XENOGI_DIR:str = '/xenoGI-3.1.0'
 
 # modifying these variables may cause phantasm to fail
 import os
