@@ -7,7 +7,9 @@
 
 ## If you use our software, please cite our paper
 **Automating microbial taxonomy workflows with PHANTASM: PHylogenomic ANalyses for the TAxonomy and Systematics of Microbes**
+
 Joseph S. Wirth & Eliot C. Bush, 2022
+
 This manuscript is currently in revision. A preprint can be found on [bioRxiv](https://www.biorxiv.org/content/10.1101/2022.10.18.512716v1).
 
 ##### Note: PHANTASM requires an email address for communicating with NCBI as described in python's [Bio.Entrez](https://biopython.org/docs/latest/api/Bio.Entrez.html) package. The email address is not stored or used for any other purposes.
@@ -97,7 +99,7 @@ Keep in mind that annotated 16S rRNA gene sequences are  **not**  required if a 
 
 ### To identify putative phylogenetic markers, run the following command:
 
-        $ python3 <path to phantasm>/phantasm.py getPhyloMarker <gbff filename> <email address>
+    $ python3 <path to phantasm>/phantasm.py getPhyloMarker <gbff filename> <email address>
  
   * After it finishes running, open ```initialAnalysis/putativePhylogeneticMarkers.txt``` and determine which gene(s) you wish to use as the phylogenetic marker(s) of the group. Make a note of the gene number or the locus tag as this will be used as input in the next step.
   * If using PHANTASM on multiple input genomes, replace ```<gbff filename>``` with ```<gbff directory>```
@@ -122,11 +124,11 @@ Keep in mind that annotated 16S rRNA gene sequences are  **not**  required if a 
 
 ### To refining the phylogeny and perform phylogenomic analyses, run one of the following commands:
 
-        $ python3 <path to phantasm>/phantasm.py refinePhylogeny --locus_tag <locus tag> <gbff file> <email address>
+    $ python3 <path to phantasm>/phantasm.py refinePhylogeny --locus_tag <locus tag> <gbff file> <email address>
 
   OR
 
-        $ python3 <path to phantasm>/phantasm.py refinePhylogeny --gene_num <gene number> <gbff file> <email address>
+    $ python3 <path to phantasm>/phantasm.py refinePhylogeny --gene_num <gene number> <gbff file> <email address>
   
   * The results can be found in the folder `finalAnalysis`.
   
@@ -209,7 +211,7 @@ It is possible to exclude specific taxa from the refined phylogeny. To do so, cr
 ## Detailed descriptions of the workflows
 ### Option 1a: Identifying a suitable phylogenetic marker for your input genome
   * Extracts the 16S rRNA gene sequences from the input genbank.
-  * Uses the 16S rRNA gene sequences and BLASTn to determine which taxonomic orders are related to the input.
+  * Uses the 16S rRNA gene sequences and BLASTn to search [NCBI's Targetted Loci database](https://www.ncbi.nlm.nih.gov/refseq/targetedloci/) in order to determine which taxonomic orders are related to the input genome(s).
   * Retreives data from NCBI's Taxonomy database to create a single taxonomy encompassing all the identified orders.
   * Reconciles the NCBI-based taxonomy with LPSN's taxonomic structure.
   * Imports data from NCBI's Assembly database for the species represented in the taxonomy.
@@ -238,7 +240,7 @@ It is possible to exclude specific taxa from the refined phylogeny. To do so, cr
   * Reconciles the NCBI-based taxonomy with LPSN's taxonomic structure.
   * Imports data from NCBI's Assembly database for the species represented in the taxonomy.
   * Uses the BLASTp results and the taxonomic structure to determine which taxa could serve as the ingroup/outgroup.
-  * Downloads assemblies for the ingroup and the outgroup the number to download is specified in ```<path to phatasm>/param.py``` in the ```MAX_LEAVES``` variable.
+  * Downloads assemblies for the ingroup and the outgroup the number to download is specified in `<path to phantasm>/param.py` in the ```MAX_LEAVES``` variable.
   * Calculates core genes for the set of gbff files.
   * Creates a species tree based on a concatenated alignment of the core genes.
   * Calculates the average amino acid identity (AAI) for the species in the tree (excluding the outgroup).
