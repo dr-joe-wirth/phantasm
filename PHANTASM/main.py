@@ -3,11 +3,10 @@
 
 import os
 from Bio import Entrez
-from param import BOOTSTRAP_FINAL_TREE
-from PHANTASM.utilities import cleanup, getTaxidsFromFile, parseCsv
 from PHANTASM.Parameter import Parameters
 from PHANTASM.rRNA.runRnaBlast import rnaBlastRunner
 from PHANTASM.rRNA.processRnaBlast import getTaxIdsFromRnaBlast
+from PHANTASM.utilities import cleanup, getTaxidsFromFile, parseCsv
 from PHANTASM.taxonomy.taxonomyConstruction import Taxonomy, constructTaxonomy, _getLpsnData
 from PHANTASM.findMissingNeighbors import phyloMarkerBlastRunner, xenogiInterfacer_2, xenogiInterfacer_3
 from PHANTASM.overallGenomeRelatedIndices import overallGenomeRelatedIndices, makeAaiHeatmap, makeAniHeatmap
@@ -180,6 +179,8 @@ def finalAnalysesWrapper(allQryGbksL:list, outgroup:Taxonomy, \
                                                   paramO_2:Parameters) -> None:
     """ makes the second species tree and calculates OGRIs.
     """
+    from param import BOOTSTRAP_FINAL_TREE
+
     if BOOTSTRAP_FINAL_TREE:
         makeSpeciesTree(allQryGbksL, paramO_2, outgroup, 'iqtree')
     else:
