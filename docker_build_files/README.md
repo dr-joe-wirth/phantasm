@@ -20,45 +20,45 @@ This manuscript is currently in revision. A preprint can be found on [bioRxiv](h
 # Table of Contents
 1. [Mounting the Docker image](#1-mounting-the-docker-image)
 
-    1.1. Running Docker as root
+    1.1.[Running Docker as root](#11-running-docker-as-root)
 
-    1.2 Preparing Docker settings
+    1.2 [Preparing Docker settings](#12-preparing-docker-settings)
 
-    1.3 Mounting the image as a container
+    1.3 [Mounting the image as a container](#13-mounting-the-image-as-a-container)
 
 2. [Getting started with PHANTASM](#2-getting-started-with-phantasm)
 
-    2.1. Getting help
+    2.1. [Getting help](#21-getting-help)
 
-    2.2. Modifying PHANTASM's settings (optional)
+    2.2. [Modifying PHANTASM's settings (optional)](#22-modifying-phantasms-settings-optional)
 
-    2.3. Excluding specific taxa from phylogenomic analyses (optional)
+    2.3. [Excluding specific taxa from phylogenomic analyses (optional)](#23-excluding-specific-taxa-from-phylogenomic-analyses-optional)
 
 3. [Running PHANTASM](#3-running-phantasm)
 
-    3.1. Option 1: unknown reference genomes and unknown phylogenetic marker(s)
+    3.1. [Option 1: unknown reference genomes and unknown phylogenetic marker(s)](#31-option-1-unknown-reference-genomes-and-unknown-phylogenetic-markers)
 
-    3.2. Option 2: unknown reference genomes and known phylogenetic marker(s)
+    3.2. [Option 2: unknown reference genomes and known phylogenetic marker(s)](#32-option-2-unknown-reference-genomes-and-known-phylogenetic-markers)
 
-    3.3. Option 3: known reference genomes
+    3.3. [Option 3: known reference genomes](#33-option-3-known-reference-genomes)
 
 4. [Analyzing the results](#4-analyzing-the-results)
 
 5. [Detailed descriptions of the workflows](#5-detailed-descriptions-of-the-workflows)
 
-    5.1. Option 1: Identifying suitable phylogenetic markers for your input genome
+    5.1. [Option 1: Identifying suitable phylogenetic markers for your input genome](#51-option-1-identifying-suitable-phylogenetic-markers-for-your-input-genome)
 
-    5.2. Option 1: Refining the phylogeny and performing phylogenomic analyses
+    5.2. [Option 1: Refining the phylogeny and performing phylogenomic analyses](#52-option-1-refining-the-phylogeny-and-performing-phylogenomic-analyses)
 
-    5.3. Option 2: Using a known phylogenetic marker(s)
+    5.3. [Option 2: Using a known phylogenetic marker(s)](#53-option-2-using-a-known-phylogenetic-markers)
 
-    5.4. Option 3: Analyzing a set of user-specified genomes
+    5.4. [Option 3: Analyzing a set of user-specified genomes](#54-option-3-analyzing-a-set-of-user-specified-genomes)
 
 6. [Common error messages](#6-common-error-messages)
 
-    6.1. Problems with 16S rRNA gene sequence annotation (or lack thereof) in your input genome(s)
+    6.1. [Problems with 16S rRNA gene sequence annotation (or lack thereof) in your input genome(s)](#61-problems-with-16s-rrna-gene-sequence-annotation-or-lack-thereof-in-your-input-genomes)
 
-    6.2. Failed to connect to NCBI database(s)
+    6.2. [Failed to connect to NCBI database(s)](#62-failed-to-connect-to-ncbi-databases)
 
 # 1. Mounting the Docker image
 ## 1.1. Running Docker as `root`
