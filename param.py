@@ -5,6 +5,11 @@ NUM_PROCESSORS:int = 1
 # do not set this value below 10
 MAX_LEAVES:int = 50
 
+# specify if the number of core genes used to calculat the final tree should be reduced
+#### `True` indicates yes
+#### `False` indicates no
+REDUCE_NUM_CORE_GENES:bool = False
+
 # specify if the final tree should have bootstrap supports
 #### WARNING: Bootstrapping trees will significantly increase run times (several hours -> several days)
 #### `True` indicates yes

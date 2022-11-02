@@ -399,7 +399,7 @@ def makeSpeciesTree(allQryGbksL:list, paramO:Parameters, outgroup:Taxonomy, \
     __printSummary(paramO)
 
     # save more detailed core gene summary file
-    __saveCoreGenesDetails(allQryGbksL, paramO)
+    __saveCoreGenesDetails(paramO)
 
     # outgroup will not be the root if phantasm identified reference genomes
     if not outgroup.isRoot():
@@ -485,6 +485,7 @@ def __concatenateAlignments(qryHumanNamesL:list, speciesTreeWorkDir:str, \
             concatenated alignment in fasta format. Does not return.
     """
     # constants
+    from param import REDUCE_NUM_CORE_GENES
     FILE_NAME_PATTERN = 'align*afa'
     FORMAT = 'fasta'
     GREP_FIND_1 = r'^.+align-aabrhHardCoreFam-(\d+)\.afa$'
@@ -498,6 +499,9 @@ def __concatenateAlignments(qryHumanNamesL:list, speciesTreeWorkDir:str, \
 
     # get a list of all the alignment files
     allAfa = glob.glob(fileString)
+
+    if REDUCE_NUM_CORE_GENES:
+        __reduceCoreGenes(allAfa)
 
     # concatenate sequences in dictionary format
     seqD = dict()
@@ -586,6 +590,76 @@ def __concatenateAlignments(qryHumanNamesL:list, speciesTreeWorkDir:str, \
     SeqIO.write(allConcatenatedRecords, alnOutFN, FORMAT)
 
 
+def __reduceCoreGenes(allAlignmentsL:list) -> int:
+    """ reduceCoreGenes:
+            Accepts a list of alignment filenames in fasta format as input.
+            Removes any alignment files from the list that contain greater than
+            5% gaps for one or more taxa. Does not return; only modifies the
+            input list.
+    """
+    # get a list of indices in reverse order for on-the-fly popping
+    indices = list(range(len(allAlignmentsL)))
+    indices.reverse()
+    
+    # for each index in the list
+    for idx in indices:
+        # get the associated alignment
+        alnFN = allAlignmentsL[idx]
+
+        # check if it should be kept; remove it if necessary
+        if not __lessThanFivePercentGaps(alnFN):
+            allAlignmentsL.pop(idx)
+
+
+def __lessThanFivePercentGaps(alignmentFN:str) -> bool:
+    """ lessThanFivePercentGaps:
+            Accepts the filename of an alignment file in fasta format as input.
+            Returns True if the all taxa in the alignment have less than or eq-
+            ual to 5% gaps relative to the alignment length. Otherwise returns
+            False.
+    """
+    # constants
+    FORMAT = 'fasta'
+    INITIAL_SEQ_LEN = -1
+    GAP_CHAR = "-"
+    MAX_PERC = 0.05
+    ERR_MSG = "alignment length inconsistent for "
+
+    # parse the file
+    parsed = SeqIO.parse(alignmentFN, FORMAT)
+
+    # initialize the sequence length to an impossible value
+    seqLen = INITIAL_SEQ_LEN
+
+    # for each sequence record
+    rec:SeqRecord
+    for rec in parsed:
+        # get the new sequence length
+        newSeqLen = len(rec.seq)
+        # evaluate if the sequence length is changing
+        notFirstRecord = seqLen != INITIAL_SEQ_LEN
+        seqLenChanged = newSeqLen != seqLen
+    
+        # raise an error if seq length changed and it's not the first record
+        if notFirstRecord and seqLenChanged:
+            raise RuntimeError(ERR_MSG + alignmentFN)
+        
+        seqLen = newSeqLen
+
+        # count the number of gaps in each character of the sequence
+        numGaps = 0
+        for char in rec.seq:
+            if char == GAP_CHAR:
+                numGaps += 1
+
+        # if a single seq has > than max allowed gaps, then do not keep it
+        if numGaps / seqLen > MAX_PERC:
+            return False
+    
+    # only keep an alignment if all sequences do not exceed max allowed gaps
+    return True
+
+
 def __printSummary(paramO:Parameters) -> None:
     """ printSummary:
             Accepts a Parameters object as input. Prints the number of core ge-
@@ -599,7 +673,7 @@ def __printSummary(paramO:Parameters) -> None:
     PRINT_3A = GAP*2 + "See '"
     PRINT_3B = "' for more details."
 
-    # extract data on the alignment
+    # extract data from the alignment
     numCoreGenes, lenAlignment = __getSummary(paramO)
 
     # print the data
@@ -614,21 +688,19 @@ def __printSummary(paramO:Parameters) -> None:
     print(PRINT_3A + deetsFN + PRINT_3B)
 
 
-def __getSummary(paramO:Parameters) -> tuple:
+def __getSummary(paramO:Parameters) -> tuple[int,int]:
     """ getSummary:
             Accepts a Parameters object as input. Uses existing files to deter-
             mine the number of core genes used to construct the concatenated a-
             lignment and the sequence length of each individual alignment. Ret-
             urns the values as a tuple.
     """
-    # get the filename for core genes file
-    coreGenesFN = paramO.aabrhFN
-
-    # get the filename for the concatenated alignment
+    # get the filenames for the famToGeneKey and the concatated alignment files
+    famKeyFN = paramO.famToGeneKeyFN
     concatAlnFN = paramO.concatenatedAlignmentFN
     
     # get the number of core genes (nrow of coreGenesFN)
-    parsed = parseCsv(coreGenesFN, delim="\t")
+    parsed = parseCsv(famKeyFN, delim="\t")
     numCoreGenes = len(parsed)
 
     # parse the concatenated alignment
@@ -646,156 +718,91 @@ def __getSummary(paramO:Parameters) -> tuple:
     return numCoreGenes, lenAlignment
 
 
-def __saveCoreGenesDetails(allQryGbkL:list, paramO:Parameters) -> None:
+def __saveCoreGenesDetails(paramO:Parameters) -> None:
     """ saveCoreGenesDetails:
-            Accepts a list of all input genomes (str) and a Parameters object
-            as inputs. Extracts relevant data about the core genes and saves
-            them to the file specified in the Parameters object. Does not retu-
-            rn.
+            Accepts a Parameters object as input. Extracts relevant data about
+            the core genes and saves them to the file specified in the Parame-
+            ters object. Does not return.
     """
     # constants
-    TAIL_1 = "Number of core genes used to construct the tree: "
-    TAIL_2 = "Sequence length for each concatenated alignment: "
     DELIM = "\t"
     EOL = "\n"
-    HEADER_STRING =  "gene_num" + DELIM + "locus_tag" + DELIM + \
-                     "protein_len" + DELIM + "gene_name" + DELIM + \
-                     "annotation" + DELIM + "alignment_file" + EOL
+    FORMAT = "fasta"
     ALIGN_PRE = "align"
     ALIGN_EXT = ".afa"
+    HEADER_STR = "alignment_file" + DELIM + "alignment_len" + DELIM + \
+                 "locus_tag" + DELIM + "protein_len" + DELIM + "gene_name" + \
+                 DELIM + "annotation" + DELIM + "gene_number" + EOL
+    TAIL_1 = "Number of core genes used to construct the tree: "
+    TAIL_2 = "Sequence length for each concatenated alignment: "
 
     # extract relevant data from paramO
     workdir = paramO.workdir
-    aabrhFN = paramO.aabrhFN
+    famToGeneKeyFN = paramO.famToGeneKeyFN
     geneInfoFN = paramO.geneInfoFN
-    humanMapFN = paramO.fileNameMapFN
     alnDir = paramO.makeSpeciesTreeWorkingDir
     summaryFN = paramO.coreGenesSummaryFN
-                                                             
-    # get the surface-level summary data
-    numCoreGenes, lenAlignment = __getSummary(paramO)
 
-    # get a list of all the core genes
-    parsed = parseCsv(aabrhFN, delim="\t")
+    # the famToGene dict has famNum key with a list of geneNum as value
+    #### Most importantly, it only contains entries for the genes to construct
+    #### the concatenated alignment. This allows it function properly even if
+    #### REDUCE_NUM_CORE_GENES is True
+    famToGeneD = __loadFamToGeneKey(famToGeneKeyFN)
 
-    # load genesO
+    # load genesO object
     genesO = xenoGI.genomes.genes(geneInfoFN)
     genesO.initializeGeneInfoD(geneInfoFN)
 
-    # get a list of core genes (tuple:int) grouped by alignment file
-    aabrhHardCoreL = xenoGI.scores.loadOrthos(aabrhFN)
+    # open the output file
+    summaryFH = open(summaryFN, 'w')
 
-    # load the human map file
-    humanMapD = loadHumanMap(humanMapFN)
+    # write the header string
+    summaryFH.write(HEADER_STR)
 
-    strainToCoreD = dict()
-    numToAlignD = dict()
+    # for each family number
+    for famNum in famToGeneD.keys():
+        # get the alignment filename
+        # the number needs to be six digits long; add zeros to make it so
+        alnNum = "0" * (6 - len(famNum)) + famNum
+        basename = ALIGN_PRE + alnNum + ALIGN_EXT
 
-    # for each genome file
-    for gbFN in allQryGbkL:
-        # make sure the filename is the basename
-        gbFN = os.path.basename(gbFN)
+        # determine the absolute path to the alignment file
+        alignFN = os.path.join(alnDir, basename)
 
-        # strain name for input genomes is just the name without extension
-        strainName = humanMapD[gbFN]
+        # determine the abbreviated alignment file name
+        work = os.path.basename(workdir)
+        aln = os.path.basename(alnDir)
+        alignFileStr = os.path.join(work, aln, basename)
 
-        # hyphens will be replaced by underscores in the keys
-        genesKey = _humanNameFromQueryGenbankFN(strainName)
-
-        # get the range of gene numbers for the input genome
-        minGeneNum,maxGeneNum = genesO.geneRangeByStrainD[strainName]
-
-        # determine which index (column) corresponds to the genome
-        for idx in range(len(parsed[0])):
-            geneNum = int(parsed[0][idx])
-            if geneNum >= minGeneNum and geneNum <= maxGeneNum:
-                break #idx is now at the value we want
-        
-        # for each row (each core gene)
-        for row in parsed:
-            # get current genome's gene number
-            geneNum = row[idx]
-
-            # initialize a list first time this strain is seen
-            if strainName not in strainToCoreD.keys():
-                strainToCoreD[strainName] = list()
-            
-            # store the gene number under the strain
-            # the order will be conserved for all strains
-            strainToCoreD[strainName].append(geneNum)
-            
-            # store the alignment filename
-            for alnNum in range(len(aabrhHardCoreL)):
-                # if the current alignment number contains the gene number
-                if int(geneNum) in aabrhHardCoreL[alnNum]:
-                    # add 0 so that the len(alnNum) == 6
-                    alnNum = str(alnNum)
-                    alnNum = "0" * (6 - len(alnNum)) + alnNum
-
-                    # add the prefix and extension to the number
-                    basename = ALIGN_PRE + alnNum + ALIGN_EXT
-
-                    # determine the abbreviated alignment file name
-                    work = os.path.basename(workdir)
-                    aln = os.path.basename(alnDir)
-                    alignFN = os.path.join(work, aln, basename)
-
-                    # store the alignment file name in the dictionary
-                    numToAlignD[geneNum] = alignFN
-
-                    break
+        # get the length of the alignment for this gene family
+        parsed = SeqIO.parse(alignFN, FORMAT)
+        record:SeqRecord
+        for record in parsed:
+            # the length is the same for all records in the file
+            alignmentLen = len(record.seq)
+            break
     
-    # make sure the file is empty
-    fh = open(summaryFN, 'w')
-    fh.close()
+        # start making the string for the current line
+        lineStr = alignFileStr + DELIM + str(alignmentLen) + DELIM
+
+        # get the data for the gene numbers and add them to the line string
+        geneNumL = famToGeneD[famNum]
+        lineStr += __geneNumToSummaryStr(geneNumL, genesO)
+
+        # write the line to the summary file
+        summaryFH.write(lineStr)
     
-    # open the file and add the headers to the top
-    fh = open(paramO.coreGenesSummaryFN, 'a')
-    fh.write(HEADER_STRING)
-
-    # for each core gene
-    for idx in range(numCoreGenes):
-        # initialize an empy list of gene numbers and a set of seen alignments
-        geneNumL = list()
-        seenAlnS = set()
-
-        # for each strain
-        for strainName in strainToCoreD.keys():
-            # get the gene number for the current core gene
-            geneNum = strainToCoreD[strainName][idx]
-
-            # add this strain's gene number to the list for this core gene
-            geneNumL.append(geneNum)
-
-            # get the alignment filename for this core gene
-            alnFN = numToAlignD[geneNum]
-            
-            # mark this alignment file as seen
-            seenAlnS.add(alnFN)
-        
-        # if we have seen multiple alignment files for a single core gene
-        if len(seenAlnS) > 1:
-            # then something is wrong; raise exception
-            raise Exception("bad alignment file lookup")
-        
-        # convert the gene number list to an informative string
-        lineStr = __geneNumToSummaryStr(geneNumL, genesO)
-
-        # remove the trailing EOL character and add the alignment file info
-        lineStr = lineStr[:-len(EOL)]
-        lineStr += DELIM + alnFN + EOL
-
-        # write the current line for this core gene to file
-        fh.write(lineStr)
+    # get the basic details about the concatenated alignment
+    numCoreGenes, lenConcatAln = __getSummary(paramO)
     
     # construct the final lines of the file
     # matches the string produced by __printSummary
     tail = EOL + EOL + TAIL_1 + str(numCoreGenes) + EOL + \
-                                               TAIL_2 + str(lenAlignment) + EOL
+                                               TAIL_2 + str(lenConcatAln) + EOL
 
-    # write the tail to file and before closing the file
-    fh.write(tail)
-    fh.close()
+    # write the tail string then close the file
+    summaryFH.write(tail)
+    summaryFH.close()
 
 
 def __runFastTree(paramO:Parameters) -> None:
@@ -872,7 +879,7 @@ def __runIqTree(outgroupName:str, paramO:Parameters) -> None:
     treeFH.close()
 
 
-def __rootTree(treeFN, outGroupTaxaL) -> None:
+def __rootTree(treeFN:str, outGroupTaxaL:list) -> None:
     """ rootTree:
             Accepts a tree file name and a list of outgroup taxa as inputs. Lo-
             ads the tree and roots it on the specified taxa. Overwites the the
@@ -1095,8 +1102,8 @@ def __geneNumToSummaryStr(geneNumL:list, genesO:xenoGI.genomes.genes) -> str:
     geneNumStr = geneNumStr[:-len(SEP_CHAR)]
 
     # construct the string and return it
-    return geneNumStr + DELIM + locusTag + DELIM + proteinLen + DELIM + \
-                                            geneName + DELIM + annotation + EOL
+    return locusTag + DELIM + proteinLen + DELIM + geneName + DELIM + \
+                                          annotation + DELIM + geneNumStr + EOL
 
 
 def __cophenetic(speciesDistMat:dict, geneDistMat:dict) -> float:
@@ -1161,7 +1168,7 @@ def __loadFamToGeneKey(famToGeneKeyFN:str) -> dict:
     # for each item, make a dictionary keyed by fam number
     outD = dict()
     for line in raw:
-        outD[line[FAM_NUM_IDX]] = line[GENE_NUM_IDX]
+        outD[line[FAM_NUM_IDX]] = line[GENE_NUM_IDX].split(SEP_CHAR)
     
     return outD
 
