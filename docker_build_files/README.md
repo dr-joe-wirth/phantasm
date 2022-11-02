@@ -18,33 +18,47 @@ This manuscript is currently in revision. A preprint can be found on [bioRxiv](h
  
  
 # Table of Contents
-1. Mounting the Docker image
+1. [Mounting the Docker image](#1-mounting-the-docker-image)
+
     1.1. Running Docker as root
+
     1.2 Preparing Docker settings
+
     1.3 Mounting the image as a container
 
-2. Getting started with PHANTASM
+2. [Getting started with PHANTASM](#2-getting-started-with-phantasm)
+
     2.1. Getting help
+
     2.2. Modifying PHANTASM's settings (optional)
+
     2.3. Excluding specific taxa from phylogenomic analyses (optional)
 
-3. Running PHANTASM
+3. [Running PHANTASM](#3-running-phantasm)
+
     3.1. Option 1: unknown reference genomes and unknown phylogenetic marker(s)
+
     3.2. Option 2: unknown reference genomes and known phylogenetic marker(s)
+
     3.3. Option 3: known reference genomes
 
-4. Analyzing the results
+4. [Analyzing the results](#4-analyzing-the-results)
 
-5. Detailed descriptions of the workflows
+5. [Detailed descriptions of the workflows](#5-detailed-descriptions-of-the-workflows)
+
     5.1. Option 1: Identifying suitable phylogenetic markers for your input genome
+
     5.2. Option 1: Refining the phylogeny and performing phylogenomic analyses
+
     5.3. Option 2: Using a known phylogenetic marker(s)
+
     5.4. Option 3: Analyzing a set of user-specified genomes
 
-6. Common error messages
-    6.1. Problems with 16S rRNA gene sequence annotation (or lack thereof) in your input genome(s)
-    6.2. Failed to connect to NCBI database(s)
+6. [Common error messages](#6-common-error-messages)
 
+    6.1. Problems with 16S rRNA gene sequence annotation (or lack thereof) in your input genome(s)
+
+    6.2. Failed to connect to NCBI database(s)
 
 # 1. Mounting the Docker image
 ## 1.1. Running Docker as `root`
@@ -78,33 +92,33 @@ Make a working directory containing an input gbff file or a directory containing
     $ ls ~/myworkdir
     my_genome.gbff
 
-Mount the image as a container (named ```myContainer``` below) and designate your working directory as a volume within it (named ```/mydata``` below). You must provide the __ABSOLUTE PATH__ to your working directory.
+Mount the image as a container (named `myContainer` below) and designate your working directory as a volume within it (named `/mydata` below). You must provide the __ABSOLUTE PATH__ to your working directory.
 
     $ docker run -it --name myContainer -v /Users/<USERNAME>/myworkdir:/mydata jwirth/phantasm
 
-The following names __cannot__ be used for the volume (```/mydata``` in the example above):
-  * ```/bin```
-  * ```/boot```
-  * ```/dev```
-  * ```/etc```
-  * ```/exec```
-  * ```/home```
-  * ```/lib```
-  * ```/lib64```
-  * ```/media```
-  * ```/mnt```
-  * ```/opt```
-  * ```/phantasm```
-  * ```/proc```
-  * ```/root```
-  * ```/run```
-  * ```/sbin```
-  * ```/srv```
-  * ```/sys```
-  * ```/tmp```
-  * ```/usr```
-  * ```/var```
-  * ```/xenoGI-3.1.0```
+The following names __cannot__ be used for the volume (`/mydata` in the example above):
+  * `/bin`
+  * `/boot`
+  * `/dev`
+  * `/etc`
+  * `/exec`
+  * `/home`
+  * `/lib`
+  * `/lib64`
+  * `/media`
+  * `/mnt`
+  * `/opt`
+  * `/phantasm`
+  * `/proc`
+  * `/root`
+  * `/run`
+  * `/sbin`
+  * `/srv`
+  * `/sys`
+  * `/tmp`
+  * `/usr`
+  * `/var`
+  * `/xenoGI-3.1.0`
 
 If you have successfully mounted the image, then you should see something like this:
 
@@ -122,11 +136,11 @@ In order to get a help message, use the following command:
     root@fe46a3c61f0b:/# phantasm help
 
 ## 2.2. Modifying PHANTASM's settings (optional)
-Use the ```nano``` command to open the ```param.py``` file
+Use the `nano` command to open the `param.py` file
 
     root@fe46a3c61f0b:/# nano /phantasm/param.py
 
-Change the values for ```NUM_PROCESSORS```, ```MAX_LEAVES```, ```BOOTSTRAP_FINAL_TREE```, and/or ```NUM_BOOTSTRAPS``` in the file. For your convenience, the relevant contents of the file are shown below:
+Change the values for `NUM_PROCESSORS`, `MAX_LEAVES`, `REDUCE_NUM_CORE_GENES`, `BOOTSTRAP_FINAL_TREE`, and/or `NUM_BOOTSTRAPS` in the file. For your convenience, the relevant contents of the file are shown below:
 
     # specify the number of processors to use
     NUM_PROCESSORS:int = 1
@@ -134,6 +148,12 @@ Change the values for ```NUM_PROCESSORS```, ```MAX_LEAVES```, ```BOOTSTRAP_FINAL
     # specify the maximum number of taxa in a given analysis
     # do not set this value below 10
     MAX_LEAVES:int = 50
+
+    # specify if the number of core genes used to calculat the final tree should be reduced
+    #### `True` indicates yes
+    #### `False` indicates no
+    REDUCE_NUM_CORE_GENES:bool = False
+
     # specify if the final tree should have bootstrap supports
     #### WARNING: Bootstrapping trees will significantly increase run times (several hours -> several days)
     #### `True` indicates yes
@@ -150,6 +170,7 @@ To close the file, press `CTRL + X`. You will be asked if you wish to save the f
 ### Important caveats for modifying these values:
   * Although you can set `NUM_PROCESSORS` to any positive integer value, PHANTASM will ultimately be limited by the number of processors allocated to Docker.
   * `MAX_LEAVES` can be any positive integer, but very small values (<20) are not recommended. Keep in mind that run-times and RAM scale _exponentially_ with the number of leaves.
+  * If the runtime of your phylogenetic tree is a concern, then setting `REDUCE_NUM_CORE_GENES` may be useful. It omits any core genes where one or more taxa has >5% gaps in its alignment.
   * Changing `BOOTSTRAP_FINAL_TREE` to `True` will likely increase the run time from a few hours to several days. This is due to the long run times of IQTree as compared to FastTree.
   * `NUM_BOOTSTRAPS` is only relevant if `BOOTSTRAP_FINAL_TREE` is set to `True`.
 
@@ -394,7 +415,7 @@ All data can be found within the volume that you mounted into the container (`~/
   * Reconciles the NCBI-based taxonomy with LPSN's taxonomic structure.
   * Imports data from NCBI's Assembly database for the species represented in the taxonomy.
   * Uses the BLASTp results and the taxonomic structure to determine which taxa could serve as the ingroup/outgroup.
-  * Downloads assemblies for the ingroup and the outgroup the number to download is specified in `<path to phantasm>/param.py` in the ```MAX_LEAVES``` variable.
+  * Downloads assemblies for the ingroup and the outgroup the number to download is specified in `<path to phantasm>/param.py` in the `MAX_LEAVES` variable.
   * Calculates core genes for the set of gbff files.
   * Creates a species tree based on a concatenated alignment of the core genes.
   * Calculates the average amino acid identity (AAI) for the species in the tree (excluding the outgroup).
