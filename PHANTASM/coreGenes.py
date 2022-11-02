@@ -1037,11 +1037,19 @@ def __calculateCopheneticCorrelations(paramO:Parameters) -> list:
         # extract the fam number from the file name
         famNum = re.sub(grepFind, GREP_REPL, geneTreeFN)
 
-        # replace the number with the gene number
-        geneNum = famToGeneKey[famNum]
+        # get the list of gene numbers for this gene family
+        geneNumL = famToGeneKey[famNum]
+
+        # convert the list to a string of separated numbers
+        geneNumStr = ""
+        for geneNum in geneNumL:
+            geneNumStr += geneNum + SEP_CHAR
+        
+        # truncate trailing sep character
+        geneNumStr = geneNumStr[:-len(SEP_CHAR)]
 
         # calculate the cophenetic correlation coefficient and save the result
-        result[geneNum] = __cophenetic(speDistMat, genDistMat)
+        result[geneNumStr] = __cophenetic(speDistMat, genDistMat)
     
     # sort the output from highest value to lowest value
     result = sorted(result.items(), key=lambda x: x[1], reverse=True)
