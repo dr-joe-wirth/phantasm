@@ -149,7 +149,7 @@ Change the values for `NUM_PROCESSORS`, `MAX_LEAVES`, `REDUCE_NUM_CORE_GENES`, `
     # do not set this value below 10
     MAX_LEAVES:int = 50
 
-    # specify if the number of core genes used to calculat the final tree should be reduced
+    # specify if the number of core genes used to calculate the final tree should be reduced
     #### `True` indicates yes
     #### `False` indicates no
     REDUCE_NUM_CORE_GENES:bool = False
