@@ -728,7 +728,7 @@ def __saveCoreGenesDetails(paramO:Parameters) -> None:
     DELIM = "\t"
     EOL = "\n"
     FORMAT = "fasta"
-    ALIGN_PRE = "align"
+    ALIGN_PRE = "align-aabrhHardCoreFam-"
     ALIGN_EXT = ".afa"
     HEADER_STR = "alignment_file" + DELIM + "alignment_len" + DELIM + \
                  "locus_tag" + DELIM + "protein_len" + DELIM + "gene_name" + \
