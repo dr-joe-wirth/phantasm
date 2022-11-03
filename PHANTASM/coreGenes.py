@@ -1002,22 +1002,13 @@ def __calculateCopheneticCorrelations(paramO:Parameters) -> list:
             the items sorted from highest correlation to lowest.
     """
     # constants
-    TREE_EXT = "*.tre"
-    GREP_REPL = r"\1"
-    GREP_FIND_PREFIX = r"^.+"
-    GREP_FIND_SUFFIX = r"0{0,}(\d+)\.tre"
+    TREE_EXT = ".tre"
 
-    # extract values from paramD
+    # extract values from paramO
     geneTreeFileStem = paramO.aabrhHardCoreGeneTreeFileStem
     speciesTreeWorkDir = paramO.makeSpeciesTreeWorkingDir
     speciesTreeFN = paramO.speciesTreeFN
     famToGeneKeyFN = paramO.famToGeneKeyFN
-    
-    # construct the grep find pattern
-    grepFind = GREP_FIND_PREFIX + geneTreeFileStem + GREP_FIND_SUFFIX
-
-    # construct the pattern that matches all tree files
-    filePattern = os.path.join(speciesTreeWorkDir, TREE_EXT)
 
     # get the distance matrix of the species tree
     speDistMat = __distanceMatrixFromNewickFile(speciesTreeFN)
@@ -1025,17 +1016,18 @@ def __calculateCopheneticCorrelations(paramO:Parameters) -> list:
     # load the fam to gene number key as a dictionary
     famToGeneKey = __loadFamToGeneKey(famToGeneKeyFN)
 
-    # get a list of gene tree filenames
-    allGeneTreeFiles = glob.glob(filePattern)
-
-    # for each gene tree
+    # for each gene tree in the famToGeneKey
     result = dict()
-    for geneTreeFN in allGeneTreeFiles:
+    for famNum in famToGeneKey.keys():
+        # the gene tree number will be exactly six char long; fill out with 0
+        geneTreeNum = '0' * (6 - len(famNum)) + famNum
+
+        # add the filestem and its path to the gene number to get the filename
+        geneTreeFN = geneTreeFileStem + geneTreeNum + TREE_EXT
+        geneTreeFN = os.path.join(speciesTreeWorkDir, geneTreeFN)
+
         # get the distance matrix of the gene tree
         genDistMat = __distanceMatrixFromNewickFile(geneTreeFN)
-
-        # extract the fam number from the file name
-        famNum = re.sub(grepFind, GREP_REPL, geneTreeFN)
 
         # get the list of gene numbers for this gene family
         geneNumL = famToGeneKey[famNum]
