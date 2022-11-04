@@ -953,9 +953,9 @@ def rankPhylogeneticMarkers(paramO:Parameters) -> None:
     
     DELIM = "\t"
     EOL = "\n"
-    HEADER_STRING = "cophenetic_corr_coef" + DELIM + "gene_num" + DELIM + \
-                            "locus_tag" + DELIM + "protein_len" + DELIM + \
-                            "gene_name" + DELIM + "annotation" + EOL
+    HEADER_STRING = "cophenetic_corr_coef" + DELIM + "locus_tag" + DELIM + \
+                    "protein_len" + DELIM + "gene_name" + DELIM + \
+                    "annotation" + DELIM + "gene_number" + EOL
 
     # print status
     print(PRINT_1, end='', flush=True)
