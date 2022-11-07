@@ -1,8 +1,8 @@
 # Author: Joseph S. Wirth
 
+from PHANTASM.utilities import validEmailAddress, getParamO_1, getParamO_2, getParamO_3, checkForValidInputGenomes, checkForValidExecutables, checkForValidHumanMapFile
 from PHANTASM.main import getPhyloMarker, refinePhylogeny, knownPhyloMarker, analyzeSpecifiedGenomes
 from PHANTASM.findMissingNeighbors import _locusTagToGeneNum
-from PHANTASM.utilities import validEmailAddress, getParamO_1, getParamO_2, getParamO_3, genomeListConsistentWithHumanMap
 import glob, os, sys
 
 # constants
@@ -22,9 +22,9 @@ ERR_MSG_1 = "Incorrect syntax used.\nType 'python3 <path>/phantasm.py help' for 
 ERR_MSG_2 = "Invalid email address"
 ERR_MSG_3 = "The number of genes is not a multiple of the number of input genomes."
 ERR_MSG_4 = "Invalid flag: "
-ERR_MSG_5 = "The specified genome directory is not a directory."
-ERR_MSG_6 = "Less than 2 files were found in the specified genome directory."
-ERR_MSG_7 = "The human map file is not consistent with the contents of the genome directory."
+ERR_MSG_5 = "One or more specified genes could not be extracted."
+ERR_MSG_6 = "The specified genome directory is not a directory."
+ERR_MSG_7 = "Less than 2 files were found in the specified genome directory."
 ERR_MSG_8 = "The specified output directory already exists."
 ERR_MSG_10A = "Invalid task: "
 ERR_MSG_10B = "\n\ntype '<path>/phantasm.py help' for information."
@@ -161,8 +161,14 @@ if __name__ == "__main__":
             else:
                 gbffL = [inputFile]
             
-            # construct the Parameters object and execute JOB_1
+            # construct the Parameters object
             paramO = getParamO_1(email)
+
+            # check inputs
+            checkForValidInputGenomes(gbffL)
+            checkForValidExecutables(paramO)
+
+            # execute job 1
             getPhyloMarker(gbffL, paramO)
         
         # if JOB_2 requested
@@ -201,6 +207,11 @@ if __name__ == "__main__":
             paramO_1 = getParamO_1(email)
             paramO_2 = getParamO_2(email)
 
+            # check inputs
+            checkForValidInputGenomes(gbffL)
+            checkForValidExecutables(paramO_1)
+            checkForValidExecutables(paramO_2)
+
             # initialize geneNumsL
             geneNumsL = list()
 
@@ -219,6 +230,10 @@ if __name__ == "__main__":
             # if an invalid flag was specified, then raise an error
             else:
                 raise ValueError(ERR_MSG_4 + flag)
+            
+            # make sure the number of gene numbers matches the number of genes
+            if len(genesL) != len(geneNumsL):
+                raise ValueError(ERR_MSG_5)
 
             # execute JOB_2
             refinePhylogeny(geneNumsL, gbffL, paramO_1, paramO_2)
@@ -256,6 +271,10 @@ if __name__ == "__main__":
             
             # create the Parameters object
             paramO = getParamO_2(email)
+
+            # check inputs
+            checkForValidInputGenomes(gbffL)
+            checkForValidExecutables(paramO)
             
             # execute JOB_3
             knownPhyloMarker(gbffL, locusTagsL, paramO)
@@ -278,7 +297,7 @@ if __name__ == "__main__":
 
             # make sure genomeDir is a directory
             if not os.path.isdir(genomeDir):
-                raise ValueError(ERR_MSG_5)
+                raise ValueError(ERR_MSG_6)
 
             # make a Parameters object
             paramO = getParamO_3(email, outdir)
@@ -292,11 +311,12 @@ if __name__ == "__main__":
 
             # make sure there are at least two files in the list
             if len(gbffL) < 2:
-                raise ValueError(ERR_MSG_6)
-
-            # check for consistency between genomes and human map
-            if not genomeListConsistentWithHumanMap(gbffL, paramO):
                 raise ValueError(ERR_MSG_7)
+
+            # check for invalid inputs
+            checkForValidInputGenomes(gbffL)
+            checkForValidExecutables(paramO)
+            checkForValidHumanMapFile(paramO)
 
             # make the output directory; error if it already exists
             if not os.path.exists(paramO.workdir):

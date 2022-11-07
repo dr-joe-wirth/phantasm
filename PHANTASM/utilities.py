@@ -1,8 +1,9 @@
 # Author: Joseph S. Wirth
-# Last edit: September 27, 2022
 
 import csv, ftplib, glob, gzip, math, os, re, shutil
-from Bio import Entrez
+from Bio import Entrez, SeqIO
+from Bio.SeqRecord import SeqRecord
+from Bio.SeqFeature import SeqFeature
 from Bio.Entrez import Parser
 from PHANTASM.taxonomy.TaxRank import TaxRank
 from PHANTASM.Parameter import Parameters
@@ -581,28 +582,122 @@ def decompressGZ(gzFileName:str) -> None:
     os.remove(gzFileName)
 
 
-def genomeListConsistentWithHumanMap(gbffL:list, paramO:Parameters) -> bool:
-    """ genomeListConsistentWithHumanMap:
-            Accepts a list of genome files and a Parameters objects as inputs.
-            Checks that the list is the same length as the human map file, and
-            that all of the files are keys within the human map dictionary. Re-
-            turns a boolean indicating whether or not the two inputs are consi-
-            stent with each other.
+def checkForValidInputGenomes(gbffL:list) -> None:
+    """ checkForValidInputGenomes:
+            Accepts a list of filenames (str) as input. Raises an error if any
+            of the expected features of a suitable genbank file are missing.
+            Does not return.
     """
-    # load the human map file
-    humanMapD = loadHumanMap(paramO.fileNameMapFN)
+    # constants
+    FORMAT = 'genbank'
+    CDS = "CDS"
+    LOCUS_TAG = 'locus_tag'
+    ERR_MSG_1 = "no input genome files were found"
+    ERR_MSG_2 = "' is not in genbank format"
+    ERR_MSG_3 = "' is missing 'locus_tag' for one or more of its CDS features"
+    MSG_START = "'"
 
-    # inconsistent if the number of entries do not match the number of genomes
-    if len(gbffL) != len(humanMapD):
-        return False
-
-    # for each file in the list of genomes
-    for gbFN in gbffL:
-        # inconsistent if any file is not a key in the dictionary
-        if os.path.basename(gbFN) not in humanMapD.keys():
-            return False
+    # invalid if an empty list is provided
+    if len(gbffL) == 0:
+        raise FileNotFoundError(ERR_MSG_1)
     
-    return True
+    # for each file in the list
+    for gbFN in gbffL:
+        # open it as a genbank file
+        parsed = SeqIO.parse(gbFN, FORMAT)
+
+        # if there are no records, then the file is invalid
+        if len(list(parsed)) == 0:
+            raise ValueError(MSG_START + gbFN + ERR_MSG_2)
+
+        # for each record in the file
+        rec:SeqRecord
+        for rec in parsed:
+            feature:SeqFeature
+            for feature in rec.features:
+                # if the feature is a CDS
+                if feature.type == CDS:
+                    # try to find a locus tag
+                    try:
+                        feature.qualifiers[LOCUS_TAG]
+                    
+                    # raise an error if there are no locus tags
+                    except:
+                        raise ValueError(MSG_START + gbFN + ERR_MSG_3)
+
+
+def checkForValidExecutables(paramO:Parameters) -> None:
+    """ checkForValidExecutables:
+            Accepts a Parameters object as input. Raises an error if any of the
+            necessary executable files are missing or not executable. Does not
+            return.
+    """
+    # constants
+    ERR_MSG_1 = "invalid blast+ directory specified: '"
+    ERR_MSG_2 = "MUSCLE is not executable: '"
+    ERR_MSG_3 = "FastTree is not executable: '"
+    ERR_MSG_4 = "IQTree is not executable: '"
+    MSG_END = "'"
+
+    # get a list of the blast+ executables
+    blastExeL = glob.glob(os.path.join(paramO.blastExecutDirPath, "*"))
+
+    # check each blast+ executable
+    blastOK = True
+    for exe in blastExeL:
+        if not os.access(exe, os.X_OK):
+            raise ValueError(ERR_MSG_1 + paramO.blastExecutDirPath + MSG_END)
+
+    # check muscle
+    muscleOK = True
+    if not os.access(paramO.musclePath, os.X_OK):
+        raise ValueError(ERR_MSG_2 + paramO.musclePath + MSG_END)
+
+    # check fasttree
+    fasttreeOK = True
+    if not os.access(paramO.fastTreePath, os.X_OK):
+        raise ValueError(ERR_MSG_3 + paramO.fastTreePath + MSG_END)
+
+    # check iqtree
+    iqtreeOK = True
+    if not os.access(paramO.iqTreePath, os.X_OK):
+        raise ValueError(ERR_MSG_4 + paramO.iqTreePath + MSG_END)
+
+
+def checkForValidHumanMapFile(paramO:Parameters) -> None:
+    """ checkForValidHumanMapFile:
+            Accepts a Parameters object as input. Raises an error if the human
+            map file is inproperly formatted. Does not return.
+    """
+    # constants
+    ERR_MSG_1 = "filenames in the map file are not unique"
+    ERR_MSG_2 = "human names in the map file are not unique"
+    ERR_MSG_3 = "input genbank filenames do not match those in the human map file"
+
+    # extract the relevant data from paramO
+    gbffL = glob.glob(paramO.genbankFilePath)
+    mapFN = paramO.fileNameMapFN
+
+    # load the human map file
+    mapD = loadHumanMap(mapFN)
+
+    # make sure that the filenames in the human map file are unique
+    if len(mapD.keys()) != len(set(mapD.keys())):
+        raise ValueError(ERR_MSG_1)
+    
+    # make sure that the human names in the human map file are unique
+    if len(mapD.values()) != len(set(mapD.values())):
+        raise ValueError(ERR_MSG_2)
+
+    # get a set of the gbff basenames that were found
+    foundGbk = set([os.path.basename(fn) for fn in gbffL])
+
+    # get a set of genome basenames specified in the human map file
+    specifiedGbk = set(mapD.keys())
+
+    # make sure the specified files match those that were found
+    if not foundGbk == specifiedGbk:
+        raise ValueError(ERR_MSG_3)
 
 
 def cleanup(paramO:Parameters) -> None:
