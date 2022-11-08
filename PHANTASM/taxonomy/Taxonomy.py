@@ -3054,9 +3054,11 @@ class Taxonomy:
                 adds the information to the correct species (linked by taxonomy
                 id). Does not return.
         """
-        # if no species available, then nothing to do
-        if self.numDescendantsAtRank(Taxonomy.SPECIES) < 1:
-            return
+        # if the rank is greater than species
+        if self.rank > Taxonomy.SPECIES:
+            # and there are no species to evaluate, then nothing to do
+            if self.numDescendantsAtRank(Taxonomy.SPECIES) < 1:
+                return
 
         # obtain a list of assembly ids for the species within the object
         allAssIds  = self.__getAssemblyIds()
