@@ -1,6 +1,6 @@
 # Author: Joseph S. Wirth
 
-from PHANTASM.utilities import validEmailAddress, getParamO_1, getParamO_2, getParamO_3, checkForValidInputGenomes, checkForValidExecutables, checkForValidHumanMapFile
+from PHANTASM.utilities import validEmailAddress, getParamO_1, getParamO_2, getParamO_3, checkForValidInputGenomes, checkForValidExecutables, checkForValidHumanMapFile, getLpsnAge
 from PHANTASM.main import getPhyloMarker, refinePhylogeny, knownPhyloMarker, analyzeSpecifiedGenomes
 from PHANTASM.findMissingNeighbors import _locusTagToGeneNum
 import glob, os, sys
@@ -35,6 +35,10 @@ REF_MSG = "\nIf you use this software in your research, please cite our paper:\n
           GAP + "ANalyses for the TAxonomy and Systematics of Microbes\n" + \
           GAP*2 + "Joseph S. Wirth and Eliot C. Bush, 2022\n" + \
           GAP*2 + "https://www.biorxiv.org/content/10.1101/2022.10.18.512716v1\n"
+
+# LPSN age message
+AGE_MSG = "\nPHANTASM relies on data manually acquired from the LPSN.\n" + \
+          GAP + "These data were last retrieved on "
 
 # detailed help message (for JOB_0A)
 DETAILED_HELP_MSG = "\nPHANTASM: PHylogenomic ANalyses for the TAxonomy and Systematics of Microbes\n\n" + \
@@ -168,6 +172,10 @@ if __name__ == "__main__":
             checkForValidInputGenomes(gbffL)
             checkForValidExecutables(paramO)
 
+            # print the LPSN age data
+            age = getLpsnAge()
+            print(AGE_MSG + age)
+
             # execute job 1
             getPhyloMarker(gbffL, paramO)
         
@@ -235,6 +243,10 @@ if __name__ == "__main__":
             if len(genesL) != len(geneNumsL):
                 raise ValueError(ERR_MSG_5)
 
+            # print the LPSN age data
+            age = getLpsnAge()
+            print(AGE_MSG + age)
+
             # execute JOB_2
             refinePhylogeny(geneNumsL, gbffL, paramO_1, paramO_2)
         
@@ -275,6 +287,10 @@ if __name__ == "__main__":
             # check inputs
             checkForValidInputGenomes(gbffL)
             checkForValidExecutables(paramO)
+
+            # print the LPSN age data
+            age = getLpsnAge()
+            print(AGE_MSG + age)
             
             # execute JOB_3
             knownPhyloMarker(gbffL, locusTagsL, paramO)

@@ -700,6 +700,29 @@ def checkForValidHumanMapFile(paramO:Parameters) -> None:
         raise ValueError(ERR_MSG_3)
 
 
+def getLpsnAge() -> str:
+    """ getLpsnAge:
+            Accepts no input. Returns a string (yyyy-mm-dd) indicating the date
+            that the LPSN data was last updated.
+    """
+    # constant
+    PREFIX = "lpsn_gss_"
+
+    # the filename contains the age
+    from param import CSV_1
+    
+    # get the basename only
+    date = os.path.basename(CSV_1)
+
+    # drop the extension
+    date = os.path.splitext(date)[0]
+
+    # drop the prefix
+    date = date[len(PREFIX):]
+
+    return date
+    
+
 def cleanup(paramO:Parameters) -> None:
     """ cleanup:
             Accepts a Parameters object as input. Removes unnecessary
