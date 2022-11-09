@@ -37,7 +37,7 @@ REF_MSG = "\nIf you use this software in your research, please cite our paper:\n
           GAP*2 + "https://www.biorxiv.org/content/10.1101/2022.10.18.512716v1\n"
 
 # LPSN age message
-AGE_MSG = "\nPHANTASM relies on data manually acquired from the LPSN.\n" + \
+AGE_MSG = "PHANTASM relies on data manually acquired from the LPSN.\n" + \
           GAP + "These data were last retrieved on "
 
 # detailed help message (for JOB_0A)
@@ -174,7 +174,7 @@ if __name__ == "__main__":
 
             # print the LPSN age data
             age = getLpsnAge()
-            print(AGE_MSG + age)
+            print(AGE_MSG + age + "\n\n")
 
             # execute job 1
             getPhyloMarker(gbffL, paramO)
@@ -245,7 +245,7 @@ if __name__ == "__main__":
 
             # print the LPSN age data
             age = getLpsnAge()
-            print(AGE_MSG + age)
+            print(AGE_MSG + age + "\n\n")
 
             # execute JOB_2
             refinePhylogeny(geneNumsL, gbffL, paramO_1, paramO_2)
@@ -290,7 +290,7 @@ if __name__ == "__main__":
 
             # print the LPSN age data
             age = getLpsnAge()
-            print(AGE_MSG + age)
+            print(AGE_MSG + age + "\n\n")
             
             # execute JOB_3
             knownPhyloMarker(gbffL, locusTagsL, paramO)
