@@ -117,7 +117,7 @@ SHORT_HELP_MSG = "Getting detailed help\n" + \
                   "Option 2: unkonwn reference genomes and known phylogenetic marker\n" + \
                   GAP + "python3 <path>/phantasm.py " + JOB_3 + " <locus tag(s)> <input genome(s)> <email>\n\n\n" + \
                   "Option 3: known reference genomes\n" + \
-                  GAP + "python3 <path>/phantasm.py " + JOB_4 + " <genome directory> <human map file> <email>\n"
+                  GAP + "python3 <path>/phantasm.py " + JOB_4 + " <genome directory> <human map file> <output directory> <email>\n"
 
 
 
