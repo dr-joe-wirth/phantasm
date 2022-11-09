@@ -174,15 +174,26 @@ def loadHumanMap(humanMapFN:str) -> dict:
             rresponding human names as the values. Returns the dictionary.
     """
     # constants
+    ERR_MSG = "human map file is improperly formatted"
     FILE_NAME_IDX  = 0
     HUMAN_NAME_IDX = 1
 
     # read the file into memory
     parsed = parseCsv(humanMapFN, '\t')
 
+    # remove any trailing empty lines from the file
+    while parsed[-1] == []:
+        parsed = parsed[:-1]
+
     # create the dict
     humanMapD = dict()
+
+    # go through each row in the file and add the data to the dictionary
     for row in parsed:
+        # invalid format if the row does not have exactly two columns
+        if len(row) != 2:
+            raise ValueError(ERR_MSG)
+
         # keys are filenames; values are human names
         humanMapD[row[FILE_NAME_IDX]] = row[HUMAN_NAME_IDX]
     
@@ -501,7 +512,7 @@ def changeFileExtension(inFile:str, newExtension:str) -> str:
             Returns the modified filename with the new extension added.
     """
     # remove the original file extension
-    out = removeFileExtension(inFile)
+    out = os.path.splitext(inFile)[0]
 
     # make sure newExtension will follow a period
     if newExtension[0] != '.' and out[-1] != '.':
@@ -510,20 +521,6 @@ def changeFileExtension(inFile:str, newExtension:str) -> str:
     # add the extension and return
     out += newExtension
     return out
-
-
-def removeFileExtension(inFile:str) -> str:
-    # remove the original file extension
-    return re.sub(r'\.[^\.]+$', '', inFile)
-
-
-def extractFilenameFromPath(filePath:str) -> str:
-    """ extractFilenameFromPath:
-            Accepts a string containing the path to a file. Returns only the 
-            filename of the file (removes the path to the file).
-    """
-    # remove all characters except those after the last '/' and return
-    return re.sub(r'^.+/([^/]+)$', r'\1', filePath)
 
 
 def downloadFileFromFTP(ftpHost:str, ftpFilePath:str, filename:str) -> None:
@@ -708,16 +705,14 @@ def getLpsnAge() -> str:
     # constant
     PREFIX = "lpsn_gss_"
 
-    # the filename contains the age
+    # the filename of CSV_1 contains the age
     from param import CSV_1
     
-    # get the basename only
+    # get the basename of the file and drop the extension
     date = os.path.basename(CSV_1)
-
-    # drop the extension
     date = os.path.splitext(date)[0]
 
-    # drop the prefix
+    # drop the prefix from the file (date is at the end)
     date = date[len(PREFIX):]
 
     return date

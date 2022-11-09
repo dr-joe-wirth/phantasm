@@ -5,7 +5,7 @@ from PHANTASM.Parameter import Parameters
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
 from PHANTASM.taxonomy.taxonomyConstruction import constructTaxonomy
 from PHANTASM.rRNA.runRnaBlast import __makeOutfmtString
-from PHANTASM.utilities import parseCsv, ncbiIdsFromSearchTerm, ncbiSummaryFromIdList, ncbiELinkFromIdList, extractIdsFromELink, removeFileExtension
+from PHANTASM.utilities import parseCsv, ncbiIdsFromSearchTerm, ncbiSummaryFromIdList, ncbiELinkFromIdList, extractIdsFromELink
 from PHANTASM.downloadGbff import __downloadGbffFromSpeciesList, _makeHumanMapString
 from PHANTASM.coreGenes import _humanNameFromQueryGenbankFN, __distanceMatrixFromNewickFile
 from Bio import Entrez, SeqIO
@@ -1158,7 +1158,7 @@ def xenogiInterfacer_2(allQryGbksL:list, oldParamO:Parameters, \
 
         # extract the filename from the ftp path
         file = os.path.basename(spe.assemblyFtp)
-        file = removeFileExtension(file)
+        file = os.path.splitext(file)[0]
 
         # add the entry to the dictionary
         fileToSpeD[file] = spe

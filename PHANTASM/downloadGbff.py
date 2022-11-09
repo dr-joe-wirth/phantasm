@@ -1,7 +1,7 @@
 # Author: Joseph S. Wirth
 
 import os, re, string
-from PHANTASM.utilities import downloadFileFromFTP, removeFileExtension, decompressGZ
+from PHANTASM.utilities import downloadFileFromFTP, decompressGZ
 from PHANTASM.Parameter import Parameters
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
 from PHANTASM.taxonomy.taxonomyConstruction import _getLpsnData
@@ -130,7 +130,7 @@ def __downloadGbff(ftpPath:str, gbffDir:str) -> str:
     downloadFileFromFTP(NCBI_FTP, ftpPath, gzFileName)
 
     # get the filename for the unpacked gbff
-    gbffFileName = removeFileExtension(gzFileName)
+    gbffFileName = os.path.splitext(gzFileName)[0]
 
     # unpack the gz
     decompressGZ(gzFileName)

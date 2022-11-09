@@ -1,6 +1,6 @@
 # Author: Joseph S. Wirth
 
-from PHANTASM.utilities import extractFilenameFromPath, downloadFileFromFTP, extractContentsFromGZ, removeFileExtension, changeFileExtension
+from PHANTASM.utilities import downloadFileFromFTP, extractContentsFromGZ, changeFileExtension
 from pathlib import Path
 from io import TextIOWrapper
 from Bio.Blast.Applications import NcbimakeblastdbCommandline, NcbiblastnCommandline
@@ -95,7 +95,7 @@ def __blastPrep(allQryGbksL:list, rnaDir:str, blastDir:str, \
     print(DONE)
 
     # get the blastn database filename
-    dbFilename = removeFileExtension(subjectFna)
+    dbFilename = os.path.splitext(subjectFna)[0]
     dbFilename = os.path.basename(dbFilename)
     dbFilename = os.path.join(blastDir, dbFilename)
 
@@ -199,8 +199,8 @@ def __downloadRnaSequences(outFile:str, outDir:str) -> None:
     PRNT_3 = INDENT + "Writing subject gbff to '"
 
     # get the filenames so that they can be written with their original names
-    bacteriaFile = extractFilenameFromPath(BACTERIA_FTP_PATH)
-    archaeaFile  = extractFilenameFromPath(ARCHAEA_FTP_PATH)
+    bacteriaFile = os.path.basename(BACTERIA_FTP_PATH)
+    archaeaFile  = os.path.basename(ARCHAEA_FTP_PATH)
 
     # add the path information to the filenames
     bacteriaFile = os.path.join(outDir, bacteriaFile)
