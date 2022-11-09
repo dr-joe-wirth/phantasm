@@ -377,15 +377,17 @@ def makeSpeciesTree(allQryGbksL:list, paramO:Parameters, outgroup:Taxonomy, \
     speTreWorkDir = paramO.makeSpeciesTreeWorkingDir
     catAlnFN = paramO.concatenatedAlignmentFN
     keyFN = paramO.famToGeneKeyFN
-    wgsFN = paramO.fileNameMapFN
+    mapFN = paramO.fileNameMapFN
     speTreeFN = paramO.speciesTreeFN
+
+    # load the human map file
+    humanMapD = loadHumanMap(mapFN)
 
     # make a list of the human names for the query genomes
     queryHumanNamesL = list()
     for qryGbk in allQryGbksL:
         basename = os.path.basename(qryGbk)
-        humanName = os.path.splitext(basename)[0]
-        humanName = _humanNameFromQueryGenbankFN(humanName)
+        humanName = humanMapD[basename]
         queryHumanNamesL.append(humanName)
 
     # concatenate the alignments
@@ -393,7 +395,7 @@ def makeSpeciesTree(allQryGbksL:list, paramO:Parameters, outgroup:Taxonomy, \
                             speTreWorkDir,
                             catAlnFN,
                             keyFN,
-                            wgsFN)
+                            mapFN)
 
     # print the summary
     __printSummary(paramO)
