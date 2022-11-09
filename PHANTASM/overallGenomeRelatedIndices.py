@@ -275,12 +275,14 @@ def __aniRunner(fnaDir:str, paramO:Parameters) -> dict:
     # determine the path for pyani's output
     outDir = os.path.join(aniDir, PYANI_O)
 
-    # call ANI function via bash
+    # build the ANI command
     cmd = ['average_nucleotide_identity.py',
             '-i', fnaDir,
             '-o', outDir,
             '--workers', str(numThreads)]
-    subprocess.run(cmd)
+    
+    # run the command and suppress the standard error
+    subprocess.run(cmd, stderr=subprocess.DEVNULL)
 
     # convert the file to a dictionary with pairs of human names as keys
     pyaniOutFN = os.path.join(outDir, OUTFILE)
