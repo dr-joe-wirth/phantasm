@@ -144,6 +144,14 @@ def __initializeTaxonomy(taxids:list) -> list:
     PRNT_3 = " orders:"
     DONE = 'Done.'
     ORDER  = 'order'
+    DOMAIN = 'domain'
+    ERR_MSG = "Blast results contain taxids from both Bacteria and Archaea" + \
+              ". Please select a different phylogenetic marker(s)."
+
+    # make sure that all orders are in the same domain
+    domInfo = getParentalTaxIds(taxids, DOMAIN)
+    if len(domInfo) > 1:
+        raise RuntimeError(ERR_MSG)
 
     # find the order(s) represented by the blastn
     print(PRNT_1, end='', flush=True)

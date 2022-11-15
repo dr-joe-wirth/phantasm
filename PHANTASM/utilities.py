@@ -418,13 +418,23 @@ def getParentalTaxIds(taxids, targetRank) -> list:
     """
     # constants
     DATABASE = "taxonomy"
+    DOMAIN = 'domain'
+    DOMAIN_NCBI = 'superkingdom'
+    LINEAGE = 'LineageEx'
+    RANK = 'Rank'
+    TAXID = 'TaxId'
+    SCI_NAME = 'ScientificName'
     
-    # ensure the target rank is valid (let TaxRank constructor check)
+    # ensure the target rank is valid (let TaxRank constructor check validity)
     if type(targetRank) is str:
         targetRank = TaxRank(targetRank)
     
     # get the string of the input rank
     targetRank = str(targetRank)
+
+    # make sure to use 'superkingdom' if requesting a domain from NCBI
+    if targetRank == DOMAIN:
+        targetRank = DOMAIN_NCBI
     
     # import data from the taxonomy database
     taxRecords = ncbiEfetchById(taxids, DATABASE)
@@ -433,13 +443,13 @@ def getParentalTaxIds(taxids, targetRank) -> list:
     parentTaxid = []
     for tax in taxRecords:
         # get the lineage
-        allLineages = tax['LineageEx']
+        allLineages = tax[LINEAGE]
 
         # go through the lineage until target rank is found
         for lineage in allLineages:
-            if lineage['Rank'] == targetRank:
-                newEntry = {'txid': lineage['TaxId'], 
-                            'name': lineage['ScientificName']}
+            if lineage[RANK] == targetRank:
+                newEntry = {'txid': lineage[TAXID], 
+                            'name': lineage[SCI_NAME]}
                 if newEntry not in parentTaxid:
                     parentTaxid.append(newEntry)
     
