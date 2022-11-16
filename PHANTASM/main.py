@@ -122,7 +122,7 @@ def findPhylogeneticMarkersWrapper(allQryGbksL:list, outgroup:Taxonomy, \
     """ makes the first species tree and ranks the core genes as phylogenetic
         markers.
     """
-    makeSpeciesTree(allQryGbksL, paramO_1, outgroup, 'fasttree')
+    makeSpeciesTree(allQryGbksL, paramO_1, outgroup, 'fasttree', True)
     rankPhylogeneticMarkers(paramO_1)
 
 
@@ -182,9 +182,9 @@ def finalAnalysesWrapper(allQryGbksL:list, outgroup:Taxonomy, \
     from param import BOOTSTRAP_FINAL_TREE
 
     if BOOTSTRAP_FINAL_TREE:
-        makeSpeciesTree(allQryGbksL, paramO_2, outgroup, 'iqtree')
+        makeSpeciesTree(allQryGbksL, paramO_2, outgroup, 'iqtree', False)
     else:
-        makeSpeciesTree(allQryGbksL, paramO_2, outgroup, 'fasttree')
+        makeSpeciesTree(allQryGbksL, paramO_2, outgroup, 'fasttree', False)
     overallGenomeRelatedIndices(paramO_2, outgroup)
     makeAaiHeatmap(paramO_2, outgroup)
     makeAniHeatmap(paramO_2, outgroup)

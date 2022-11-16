@@ -349,7 +349,7 @@ def calculateCoreGenes(paramO:Parameters) -> None:
 
 
 def makeSpeciesTree(allQryGbksL:list, paramO:Parameters, outgroup:Taxonomy, \
-                                                          program:str) -> None:
+                                      program:str, makeGeneTrees:bool) -> None:
     """ makeSpeciesTree:
             Accepts a list of the query genbank files, a Parameters object,
             an outgroup (Taxonomy), and a string indicating which program to
@@ -358,7 +358,8 @@ def makeSpeciesTree(allQryGbksL:list, paramO:Parameters, outgroup:Taxonomy, \
             and roots the tree on the specified outgroup. Does not return.
     """
     # constants
-    PRINT_1 = 'Aligning core genes and making gene trees ... '
+    PRINT_1A = 'Aligning core genes and making gene trees ... '
+    PRINT_1B = 'Aligning core genes ... '
     PRINT_2A = 'Using FastTree to make the species tree from a ' + \
                                 'concatenated alignment of the core genes ... '
     PRINT_2B = 'Using IQTree to make the species tree with bootstrap ' + \
@@ -369,9 +370,15 @@ def makeSpeciesTree(allQryGbksL:list, paramO:Parameters, outgroup:Taxonomy, \
     ERR_MSG = 'Invalid program specified.'
 
     # align hardcore genes and build gene trees with fasttree
-    print(PRINT_1, end='', flush=True)
-    __makeGeneTreesWrapper(paramO)
-    print(DONE)
+    if makeGeneTrees:
+        print(PRINT_1A, end='', flush=True)
+        __makeGeneTreesWrapper(paramO)
+        print(DONE)
+    
+    else:
+        print(PRINT_1B, end='', flush=True)
+        __alignGenesWrapper(paramO)
+        print(DONE)
 
     # parse data from paramO
     speTreWorkDir = paramO.makeSpeciesTreeWorkingDir
@@ -474,6 +481,47 @@ def __makeGeneTreesWrapper(paramO:Parameters) -> None:
                                        workDir,
                                        gtFileStem,
                                        newAabrhHardCoreL)
+
+
+def __alignGenesWrapper(paramO:Parameters) -> None:
+    """ alignGenesWrapper:
+            Accepts a Parameters object as input. Aligns core genes in parallel
+            using MUSCLE via xenoGI. Does not return.
+    """
+    # extract necessary data from paramO
+    aabrhFN = paramO.aabrhFN
+    workDir = paramO.makeSpeciesTreeWorkingDir
+    gtFileStem = paramO.aabrhHardCoreGeneTreeFileStem
+    musclePath = paramO.musclePath
+    numProcesses = paramO.numProcesses
+
+    # make parameter dictionary for xenoGI
+    paramD = paramO.toDict()
+
+    # get the alignStem
+    alignStem = "align"+"-"+gtFileStem
+
+    # load genesO and aarbHardCoreL using xenoGI
+    genesO = xenoGI.xenoGI.loadGenomeRelatedData(paramD)[1]
+    aabrhHardCoreL = xenoGI.scores.loadOrthos(aabrhFN)
+
+    ## set up
+    # create work dir if it doesn't already exist
+    if glob.glob(workDir)==[]:
+        os.mkdir(workDir)
+
+    newAabrhHardCoreL = []
+    for orthoNum,orthoT in enumerate(aabrhHardCoreL):
+        newAabrhHardCoreL.append((orthoNum,orthoT))
+
+    xenoGI.trees.createAlignments(paramD,
+                                  alignStem,
+                                  True,
+                                  genesO,
+                                  workDir,
+                                  musclePath,
+                                  numProcesses,
+                                  newAabrhHardCoreL)
 
 
 def __concatenateAlignments(qryHumanNamesL:list, speciesTreeWorkDir:str, \
