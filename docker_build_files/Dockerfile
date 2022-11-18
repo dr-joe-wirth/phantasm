@@ -64,10 +64,10 @@ RUN tar xzf iqtree-1.6.12-Linux.tar.gz
 RUN rm iqtree-1.6.12-Linux.tar.gz
 RUN mv iqtree-1.6.12-Linux /exec/iqtree
 
-# get xenoGI v3.1.0
-RUN wget https://github.com/ecbush/xenoGI/archive/refs/tags/v3.1.0.tar.gz
-RUN tar xzf v3.1.0.tar.gz
-RUN rm v3.1.0.tar.gz
+# get xenoGI v3.1.1
+RUN wget https://github.com/dr-joe-wirth/xenoGI/archive/refs/tags/v3.1.1.tar.gz
+RUN tar xzf v3.1.1.tar.gz
+RUN rm v3.1.1.tar.gz
 
 # clone phantasm
 RUN git clone https://github.com/dr-joe-wirth/phantasm.git
@@ -81,3 +81,8 @@ RUN echo "alias phantasm='python3 /phantasm/phantasm.py'" >> ~/.bashrc
 # add executables directory (fastree, muscle, iqtree) to PATH
 RUN echo 'export PATH="$PATH:/exec"' >> ~/.bashrc
 RUN echo 'export PATH="$PATH:/exec/iqtree/bin"' >> ~/.bashrc
+
+# modify the variable PHANTASM_PY so that it references the alias
+WORKDIR /phantasm
+RUN cat phantasm.py | sed -E "s/^(PHANTASM_PY = ).+$/\1'phantasm'/g" > .temp
+RUN mv .temp phantasm.py
