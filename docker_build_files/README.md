@@ -71,7 +71,7 @@ Performing these steps will allow Docker to run as `root` without requiring `sud
 
 ## 1.2. Preparing Docker settings
 Be sure to allocate at least 8gb of memory to docker.
-  * If you cannot allocate 8gb, then you will need to reduce the number of taxa (see section 2.2)
+  * If you cannot allocate 8gb, then you will need to reduce the number of taxa (see [section 2.2](#22-modifying-phantasms-settings-optional))
   * If you see the following error, then you have not allocated enough memory:
 
         Calculating core genes ... Killed
@@ -440,9 +440,9 @@ All data can be found within the volume that you mounted into the container (`~/
 `RuntimeError: The file '/mydata/initialAnalysis/16S/query.16SrRNA.blastn' does not contain any valid blastn hits`
 
 ### Possible solutions
-__Option 1.__ Create a file named `taxids.txt` as described in the optional section above.
+__Option 1.__ Create a file named `taxids.txt` as described in the [section 3.1](#optional-bypassing-the-requirement-for-annotated-16s-rrna-gene-sequences-in-your-input-genomes).
 
-__Option 2.__ Use a known phylogenetic marker as described above.
+__Option 2.__ Use a known phylogenetic marker as described in [section 3.2](#32-option-2-unknown-reference-genomes-and-known-phylogenetic-markers).
 
 ## 6.2. Failed to connect to NCBI database(s)
 ### Possible error messages
