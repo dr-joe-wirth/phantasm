@@ -1,7 +1,6 @@
 # syntax=docker/dockerfile:1
 
 # Author: Joseph S. Wirth
-# Last edit: September 27, 2022
 
 # start with ubuntu base
 FROM ubuntu:22.04
