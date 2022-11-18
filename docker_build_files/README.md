@@ -78,7 +78,7 @@ Be sure to allocate at least 8gb of memory to docker.
 
 Be sure to allocate more processors to docker if you wish to take advantage of parallel processing
   * This is optional. PHANTASM can run successfully with only 1 CPU, but will run significantly faster with more.
-  * If you wish to use parallel processing, you will also need to modify the `param.py` file as described in section 2.2.
+  * If you wish to use parallel processing, you will also need to modify the `param.py` file as described in [section 2.2](#22-modifying-phantasms-settings-optional).
 
 ## 1.3. Mounting the image as a container:
 Pull the docker image from docker hub
@@ -118,7 +118,7 @@ The following names __cannot__ be used for the volume (`/mydata` in the example 
   * `/tmp`
   * `/usr`
   * `/var`
-  * `/xenoGI-3.1.0`
+  * `/xenoGI-3.1.1`
 
 If you have successfully mounted the image, then you should see something like this:
 
@@ -131,9 +131,13 @@ You should also be able to see your genome file of interest within the container
 
 # 2. Getting started with PHANTASM
 ## 2.1. Getting help:
-In order to get a help message, use the following command:
+In order to get a detailed help message, use the following command:
 
     root@fe46a3c61f0b:/# phantasm help
+
+Alternatively, you can get a short help message with the following command:
+
+    root@fe46a3c61f0b:/# phantasm -h
 
 ## 2.2. Modifying PHANTASM's settings (optional)
 Use the `nano` command to open the `param.py` file
@@ -155,7 +159,7 @@ Change the values for `NUM_PROCESSORS`, `MAX_LEAVES`, `REDUCE_NUM_CORE_GENES`, `
     REDUCE_NUM_CORE_GENES:bool = False
 
     # specify if the final tree should have bootstrap supports
-    #### WARNING: Bootstrapping trees will significantly increase run times (several hours -> several days)
+    #### WARNING: Bootstrapping trees will significantly increase run times
     #### `True` indicates yes
     #### `False` indicates no
     BOOTSTRAP_FINAL_TREE:bool = False
@@ -171,11 +175,11 @@ To close the file, press `CTRL + X`. You will be asked if you wish to save the f
   * Although you can set `NUM_PROCESSORS` to any positive integer value, PHANTASM will ultimately be limited by the number of processors allocated to Docker.
   * `MAX_LEAVES` can be any positive integer, but very small values (<20) are not recommended. Keep in mind that run-times and RAM scale _exponentially_ with the number of leaves.
   * If the runtime of your phylogenetic tree is a concern, then setting `REDUCE_NUM_CORE_GENES` may be useful. It omits any core genes where one or more taxa has >5% gaps in its alignment.
-  * Changing `BOOTSTRAP_FINAL_TREE` to `True` will likely increase the run time from a few hours to several days. This is due to the long run times of IQTree as compared to FastTree.
+  * Changing `BOOTSTRAP_FINAL_TREE` to `True` will increase the run time. This is due to the longer run times of IQTree as compared to FastTree.
   * `NUM_BOOTSTRAPS` is only relevant if `BOOTSTRAP_FINAL_TREE` is set to `True`.
 
 ## 2.3. Excluding specific taxa from phylogenomic analyses (optional)
-It is possible to exclude specific taxa from the refined phylogeny. To do so, create a file named `excludedTaxids.txt` containing exactly one NCBI Taxonomy id per line in the directory where you call PHANTASM. The excluded ids can represent any taxonomic rank (eg. species, genus, family, etc.). This option is only relevant is using option 1 or option 2 (see below). This file should be in the same directory in which PHANTASM is called (ie. `/mydata` in the example shown in section 2.1). This feature is largely experimental and should be used with caution.
+It is possible to exclude specific taxa from the refined phylogeny. To do so, create a file named `excludedTaxids.txt` containing exactly one NCBI Taxonomy id per line in the directory where you call PHANTASM. The excluded ids can represent any taxonomic rank (eg. species, genus, family, etc.). This option is only relevant when using option 1 or option 2 (see below). This file should be in the same directory in which PHANTASM is called (ie. `/mydata` in the example shown in [section 2.1](#21-getting-help)). This feature is largely experimental and should be used with caution.
 
 # 3. Running PHANTASM
 There are three ways of running PHANTASM. As show in the table below, the best option to use largely depends on the answer to two questions: 1) do you know a suitable set of genomes? and 2) do you know a suitable phylogenetic marker(s) for your genome(s) of interest?
@@ -193,18 +197,19 @@ There are three ways of running PHANTASM. As show in the table below, the best o
 If you have an annotated genome sequence but you do not know a suitable phylogenetic marker and you do not know which reference genomes would be appropriate to use, then PHANTASM can be run in two steps:
 
 1. PHANTASM uses 16S rRNA gene sequences to estimate a taxonomic placement, then prioritizes taxonomic breadth in order to find genes that coevolve with the input genome(s) and its relatives.
-2. The user Looks at the results of this analysis and selects a suitable phylogenetic marker(s).
+2. The user looks at the results of this analysis and selects a suitable phylogenetic marker(s).
 3. Using the selected marker(s), PHANTASM automatically selects a set of reference genomes and uses them to perform phylogenomic analyses.
 
 ### Optional: Bypassing the requirement for annotated 16S rRNA gene sequences in your input genome(s)
 
 By default, PHANTASM will attempt to extract the 16S rRNA gene sequence(s) from your input genome(s) by relying on its accurate annotation in your input genome. It searches this gene with blastn against the bacterial and archaeal 16S sequences from [NCBI's Targetted Loci database](https://www.ncbi.nlm.nih.gov/refseq/targetedloci/). The blast results are then used to approximate the taxonomic placement of the input genome(s).
 
-Annotated 16S rRNA gene sequences are not always available. It is possible for users to bypass this requirement by providing a file with NCBI Taxonomy IDs for the taxa that the input genomes may be related to. The specified taxa can be either any NCBI Taxonomy classification as long as it is of rank Family or below (eg. Genus and Species are acceptable, but Order and Class are not).
+Annotated 16S rRNA gene sequences are not always available. It is possible for users to bypass this requirement by providing a file with NCBI Taxonomy IDs for the taxa that the input genomes may be related to. The specified taxa can be any NCBI Taxonomy classification as long as it is of rank Family or below (ie. Species, Genus, and Family taxids are acceptable, but Order, Class, and Phylum are not).
 
-In order to bypass the 16S rRNA gene sequence requirement, you must provide these NCBI Taxonomy IDs a file named `taxids.txt` in the directory where you are calling PHANTASM (eg. `/mydata` in the examples below). The file must contain exactly one NCBI Taxonomy ID per line. The taxids provided by the user cannot exceed the rank Family. This methodology allows you to specify a collection of NCBI Taxonomy IDs that are somewhat related to the input genome(s). You are free to obtain these IDs in whatever method you best see fit. Ultimately, PHANTASM will use a suitable phylogenetic marker to refine the set of reference genomes.
+In order to bypass the 16S rRNA gene sequence requirement, you must provide these NCBI Taxonomy IDs as a file named `taxids.txt` in the directory where you are calling PHANTASM (eg. `/mydata` in the examples below). The file must contain exactly one NCBI Taxonomy ID per line. The taxids provided by the user cannot exceed the rank Family. This methodology allows you to specify a collection of NCBI Taxonomy IDs that are somewhat related to the input genome(s). You are free to obtain these IDs in whatever method you best see fit. Ultimately, PHANTASM will use a suitable phylogenetic marker to refine the set of reference genomes.
 
-Keep in mind that annotated 16S rRNA gene sequences are **not** required if a phylogenetic marker and/or suitable reference genomes are already known (see sections 3.2 and 3.3 for more information).
+Keep in mind that annotated 16S rRNA gene sequences are **not** required if a phylogenetic marker and/or suitable reference genomes are already known (see sections [3.2](#32-option-2-unknown-reference-genomes-and-known-phylogenetic-markers) and [3.3](#33-option-3-known-reference-genomes) for more information).
+
 
 ### Step 1: Identifying putative phylogenetic markers. . .
 Make sure you are currently within the directory containing the gbff file (called `mydata` in this example)
@@ -226,16 +231,16 @@ If using PHANTASM on multiple input genomes, replace `<gbff filename>` with `<gb
 ### Step 2: Selecting phylogenetic marker(s)
  After PHANTASM finishes running, examine the file `initialAnalysis/putativePhylogeneticMarkers.txt` and determine which gene(s) you wish to use as the phylogenetic marker(s).  In this example, it will also exist locally at `~/myworkdir/initialAnalysis/putativePhylogeneticMarkers.txt`. Core genes are ranked by their cophenetic correlation coefficients ("r<sub>ccc</sub>") and are listed from highest r<sub>ccc</sub> to lowest r<sub>ccc</sub>. Record either the `locus_tag` or the `gene_num` for the gene you wish to use as a phylogenetic marker. __As a general rule, an r<sub>ccc</sub> value of at least 0.9 is recommended for any gene used as a phylogenetic marker.__
 
-Here is an example of what the first few lines of `putativePhylogeneticMarkers.txt` looks like:
+Here is an example of what the first few lines of `putativePhylogeneticMarkers.txt` looks like (tab-delimited):
 
-    cophenetic_corr_coef    protein_len     gene_num        locus_tag       gene_name       annotation
-    0.9891495196945915      1188    43248   SPO_RS03315     dnaE    dnaE - DNA polymerase III subunit alpha
-    0.987983296592394       1379    46112   SPO_RS17770     rpoB    rpoB - DNA-directed RNA polymerase subunit beta
-    0.9856682366935172      732     45731   SPO_RS15845             primosomal protein N'
-    0.9854566492450753      1151    44689   SPO_RS10520     mfd     mfd - transcription-repair coupling factor
-    0.9816288307386607      972     44830   SPO_RS11250     uvrA    uvrA - excinuclease ABC subunit UvrA
-    0.9791067341269494      776     45773   SPO_RS16055     clpA    clpA - ATP-dependent Clp protease ATP-binding subunit ClpA
-    0.9784173031511715      913     44666   SPO_RS10405     gyrA    gyrA - DNA gyrase subunit A
+    cophenetic_corr_coef    locus_tag       protein_len     gene_name       annotation                                                    gene_num
+    0.989149519694591       SPO_RS03315     1188            dnaE            dnaE - DNA polymerase III subunit alpha                       43248
+    0.987983296592394       SPO_RS17770     1379            rpoB            rpoB - DNA-directed RNA polymerase subunit beta               46112
+    0.985668236693517       SPO_RS15845     732                             primosomal protein N'                                         45731
+    0.985456649245075       SPO_RS10520     1151            mfd             mfd - transcription-repair coupling factor                    44689
+    0.981628830738660       SPO_RS11250     972             uvrA            uvrA - excinuclease ABC subunit UvrA                          44830
+    0.979106734126949       SPO_RS16055     776             clpA            clpA - ATP-dependent Clp protease ATP-binding subunit ClpA    45773
+    0.978417303151171       SPO_RS10405     913             gyrA            gyrA - DNA gyrase subunit A                                   44666
     . . .
 ‎
 
@@ -261,15 +266,15 @@ PHANTASM can handle multiple phylogenetic markers and/or multiple input genomes.
 
   * example using one genome and multiple (two) phylogenetic markers:
 
-        root@fe46a3c61f0b:/mydata# python3 ~/phantasm/phantasm.py refinePhylogeny --locus_tag SPO3507,SPO0155 R_pomeroyi.gbff email@address.org
+        root@fe46a3c61f0b:/mydata# phantasm refinePhylogeny --locus_tag SPO3507,SPO0155 R_pomeroyi.gbff email@address.org
 
   * example using multiple genomes and one (per genome) phylogenetic marker:
 
-        root@fe46a3c61f0b:/mydata# python3 ~/phantasm/phantasm.py refinePhylogeny --locus_tag RUA4292_04770,SPO3507 input_genomes email@address.org
+        root@fe46a3c61f0b:/mydata# phantasm refinePhylogeny --locus_tag RUA4292_04770,SPO3507 input_genomes email@address.org
 
   * example using multiple genomes and multiple (two per genome) phylogenetic markers:
 
-        root@fe46a3c61f0b:/mydata# python3 ~/phantasm/phantasm.py refinePhylogeny --locus_tag RUA4292_04770,SPO3507,RUA4292_00884,SPO0155 input_genomes email@address.org
+        root@fe46a3c61f0b:/mydata# phantasm refinePhylogeny --locus_tag RUA4292_04770,SPO3507,RUA4292_00884,SPO0155 input_genomes email@address.org
 
 ##### Notes:
   * this step will take some time as there are many slow steps, in particular:
@@ -335,19 +340,19 @@ First, make sure you are currently within the directory containing the gbff file
 
     root@fe46a3c61f0b:/# cd /mydata
 
-Next, you must create a "human map file". This file tells PHANTASM what the human-readable names are (used in the trees and the alignments) for each genome file. It should be formatted with exactly two columns separated by a single tab. The first column is the filename of the genbank file (not including the path), and the second column is the human readable name. **Important note: _the desired outgroup must be listed last in the human map file_.**  For example:
+Next, you must create a "human map file". This file tells PHANTASM what the human-readable names are (used in the trees and the alignments) for each genome file. **It should be formatted with exactly two columns separated by a single tab.** The first column is the filename of the genbank file (not including the path), and the second column is the human readable name. **Important note:** _the desired outgroup must be listed **last** in the human map file_.  For example:
 
-    GCF_009496005.1_ASM949600v1_genomic.gbff	Tritonibacter_litoralis__invalid|SM1979|GCF_009496005
-    GCF_007923355.1_ASM792335v1_genomic.gbff	Phaeobacter_marinintestinus__invalid|UB-M7|GCF_007923355
-    GCF_900106805.1_IMG-taxon_2693429872_annotated_assembly_genomic.gbff	Ruegeria_halocynthiae|DSM_27839_T|GCF_900106805
-    GCF_000511355.1_ASM51135v1_genomic.gbff	Leisingera_methylohalidivorans|DSM_14336__MB2|GCF_000511355
-    GCF_900172225.1_Tr.litoreus_CECT7639_Spades_Prokka_genomic.gbff	Ruegeria_litorea|CECT_7639_T|GCF_900172225
-    GCF_900102795.1_IMG-taxon_2622736501_annotated_assembly_genomic.gbff	Epibacterium_ulvae|U95_T|GCF_900102795
-    GCF_001458295.1_Ruegeria_sp._CECT5091_Spades_Prokka_genomic.gbff	Ruegeria_denitrificans|CECT_5091_T|GCF_001458295
-    GCF_001507545.1_ASM150754v1_genomic.gbff	Ruegeria_profundi|ZGT108_T|GCF_001507545
-    GCF_009617595.1_ASM961759v1_genomic.gbff	Tritonibacter_aquimaris__invalid|SM1969|GCF_009617595
-    my_assembly.gbk	Ruegeria_sp
-    outgroup_genome_seq.gbff	outgroup_name
+    GCF_009496005.1_ASM949600v1_genomic.gbff                                Tritonibacter_litoralis|SM1979|GCF_009496005
+    GCF_007923355.1_ASM792335v1_genomic.gbff                                Phaeobacter_marinintestinus|UB-M7|GCF_007923355
+    GCF_900106805.1_IMG-taxon_2693429872_annotated_assembly_genomic.gbff    Ruegeria_halocynthiae|DSM_27839_T|GCF_900106805
+    GCF_000511355.1_ASM51135v1_genomic.gbff                                 Leisingera_methylohalidivorans|DSM_14336_T|GCF_000511355
+    GCF_900172225.1_Tr.litoreus_CECT7639_Spades_Prokka_genomic.gbff         Ruegeria_litorea|CECT_7639_T|GCF_900172225
+    GCF_900102795.1_IMG-taxon_2622736501_annotated_assembly_genomic.gbff    Epibacterium_ulvae|U95_T|GCF_900102795
+    GCF_001458295.1_Ruegeria_sp._CECT5091_Spades_Prokka_genomic.gbff        Ruegeria_denitrificans|CECT_5091_T|GCF_001458295
+    GCF_001507545.1_ASM150754v1_genomic.gbff                                Ruegeria_profundi|ZGT108_T|GCF_001507545
+    GCF_009617595.1_ASM961759v1_genomic.gbff                                Tritonibacter_aquimaris|SM1969|GCF_009617595
+    my_assembly.gbk                                                         Ruegeria_sp
+    outgroup_genome_seq.gbff                                                outgroup_name
 
 Once this file has been created, run the following command to analyze the provided genomes:
 
@@ -430,9 +435,9 @@ All data can be found within the volume that you mounted into the container (`~/
 # 6. Common error messages
 ## 6.1. Problems with 16S rRNA gene sequence annotation (or lack thereof) in your input genome(s)
 ### Possible error messages
-    BaseException: Could not extract 16S rRNA gene sequences from the provided genbank file.
+`BaseException: Could not extract 16S rRNA gene sequences from the provided genbank file.`
 
-    RuntimeError: The file '/mydata/initialAnalysis/16S/query.16SrRNA.blastn' does not contain any valid blastn hits
+`RuntimeError: The file '/mydata/initialAnalysis/16S/query.16SrRNA.blastn' does not contain any valid blastn hits`
 
 ### Possible solutions
 __Option 1.__ Create a file named `taxids.txt` as described in the optional section above.
