@@ -85,3 +85,6 @@ RUN echo 'export PATH="$PATH:/exec/iqtree/bin"' >> ~/.bashrc
 WORKDIR /phantasm
 RUN cat phantasm.py | sed -E "s/^(PHANTASM_PY = ).+$/\1'phantasm'/g" > .temp
 RUN mv .temp phantasm.py
+
+# return back to the root of the container
+WORKDIR /
