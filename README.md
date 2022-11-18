@@ -263,7 +263,7 @@ It is possible to exclude specific taxa from the refined phylogeny. To do so, cr
   * [mummer](https://github.com/mummer4/mummer)
 
 ### Python modules (python3.9 or above)
-  * [xenoGI v3.1.0](https://github.com/ecbush/xenoGI/releases)
+  * [xenoGI v3.1.1](https://github.com/dr-joe-wirth/xenoGI/releases)
   * scipy
   * Bio
   * textdistance
