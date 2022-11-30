@@ -11,7 +11,7 @@ MAX_LEAVES:int = 50
 REDUCE_NUM_CORE_GENES:bool = False
 
 # specify if the final tree should have bootstrap supports
-#### WARNING: Bootstrapping trees will significantly increase run times (several hours -> several days)
+#### WARNING: Bootstrapping trees will significantly increase run times
 #### `True` indicates yes
 #### `False` indicates no
 BOOTSTRAP_FINAL_TREE:bool = False
@@ -26,7 +26,7 @@ MUSCLE_EXE:str = '/exec/muscle'
 FASTTREE_EXE:str = '/exec/FastTreeMP'
 IQTREE_EXE:str = '/exec/iqtree/bin/iqtree'
 PHANTASM_DIR:str = '/phantasm'
-XENOGI_DIR:str = '/xenoGI-3.1.0'
+XENOGI_DIR:str = '/xenoGI-3.1.1'
 
 # modifying these variables may cause phantasm to fail
 import os

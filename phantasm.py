@@ -3,9 +3,11 @@
 from PHANTASM.utilities import validEmailAddress, getParamO_1, getParamO_2, getParamO_3, checkForValidInputGenomes, checkForValidExecutables, checkForValidHumanMapFile, getLpsnAge
 from PHANTASM.main import getPhyloMarker, refinePhylogeny, knownPhyloMarker, analyzeSpecifiedGenomes
 from PHANTASM.findMissingNeighbors import _locusTagToGeneNum
+from param import PHANTASM_DIR
 import glob, os, sys
 
 # constants
+PHANTASM_PY = "python3 " + os.path.join(PHANTASM_DIR, "phantasm.py")
 JOB_0A = 'help'
 JOB_0B = "-h"
 JOB_1 = 'getPhyloMarker'
@@ -45,12 +47,12 @@ DETAILED_HELP_MSG = "\nPHANTASM: PHylogenomic ANalyses for the TAxonomy and Syst
                     "In order to run PHANTASM without a known phylogenetic marker, follow these steps:\n" + \
                     GAP + "1. cd into the desired working directory\n" + \
                     GAP + "2. identify a suitable phylogenetic marker:\n\n" + \
-                    GAP*2 + "'python3 <path>/phantasm.py " + JOB_1 + " <gbff file> <email address>'\n\n" + \
+                    GAP*2 + "'" + PHANTASM_PY + " " + JOB_1 + " <gbff file> <email address>'\n\n" + \
                     GAP + "3. examine the file 'initialAnalysis/putativePhylogeneticMarkers.txt'\n" + \
                     GAP + "4. refine the phylogeny and perform phylogenomic analyses:\n\n" + \
-                    GAP*2 + "'python3 <path>/phantasm.py " + JOB_2 + " --locus_tag <locus_tag> <gbff file> <email address>'\n" + \
+                    GAP*2 + "'" + PHANTASM_PY + " " + JOB_2 + " --locus_tag <locus_tag> <gbff file> <email address>'\n" + \
                     GAP*3 + "OR\n" + \
-                    GAP*2 + "'python3 <path>/phantasm.py " + JOB_2 + " --gene_num <gene_number> <gbff file> <email address>'\n\n" + \
+                    GAP*2 + "'" + PHANTASM_PY + " " + JOB_2 + " --gene_num <gene_number> <gbff file> <email address>'\n\n" + \
                     GAP + "5. results can be found in the following files:\n\n" + \
                     GAP*2 + "'finalAnalysis/aai_matrix.txt'\n" + \
                     GAP*2 + "'finalAnalysis/aai_heatmap.pdf'\n" + \
@@ -62,7 +64,7 @@ DETAILED_HELP_MSG = "\nPHANTASM: PHylogenomic ANalyses for the TAxonomy and Syst
                     "In order to run PHANTASM with a known phylogenetic marker, follow these steps:\n" + \
                     GAP + "1. cd into the desired working directory\n" + \
                     GAP + "2. call PHANTASM on the known marker(s) and input genome(s):\n\n" + \
-                    GAP*2 + "'python3 <path>/phantasm.py " + JOB_3 + " <locus tag> <gbff file> <email address>'\n\n" + \
+                    GAP*2 + "'" + PHANTASM_PY + " " + JOB_3 + " <locus tag> <gbff file> <email address>'\n\n" + \
                     GAP + "3. results can be found in the following files:\n\n" + \
                     GAP*2 + "'finalAnalysis/aai_matrix.txt'\n" + \
                     GAP*2 + "'finalAnalysis/aai_heatmap.pdf'\n" + \
@@ -76,7 +78,7 @@ DETAILED_HELP_MSG = "\nPHANTASM: PHylogenomic ANalyses for the TAxonomy and Syst
                     GAP + "2. make a directory containing ONLY the genomes you wish to analyze\n" + \
                     GAP + "3. make a 'human map' file with the outgroup as the last entry in file (see readme for more details).\n" + \
                     GAP + "4. call PHANTASM on the specified genomes:\n\n" + \
-                    GAP*2 + "'python3 <path>/phantasm.py " + JOB_4 + " <gbff directory> <human map file> <output directory> <email address>'\n\n" + \
+                    GAP*2 + "'" + PHANTASM_PY + " " + JOB_4 + " <gbff directory> <human map file> <output directory> <email address>'\n\n" + \
                     GAP + "5. results can be found in the following files:\n\n" + \
                     GAP*2 + "'<output dir>/aai_matrix.txt'\n" + \
                     GAP*2 + "'<output dir>/aai_heatmap.pdf'\n" + \
@@ -104,21 +106,20 @@ DETAILED_HELP_MSG = "\nPHANTASM: PHylogenomic ANalyses for the TAxonomy and Syst
 
 # short help message (for JOB_0B)
 SHORT_HELP_MSG = "Getting detailed help\n" + \
-                  GAP + "python3 <path>/phantasm.py help\n\n\n" + \
+                  GAP + PHANTASM_PY + " help\n\n\n" + \
                   "Getting this message\n" + \
-                  GAP + "python3 <path>/phantasm.py -h\n\n\n" + \
+                  GAP + PHANTASM_PY + " -h\n\n\n" + \
                   "Option 1: unknown reference genomes and unknown phylogenetic markers\n" + \
                   GAP + "Step 1: rank phylogenetic markers\n" + \
-                  GAP*2 + "python3 <path>/phantasm.py " + JOB_1 + " <input genome(s)> <email>\n\n" + \
+                  GAP*2 + PHANTASM_PY + " " + JOB_1 + " <input genome(s)> <email>\n\n" + \
                   GAP + "Step 2: refine phylogeny using a phylogenetic marker\n" + \
-                  GAP*2 + "python3 <path>/phantasm.py " + JOB_2 + " --locus_tag <locus tag(s)> <input genome(s)> <email>\n" + \
+                  GAP*2 + PHANTASM_PY + " " + JOB_2 + " --locus_tag <locus tag(s)> <input genome(s)> <email>\n" + \
                   GAP*3 + "OR\n" + \
-                  GAP*2 + "python3 <path>/phantasm.py " + JOB_2 + " --gene_num <gene number(s)> <input genome(s)> <email>\n\n\n" + \
+                  GAP*2 + PHANTASM_PY + " " + JOB_2 + " --gene_num <gene number(s)> <input genome(s)> <email>\n\n\n" + \
                   "Option 2: unkonwn reference genomes and known phylogenetic marker\n" + \
-                  GAP + "python3 <path>/phantasm.py " + JOB_3 + " <locus tag(s)> <input genome(s)> <email>\n\n\n" + \
+                  GAP + PHANTASM_PY + " " + JOB_3 + " <locus tag(s)> <input genome(s)> <email>\n\n\n" + \
                   "Option 3: known reference genomes\n" + \
-                  GAP + "python3 <path>/phantasm.py " + JOB_4 + " <genome directory> <human map file> <output directory> <email>\n"
-
+                  GAP + PHANTASM_PY + " " + JOB_4 + " <genome directory> <human map file> <output directory> <email>\n"
 
 
 
