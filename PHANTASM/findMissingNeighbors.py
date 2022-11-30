@@ -330,34 +330,7 @@ def getRelatives(oldParamO:Parameters, newParamO:Parameters, lpsnD:dict, \
         existNoAssD[taxid] = missingD[speciesName]
 
     # update assembly info for species w/o assemblies but present in the blastp
-    for taxId in existNoAssD.keys():
-        # get a list of all the assembly ids associated with that taxon
-        assmIdsL:list = existNoAssD[taxId]
-
-        # get a handle to the species of interest
-        speciesO = taxO.getRoot().getDescendantByTaxId(taxId)
-
-        # initialize a set of assembly ids that have been seen
-        seenAssmId = set()
-
-        # for each assembly id
-        for assmId in assmIdsL:
-            # for each query
-            for qid in queriesD.keys():
-                # get the assemblies hit by the current query
-                assembliesD:dict = queriesD[qid]
-
-                # if the assembly was hit and not yet seen
-                if assmId in assembliesD.keys() and assmId not in seenAssmId:
-                    # extract the assembly information
-                    assembly:dict = assembliesD[assmId]
-
-                    # add the assembly to taxO
-                    # this automatically saves the best assembly
-                    speciesO._updateAssemblyInfo(assembly['summary'])
-
-                    # mark the assembly as seen
-                    seenAssmId.add(assmId)
+    __addMissingAssembliesToTaxonomy(taxO, queriesD, existNoAssD)
 
     # save a taxonomy file with the new taxonomy
     taxO = taxO.getRoot()
@@ -398,6 +371,24 @@ def __findMissingAssemblies(blastFN:str, taxO:Taxonomy, lpsnD:dict) -> tuple:
         # store the assembly data within the nested dictionary
         queriesD[qid][aid] = rawAssembliesD[(qid,aid)]
 
+    existNoAssD, missingD = __findMissingAssembliesHelper(queriesD, lpsnD, taxO)
+    
+    return queriesD, existNoAssD, missingD
+
+
+def __findMissingAssembliesHelper(queriesD:dict, lpsnD:dict, taxO:Taxonomy) \
+                                                           -> tuple[dict,dict]:
+    """ findMissingAssembliesHelper:
+            Accepts a dictionary whose keys are query ids and whose values are
+            dictionaries of assembly data keyed by assembly ids, the LPSN dict-
+            ionary, and a Taxonomy object as inputs. Creates and returns two
+            dictionaries. The first is a dictionary keyed by the taxids of obj-
+            ects already present in the Taxonomy object that currently lack as-
+            semblies. The second is a dictionary keyed by the names of validly
+            published species present in the input dictionary but absent from
+            the Taxonomy object. Both dictionaries have the corresponding asse-
+            mbly uid as their values.
+    """
     # initialize additional dictiontaries with hits that need to be resolved
     existNoAssD = dict() # species within taxO that lack assemblies
     missingD = dict() # species not present in taxO
@@ -451,8 +442,49 @@ def __findMissingAssemblies(blastFN:str, taxO:Taxonomy, lpsnD:dict) -> tuple:
                 # update the list of assembly ids if the sciName is already a key
                 elif assId not in missingD[sciName]:
                     missingD[sciName].append(assId)
-    
-    return queriesD, existNoAssD, missingD
+
+    return existNoAssD, missingD
+
+
+def __addMissingAssembliesToTaxonomy(taxO:Taxonomy, queriesD:dict, \
+                                                     existNoAssD:dict) -> None:
+    """ addMissingAssembliesToTaxonomy
+            Accepts a Taxonomy object, a dictionary whose keys are query ids
+            and whose values are dictionaries of assembly data keyed by assemb-
+            ly ids, and a dictionary whose keys are taxids of objects already
+            present in the Taxonomy object that currently lack assemblies and
+            whose values are the corresponding assembly ids as inputs. Adds the
+            missing assembly data to the Taxonomy object. Does not return.
+    """
+    # for each taxid in the dictionary of existing taxa without assemblies
+    for taxId in existNoAssD.keys():
+        # get a list of all the assembly ids associated with that taxon
+        assmIdsL:list = existNoAssD[taxId]
+
+        # get a handle to the species of interest
+        speciesO = taxO.getRoot().getDescendantByTaxId(taxId)
+
+        # initialize a set of assembly ids that have been seen
+        seenAssmId = set()
+
+        # for each assembly id
+        for assmId in assmIdsL:
+            # for each query
+            for qid in queriesD.keys():
+                # get the assemblies hit by the current query
+                assembliesD:dict = queriesD[qid]
+
+                # if the assembly was hit and not yet seen
+                if assmId in assembliesD.keys() and assmId not in seenAssmId:
+                    # extract the assembly information
+                    assembly:dict = assembliesD[assmId]
+
+                    # add the assembly to taxO
+                    # this automatically saves the best assembly
+                    speciesO._updateAssemblyInfo(assembly['summary'])
+
+                    # mark the assembly as seen
+                    seenAssmId.add(assmId)
 
 
 def __finalizeRelativesSelection(queriesD:dict, taxO:Taxonomy, lpsnD:dict, \
@@ -1334,6 +1366,18 @@ def xenogiInterfacer_3(allQueryGenbanksL:list, locusTagsL:list, \
 
     # construct a taxonomy object for the observed taxids
     taxO = constructTaxonomy(taxids, saveTax=True, dir=workdir)
+
+    # determine which assemlbies are missing from the object
+    existNoAssD, missingD = __findMissingAssembliesHelper(queriesD, lpsnD, taxO)
+
+    if len(missingD) > 0:
+        raise RuntimeError("untested condition")
+
+    # add the missing assembly data to the Taxonomy object
+    __addMissingAssembliesToTaxonomy(taxO, queriesD, existNoAssD)
+
+    # make sure taxO is still the root
+    taxO = taxO.getRoot()
 
     # print status
     print(PRINT_3, end="", flush=True)
