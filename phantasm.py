@@ -20,7 +20,7 @@ LOCUS_TAG = "--locus_tag"
 GENE_NUM  = "--gene_num"
 
 # error messages
-ERR_MSG_1 = "Incorrect syntax used.\nType 'python3 <path>/phantasm.py help' for more information."
+ERR_MSG_1 = "Incorrect syntax used.\nType '" + PHANTASM_PY + " help' for more information."
 ERR_MSG_2 = "Invalid email address"
 ERR_MSG_3 = "The number of genes is not a multiple of the number of input genomes."
 ERR_MSG_4 = "Invalid flag: "
@@ -29,7 +29,7 @@ ERR_MSG_6 = "The specified genome directory is not a directory."
 ERR_MSG_7 = "Less than 2 files were found in the specified genome directory."
 ERR_MSG_8 = "The specified output directory already exists."
 ERR_MSG_10A = "Invalid task: "
-ERR_MSG_10B = "\n\ntype '<path>/phantasm.py help' for information."
+ERR_MSG_10B = "\n\ntype '" + PHANTASM_PY + " help' for information."
 
 # reference message
 REF_MSG = "\nIf you use this software in your research, please cite our paper:\n" + \
