@@ -294,40 +294,7 @@ def getRelatives(oldParamO:Parameters, newParamO:Parameters, lpsnD:dict, \
     missingD:dict = assemblyData[2]
     
     # add any missing taxa to the existing Taxonomy object
-    # once added, make an entry in existNoAssD
-    for speciesName in missingD.keys():
-        # find the taxid for the species name
-        for qid in queriesD.keys():
-            # extract the assemblies dictionary
-            assembliesD:dict = queriesD[qid]
-
-            # look up the assembly id
-            assmId = missingD[speciesName][0]
-
-            # only attempt look-up if the assembly was hit by this query
-            if assmId in assembliesD.keys():
-                # get the taxonomy id for the missing species
-                taxid = assembliesD[assmId]['taxid']
-
-                # stop looping through queries once taxid is found
-                break
-
-        # create a new object for the missing species (internal by default)
-        newTaxon = Taxonomy(taxid, speciesName, 'species')
-
-        # try to add the newTaxon to the existing object
-        try:
-            taxO._importExistingSubTax(newTaxon, lpsnD)
-        
-        # if import fails, then skip the newTaxon
-        # should really only happen if the newTaxon is in a different domain
-        except: continue
-
-        # make sure taxO is still referencing the root!
-        taxO = taxO.getRoot()
-
-        # make a corresponding entry in existNoAssD
-        existNoAssD[taxid] = missingD[speciesName]
+    __addMissingSpeciesToTaxonomy(taxO, queriesD, existNoAssD, missingD, lpsnD)
 
     # update assembly info for species w/o assemblies but present in the blastp
     __addMissingAssembliesToTaxonomy(taxO, queriesD, existNoAssD)
@@ -444,6 +411,56 @@ def __findMissingAssembliesHelper(queriesD:dict, lpsnD:dict, taxO:Taxonomy) \
                     missingD[sciName].append(assId)
 
     return existNoAssD, missingD
+
+
+def __addMissingSpeciesToTaxonomy(taxO:Taxonomy, queriesD:dict, \
+                          existNoAssD:dict, missingD:dict, lpsnD:dict) -> None:
+    """ addMissingSpeciesToTaxonomy:
+            Accepts a Taxonomy object, a dictionary whose keys are query ids
+            and whose values are dictionaries of assembly data keyed by assemb-
+            ly ids, a dictionary whose keys are taxids of objects already pres-
+            ent in the Taxonomy object that currently lack assemblies and whose
+            values are the corresponding assembly uids, a dictionary whose keys
+            are the names of validly published species present in the blast re-
+            sult but absent from the Taxonomy object and whose values are the
+            corresponding assembly uids, and the LPSN dictionary as inputs.
+            Adds any data in missingD to existNoAssD and the Taxonomy object.
+            Modifies the inputs; does not return.
+    """
+    # for each missing species
+    for speciesName in missingD.keys():
+        # find the taxid for the species name
+        for qid in queriesD.keys():
+            # extract the assemblies dictionary
+            assembliesD:dict = queriesD[qid]
+
+            # look up the assembly id
+            assmId = missingD[speciesName][0]
+
+            # only attempt look-up if the assembly was hit by this query
+            if assmId in assembliesD.keys():
+                # get the taxonomy id for the missing species
+                taxid = assembliesD[assmId]['taxid']
+
+                # stop looping through queries once taxid is found
+                break
+
+        # create a new object for the missing species (internal by default)
+        newTaxon = Taxonomy(taxid, speciesName, 'species')
+
+        # try to add the newTaxon to the existing object
+        try:
+            taxO._importExistingSubTax(newTaxon, lpsnD)
+        
+        # if import fails, then skip the newTaxon
+        # should really only happen if the newTaxon is in a different domain
+        except: continue
+
+        # make sure taxO is still referencing the root!
+        taxO = taxO.getRoot()
+
+        # make a corresponding entry in existNoAssD
+        existNoAssD[taxid] = missingD[speciesName]
 
 
 def __addMissingAssembliesToTaxonomy(taxO:Taxonomy, queriesD:dict, \
@@ -1368,10 +1385,11 @@ def xenogiInterfacer_3(allQueryGenbanksL:list, locusTagsL:list, \
     taxO = constructTaxonomy(taxids, saveTax=True, dir=workdir)
 
     # determine which assemlbies are missing from the object
-    existNoAssD, missingD = __findMissingAssembliesHelper(queriesD, lpsnD, taxO)
+    existNoAssD,missingD = __findMissingAssembliesHelper(queriesD, lpsnD, taxO)
 
-    if len(missingD) > 0:
-        raise RuntimeError("untested condition")
+    # add any missing species to the taxonomy object
+    # I don't expect this to ever be necessary as missingD should be empty
+    __addMissingSpeciesToTaxonomy(taxO, queriesD, existNoAssD, missingD, lpsnD)
 
     # add the missing assembly data to the Taxonomy object
     __addMissingAssembliesToTaxonomy(taxO, queriesD, existNoAssD)
