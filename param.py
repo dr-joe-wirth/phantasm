@@ -41,7 +41,7 @@ XENOGI_DIR:str = '/xenoGI-3.1.0'
 # specify the paths to each of the required lpsn csv files
 # MODIFYING THIS MAY CAUSE PHANTASM TO FAIL!
 import os
-CSV_1:str = os.path.join(PHANTASM_DIR, 'PHANTASM', 'lpsn_data', 'lpsn_gss_2022-02-01.csv')
+CSV_1:str = os.path.join(PHANTASM_DIR, 'PHANTASM', 'lpsn_data', 'speciesGenus.csv')
 CSV_2:str = os.path.join(PHANTASM_DIR, 'PHANTASM', 'lpsn_data', 'genusParents.csv')
 CSV_3:str = os.path.join(PHANTASM_DIR, 'PHANTASM', 'lpsn_data', 'validPhylumClassOrderFamily.csv')
 CSV_4:str = os.path.join(PHANTASM_DIR, 'PHANTASM', 'lpsn_data', 'synonymsPhylumClassOrderFamily.csv')
