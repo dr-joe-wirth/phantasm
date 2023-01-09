@@ -713,17 +713,16 @@ def getLpsnAge() -> str:
             that the LPSN data was last updated.
     """
     # constant
-    PREFIX = "lpsn_gss_"
+    DATE_FN = "date.txt"
 
-    # the filename of CSV_1 contains the age
-    from param import CSV_1
+    # get the path to the date file
+    from param import PHANTASM_DIR
+    dateFN = os.path.join(PHANTASM_DIR, 'PHANTASM', 'lpsn_data', DATE_FN)
     
-    # get the basename of the file and drop the extension
-    date = os.path.basename(CSV_1)
-    date = os.path.splitext(date)[0]
-
-    # drop the prefix from the file (date is at the end)
-    date = date[len(PREFIX):]
+    # get the date from the file
+    fh = open(dateFN, 'r')
+    date = fh.read()
+    fh.close()
 
     return date
     
