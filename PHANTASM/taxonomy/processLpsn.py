@@ -75,6 +75,9 @@ def makeLpsnD(genSpeCsv:str, genFamCsv:str, \
     __removeTaxaWithoutChildren(classD, clsSynD, orderD)
     __removeTaxaWithoutChildren(phylumD, phySynD, classD)
 
+    # taxa higher than family may list a genus as the type; this needs to be fixed
+    __fixHigherRankTypeMaterial(genusD, genSynD, familyD, famSynD, orderD, ordSynD, classD, clsSynD, phylumD)
+
     # make final dictionary
     lpsnD = {}
     lpsnD['phylum'] = phylumD
@@ -742,3 +745,71 @@ def __removeTaxaWithoutChildren(parentRankD:dict, parentSynD:dict, \
     for badSyn in badSynonyms:
         parentSynD.pop(badSyn)
 
+
+def __fixHigherRankTypeMaterial(genusD:dict, genSynD:dict, familyD:dict, famSynD:dict, orderD:dict, ordSynD:dict, classD:dict, clsSynD:dict, phylumD:dict) -> None:
+    # start by replacing any synonyms in the type material
+    __replaceSynonymsInTypeMaterial(familyD, 'family', genSynD, famSynD, ordSynD, clsSynD)
+    __replaceSynonymsInTypeMaterial(orderD,  'order',  genSynD, famSynD, ordSynD, clsSynD)
+    __replaceSynonymsInTypeMaterial(classD,  'class',  genSynD, famSynD, ordSynD, clsSynD)
+    __replaceSynonymsInTypeMaterial(phylumD, 'phylum', genSynD, famSynD, ordSynD, clsSynD)
+
+    # check orders first
+    for ord in orderD.keys():
+        # if the order's type is a genus
+        oType = orderD[ord]['type']
+        if oType in genusD.keys():
+            # then replace it with that genus's parental family
+            parentalFam = genusD[oType]['parent']
+            orderD[ord]['type'] = parentalFam
+    
+    # check classes next
+    for cls in classD.keys():
+        # if the class's type is a genus
+        cType = classD[cls]['type']
+        if cType in genusD.keys():
+            # then replace it with that genus's parental order
+            parentalFam = genusD[cType]['parent']
+            parentalOrd = familyD[parentalFam]['parent']
+            classD[cls]['type'] = parentalOrd
+    
+    # check phyla last
+    for phy in phylumD.keys():
+        # if the phylum's type is a genus
+        pType = phylumD[phy]['type']
+        if pType in genusD.keys():
+            # then replace it with that genus's parental class
+            parentalFam = genusD[pType]['parent']
+            parentalOrd = familyD[parentalFam]['parent']
+            parentalCls = orderD[parentalOrd]['parent']
+            phylumD[phy]['type'] = parentalCls
+        
+        # if the phylum's type is an order
+        if pType in orderD.keys():
+            parentalCls = orderD[pType]['parent']
+            phylumD[phy]['type'] = parentalCls
+
+
+def __replaceSynonymsInTypeMaterial(rankD:dict, rank:str, genSynD:dict, famSynD:dict, ordSynD:dict, clsSynD:dict):
+    RANK_TO_NUM = {"family": 0,
+                   "order":  1,
+                   "class":  2,
+                   "phylum": 3}
+
+    for k in rankD.keys():
+        typeName = rankD[k]['type']
+        
+        # check for genus synonyms
+        if typeName in genSynD.keys():
+            rankD[k]['type'] = genSynD[typeName]
+        
+        # check for family synonyms
+        elif typeName in famSynD.keys() and RANK_TO_NUM[rank] > RANK_TO_NUM['family']:
+            rankD[k]['type'] = famSynD[typeName]
+
+        # check for order synonyms
+        elif typeName in ordSynD.keys() and RANK_TO_NUM[rank] > RANK_TO_NUM['order']:
+            rankD[k]['type'] = ordSynD[typeName]
+        
+        # check for class synonyms
+        elif typeName in clsSynD.keys() and RANK_TO_NUM[rank] > RANK_TO_NUM['class']:
+            rankD[k]['type'] = clsSynD[typeName]
