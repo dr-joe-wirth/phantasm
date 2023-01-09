@@ -70,7 +70,7 @@ def constructTaxonomy(taxids:list, saveTax:bool=False, dir:str='./') -> Taxonomy
         # get the last index seen for this taxid
         idx = rootTaxD[taxid].pop()
 
-        # use the index to get the fist seen taxonomy object
+        # use the index to get the first seen taxonomy object
         taxO:Taxonomy = allOrdersL[idx]
 
         # resolve any roots whose taxids are colliding
