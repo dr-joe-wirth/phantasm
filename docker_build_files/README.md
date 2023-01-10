@@ -3,12 +3,10 @@
 
 ## Source code is available at https://github.com/dr-joe-wirth/phantasm
 
-## This software is still under active development.
-
 ## If you use our software, please cite our paper
 **Automating microbial taxonomy workflows with PHANTASM: PHylogenomic ANalyses for the TAxonomy and Systematics of Microbes**
 
-Joseph S. Wirth & Eliot C. Bush, 2022
+Joseph S. Wirth & Eliot C. Bush, 2023
 
 _This manuscript is currently in revision. A preprint can be found on **[bioRxiv](https://www.biorxiv.org/content/10.1101/2022.10.18.512716v1)**._
 ‎
@@ -108,7 +106,7 @@ The following names __cannot__ be used for the volume (`/mydata` in the example 
   * `/media`
   * `/mnt`
   * `/opt`
-  * `/phantasm`
+  * `/phantasm-1.0.0`
   * `/proc`
   * `/root`
   * `/run`

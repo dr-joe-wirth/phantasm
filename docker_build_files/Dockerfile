@@ -69,20 +69,22 @@ RUN tar xzf v3.1.1.tar.gz
 RUN rm v3.1.1.tar.gz
 
 # clone phantasm
-RUN git clone https://github.com/dr-joe-wirth/phantasm.git
+RUN wget https://github.com/dr-joe-wirth/phantasm/archive/refs/tags/v1.0.0.tar.gz
+RUN tar xzf v1.0.0.tar.gz
+RUN rm v1.0.0.tar.gz
 
 # copy the param file
 COPY ./docker_param.py /phantasm/param.py
 
 # make an alias for easily calling phantasm
-RUN echo "alias phantasm='python3 /phantasm/phantasm.py'" >> ~/.bashrc
+RUN echo "alias phantasm='python3 /phantasm-1.0.0/phantasm.py'" >> ~/.bashrc
 
 # add executables directory (fastree, muscle, iqtree) to PATH
 RUN echo 'export PATH="$PATH:/exec"' >> ~/.bashrc
 RUN echo 'export PATH="$PATH:/exec/iqtree/bin"' >> ~/.bashrc
 
 # modify the variable PHANTASM_PY so that it references the alias
-WORKDIR /phantasm
+WORKDIR /phantasm-1.0.0
 RUN cat phantasm.py | sed -E "s/^(PHANTASM_PY = ).+$/\1'phantasm'/g" > .temp
 RUN mv .temp phantasm.py
 

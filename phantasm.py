@@ -10,6 +10,7 @@ import glob, os, sys
 PHANTASM_PY = "python3 " + os.path.join(PHANTASM_DIR, "phantasm.py")
 JOB_0A = 'help'
 JOB_0B = "-h"
+JOB_0C = ["-v", "version"]
 JOB_1 = 'getPhyloMarker'
 JOB_2 = 'refinePhylogeny'
 JOB_3 = 'knownPhyloMarker'
@@ -35,7 +36,7 @@ ERR_MSG_10B = "\n\ntype '" + PHANTASM_PY + " help' for information."
 REF_MSG = "\nIf you use this software in your research, please cite our paper:\n" + \
           GAP + "Automating microbial taxonomy workflows with PHANTASM: PHylogenomic\n" + \
           GAP + "ANalyses for the TAxonomy and Systematics of Microbes\n" + \
-          GAP*2 + "Joseph S. Wirth and Eliot C. Bush, 2022\n" + \
+          GAP*2 + "Joseph S. Wirth and Eliot C. Bush, 2023\n" + \
           GAP*2 + "https://www.biorxiv.org/content/10.1101/2022.10.18.512716v1\n"
 
 # LPSN age message
@@ -121,6 +122,8 @@ SHORT_HELP_MSG = "Getting detailed help\n" + \
                   "Option 3: known reference genomes\n" + \
                   GAP + PHANTASM_PY + " " + JOB_4 + " <genome directory> <human map file> <output directory> <email>\n"
 
+# version message (for JOB_0C)
+VERSION_MSG = "PHANTASM v1.0.0\n"
 
 
 # begin main function
@@ -143,6 +146,9 @@ if __name__ == "__main__":
         # print the short help message if requested
         elif job == JOB_0B:
             print(SHORT_HELP_MSG)
+        
+        elif job in JOB_0C:
+            print(VERSION_MSG)
 
         # if JOB_1 specified
         elif job == JOB_1:
