@@ -1393,6 +1393,7 @@ class Taxonomy:
                 # for the first object, save the root as the mrca
                 if mrca is None:
                     mrca = root.taxid
+                    name = root.sciName
                 
                 # if a mismatch is found, then restart the for-loop
                 elif mrca != root.taxid:
@@ -1400,6 +1401,15 @@ class Taxonomy:
                     found = False
                     break
                 
+                # matching artificial taxids are not necessarily true matches
+                elif int(mrca) < 0 and name != root.sciName:
+                    # move the taxid to prevent collisions during merge
+                    root.taxid = root.__getUnusedArtificialTaxId()
+
+                    mrca = None
+                    found = False
+                    break
+                    
                 # if a match is found, keep checking the other objects
                 else: found = True
             
@@ -1429,6 +1439,10 @@ class Taxonomy:
                 if desc:
                     # move curMin to the next available taxid
                     curMin -= 1
+
+                    # make sure curMin is not already in use in taxO
+                    while curMin in taxO:
+                        curMin -= 1
 
                     # update the descendant's taxid with the safe value
                     desc.taxid = str(curMin)
@@ -2094,7 +2108,6 @@ class Taxonomy:
         # update the taxonomic structure to match LPSN
         self.__updateStructureByLpsn(lpsnD, removeEmptyTaxa)
 
-
         # if new siblings were introduced, they need to be processed
         if self.numSiblings() > originalNumSiblings:
             self.__processSiblings(lpsnD)
@@ -2477,7 +2490,7 @@ class Taxonomy:
                     if newParent:
                         # if an artificial taxid has been created, then replace it
                         if newParent.taxid == TEMP_TAXID:
-                            newParent.taxid = self.__getUnusedArtificialTaxId()
+                            newParent.taxid = curParent.__getUnusedArtificialTaxId()
                         
                         # nest self under the new parent
                         newParent._importDirectDescendant(self)
@@ -2522,7 +2535,7 @@ class Taxonomy:
                             grandParent._importDirectDescendant(newRoot)
                 
                         # otherwise, if the new root is not currently nested, but it could be
-                        elif inequivalentObjects and newRootBelowCurRoot and not curRoot.getDescendantByTaxId(newRoot.taxid):
+                        elif inequivalentObjects and newRootBelowCurRoot and not newRoot.taxid in curRoot:
                             futureParent = curRoot.getDescendantBySciName(newRoot.sciName)
                             # find a new parent until it can be nested within the current root
                             while not futureParent and newRoot.rank < curRoot.rank:
@@ -3534,6 +3547,9 @@ class Taxonomy:
             # get a set of the taxids in children
             childrenTaxids = {kid.taxid for kid in children}
 
+            # get a set of the sciNames in children
+            childSciNames = {kid.sciName for kid in children}
+
             # only keep the taxids not present in children
             allSiblingTaxids.difference_update(childrenTaxids)
 
@@ -3541,7 +3557,14 @@ class Taxonomy:
             allSiblings = {sib for sib in allSiblings if sib.taxid in allSiblingTaxids}
 
             # nest each of the original children back into the root object
+            child:Taxonomy
             for child in children:
+                # check for collisions due to artificial taxids
+                if int(child.taxid) < 0 and child.sciName in childSciNames:
+                    # remove the entry that would collide first
+                    collision = root.getDescendantBySciName(child.sciName)
+                    root.__removeDirectDescendant(collision.taxid)
+
                 root._importDirectDescendant(child)
     
         # keep looping until an outgroup is found. exit via return or exception
@@ -3943,6 +3966,10 @@ class Taxonomy:
                 # retrieve the taxon in the copy that matches the ingroup taxon
                 match = taxCopy.getDescendantByTaxId(ingMemb[TAX].taxid)
 
+                # check if any of the match's descendants are in parentD
+                matchDesc = set(match.getAllDescendants(dict).keys())
+                droppedIds = matchDesc.intersection(set(parentD.keys()))
+
                 # find the parent and use it to delete the ingroup taxon
                 parent = match.parent
                 parent.__removeDirectDescendant(match.taxid)
@@ -3960,6 +3987,20 @@ class Taxonomy:
                     
                     # either way, delete the match from parentD
                     del parentD[match.taxid]
+                
+                # if we just deleted the ancestor of another entry in parentD
+                # then process each of the descendants that has been dropped
+                for drop in droppedIds:
+                    # update an existing parent if possible
+                    if parent.taxid in parentD.keys():
+                        parentD[parent.taxid] += parentD[drop]
+                    
+                    # otherwise add the parent to the dict
+                    else:
+                        parentD[parent.taxid] = parentD[drop]
+                    
+                    # either way, this entry needs to be dropped
+                    del parentD[drop]
 
             # sort the parent keys to control the order of iteration
             # we want lower taxa to be processed before their ancestors
