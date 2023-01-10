@@ -74,7 +74,7 @@ RUN tar xzf v1.0.0.tar.gz
 RUN rm v1.0.0.tar.gz
 
 # copy the param file
-COPY ./docker_param.py /phantasm/param.py
+COPY ./docker_param.py /phantasm-1.0.0/param.py
 
 # make an alias for easily calling phantasm
 RUN echo "alias phantasm='python3 /phantasm-1.0.0/phantasm.py'" >> ~/.bashrc
