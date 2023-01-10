@@ -40,6 +40,12 @@ REF_MSG = "\nIf you use this software in your research, please cite our paper:\n
           GAP*2 + "Joseph S. Wirth and Eliot C. Bush, 2023\n" + \
           GAP*2 + "https://www.biorxiv.org/content/10.1101/2022.10.18.512716v1\n"
 
+# version message
+VERSION_MSG = "PHANTASM " + VERSION + "\n"
+
+# no arguments message
+NO_ARGS_MSG = "\ntype '" + PHANTASM_PY + " -h' for help\n"
+
 # LPSN age message
 AGE_MSG = "PHANTASM relies on data manually acquired from the LPSN.\n" + \
           GAP + "These data were last retrieved on "
@@ -127,9 +133,6 @@ SHORT_HELP_MSG = "Getting detailed help\n" + \
                   "Option 3: known reference genomes\n" + \
                   GAP + PHANTASM_PY + " " + JOB_4 + " <genome directory> <human map file> <output directory> <email>\n"
 
-# version message (for JOB_0C)
-VERSION_MSG = "PHANTASM " + VERSION + "\n"
-
 
 # begin main function
 if __name__ == "__main__":
@@ -138,7 +141,7 @@ if __name__ == "__main__":
 
     # print help message if no arguments are provided
     if len(sys.argv) == 1:
-        print(SHORT_HELP_MSG)
+        print(VERSION_MSG + NO_ARGS_MSG)
     
     else:
         # extract the job name
@@ -146,11 +149,13 @@ if __name__ == "__main__":
 
         # print the detailed help message if requested
         if job == JOB_0A:
-            print(VERSION_MSG + "\n" + DETAILED_HELP_MSG)
+            print(VERSION_MSG)
+            print(DETAILED_HELP_MSG)
 
         # print the short help message if requested
         elif job == JOB_0B:
-            print(VERSION_MSG + "\n" + SHORT_HELP_MSG)
+            print(VERSION_MSG)
+            print(SHORT_HELP_MSG)
         
         elif job in JOB_0C:
             print(VERSION_MSG)
