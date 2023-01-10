@@ -129,6 +129,11 @@ You should also be able to see your genome file of interest within the container
 
 # 2. Getting started with PHANTASM
 ## 2.1. Getting help:
+To find out which version of phantasm is running, use one of the following commands:
+
+    root@fe46a3c61f0b:/# phantasm -v
+    root@fe46a3c61f0b:/# phantasm version
+
 In order to get a detailed help message, use the following command:
 
     root@fe46a3c61f0b:/# phantasm help

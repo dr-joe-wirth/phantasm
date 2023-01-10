@@ -8,6 +8,7 @@ import glob, os, sys
 
 # constants
 PHANTASM_PY = "python3 " + os.path.join(PHANTASM_DIR, "phantasm.py")
+VERSION = "v1.0.0"
 JOB_0A = 'help'
 JOB_0B = "-h"
 JOB_0C = ["-v", "version"]
@@ -110,6 +111,10 @@ SHORT_HELP_MSG = "Getting detailed help\n" + \
                   GAP + PHANTASM_PY + " help\n\n\n" + \
                   "Getting this message\n" + \
                   GAP + PHANTASM_PY + " -h\n\n\n" + \
+                  "Getting the version\n" + \
+                  GAP + PHANTASM_PY + " -v\n" + \
+                  GAP*2 + "OR\n" +\
+                  GAP + PHANTASM_PY + " version\n\n\n" + \
                   "Option 1: unknown reference genomes and unknown phylogenetic markers\n" + \
                   GAP + "Step 1: rank phylogenetic markers\n" + \
                   GAP*2 + PHANTASM_PY + " " + JOB_1 + " <input genome(s)> <email>\n\n" + \
@@ -123,7 +128,7 @@ SHORT_HELP_MSG = "Getting detailed help\n" + \
                   GAP + PHANTASM_PY + " " + JOB_4 + " <genome directory> <human map file> <output directory> <email>\n"
 
 # version message (for JOB_0C)
-VERSION_MSG = "PHANTASM v1.0.0\n"
+VERSION_MSG = "PHANTASM " + VERSION + "\n"
 
 
 # begin main function
@@ -141,11 +146,11 @@ if __name__ == "__main__":
 
         # print the detailed help message if requested
         if job == JOB_0A:
-            print(DETAILED_HELP_MSG)
+            print(VERSION_MSG + "\n" + DETAILED_HELP_MSG)
 
         # print the short help message if requested
         elif job == JOB_0B:
-            print(SHORT_HELP_MSG)
+            print(VERSION_MSG + "\n" + SHORT_HELP_MSG)
         
         elif job in JOB_0C:
             print(VERSION_MSG)

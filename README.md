@@ -3,12 +3,10 @@
 
 ## A docker image for this software can be found at https://hub.docker.com/r/jwirth/phantasm
 
-## This software is still under active development.
-
 ## If you use our software, please cite our paper
 **Automating microbial taxonomy workflows with PHANTASM: PHylogenomic ANalyses for the TAxonomy and Systematics of Microbes**
 
-Joseph S. Wirth & Eliot C. Bush, 2022
+Joseph S. Wirth & Eliot C. Bush, 2023
 
 This manuscript is currently in revision. A preprint can be found on [bioRxiv](https://www.biorxiv.org/content/10.1101/2022.10.18.512716v1).
 
@@ -21,7 +19,7 @@ This manuscript is currently in revision. A preprint can be found on [bioRxiv](h
     
     1.2. [Native Installation](#12-native-installation)
     
-2. [Running PHANTSM](#2-running-phantasm)
+2. [Running PHANTASM](#2-running-phantasm)
 
 3. [Dependencies](#3-dependencies)
 
@@ -100,7 +98,7 @@ A [detailed tutorial](https://github.com/dr-joe-wirth/phantasm/blob/master/docke
 
     alias phantasm='python3 <absolute path to phantasm>/phantasm.py'
 
-A short help message can be obtained with the command `python3 <path to phantasm>/phantasm.py -h`. A detailed help message can be obtained with the command `python3 <path to phantasm>/phantasm.py help`. For help on analyzing the results, please see the [detailed tutorial](https://github.com/dr-joe-wirth/phantasm/blob/master/docker_build_files/README.md#4-analyzing-the-results).
+A short help message can be obtained with the command `python3 <path to phantasm>/phantasm.py -h`. A detailed help message can be obtained with the command `python3 <path to phantasm>/phantasm.py help`. The version of PHANTASM can be obtained with the command `python3 <path to phantasm>/phantasm.py -v` or `python3 <path to phantasm>/phantasm.py version`. For help on analyzing the results, please see the [detailed tutorial](https://github.com/dr-joe-wirth/phantasm/blob/master/docker_build_files/README.md#4-analyzing-the-results).
 
 
 ## 3. Dependencies
