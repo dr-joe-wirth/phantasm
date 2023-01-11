@@ -68,23 +68,24 @@ RUN wget https://github.com/dr-joe-wirth/xenoGI/archive/refs/tags/v3.1.1.tar.gz
 RUN tar xzf v3.1.1.tar.gz
 RUN rm v3.1.1.tar.gz
 
-# clone phantasm
+# get phantasm v1.0.0
 RUN wget https://github.com/dr-joe-wirth/phantasm/archive/refs/tags/v1.0.0.tar.gz
 RUN tar xzf v1.0.0.tar.gz
 RUN rm v1.0.0.tar.gz
+RUN mv /phantasm-1.0.0 /phantasm
 
 # copy the param file
-COPY ./docker_param.py /phantasm-1.0.0/param.py
+COPY ./docker_param.py /phantasm/param.py
 
 # make an alias for easily calling phantasm
-RUN echo "alias phantasm='python3 /phantasm-1.0.0/phantasm.py'" >> ~/.bashrc
+RUN echo "alias phantasm='python3 /phantasm/phantasm.py'" >> ~/.bashrc
 
 # add executables directory (fastree, muscle, iqtree) to PATH
 RUN echo 'export PATH="$PATH:/exec"' >> ~/.bashrc
 RUN echo 'export PATH="$PATH:/exec/iqtree/bin"' >> ~/.bashrc
 
 # modify the variable PHANTASM_PY so that it references the alias
-WORKDIR /phantasm-1.0.0
+WORKDIR /phantasm
 RUN cat phantasm.py | sed -E "s/^(PHANTASM_PY = ).+$/\1'phantasm'/g" > .temp
 RUN mv .temp phantasm.py
 

@@ -106,7 +106,7 @@ The following names __cannot__ be used for the volume (`/mydata` in the example 
   * `/media`
   * `/mnt`
   * `/opt`
-  * `/phantasm-1.0.0`
+  * `/phantasm`
   * `/proc`
   * `/root`
   * `/run`
