@@ -12,6 +12,8 @@ This manuscript is currently in revision. A preprint can be found on [bioRxiv](h
 
 ##### Note: PHANTASM requires an email address for communicating with NCBI as described in python's [Bio.Entrez](https://biopython.org/docs/latest/api/Bio.Entrez.html) package. The email address is not stored or used for any other purposes.
 
+[![DOI](https://zenodo.org/badge/457891194.svg)](https://zenodo.org/badge/latestdoi/457891194)
+
 ## Table of Contents
 1. [Installing PHANTASM](#1-installing-phantasm)
 
