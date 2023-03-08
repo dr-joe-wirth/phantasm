@@ -38,7 +38,7 @@ REF_MSG = "\nIf you use this software in your research, please cite our paper:\n
           GAP + "Automating microbial taxonomy workflows with PHANTASM: PHylogenomic\n" + \
           GAP + "ANalyses for the TAxonomy and Systematics of Microbes\n" + \
           GAP*2 + "Joseph S. Wirth and Eliot C. Bush, 2023\n" + \
-          GAP*2 + "https://www.biorxiv.org/content/10.1101/2022.10.18.512716v1\n"
+          GAP*2 + "https://doi.org/10.1093/nar/gkad196\n"
 
 # version message
 VERSION_MSG = "PHANTASM " + VERSION + "\n"
