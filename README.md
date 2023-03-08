@@ -8,7 +8,7 @@
 
 Joseph S. Wirth & Eliot C. Bush, 2023
 
-http://doi.org/10.1093/nar/gkad196
+doi: [10.1093/nar/gkad196](https://doi.org/10.1093/nar/gkad196)
 
 ##### Note: PHANTASM requires an email address for communicating with NCBI as described in python's [Bio.Entrez](https://biopython.org/docs/latest/api/Bio.Entrez.html) package. The email address is not stored or used for any other purposes.
 
