@@ -3,12 +3,12 @@
 
 ## A docker image for this software can be found at https://hub.docker.com/r/jwirth/phantasm
 
-## If you use our software, please cite our paper
+## If you use our software, please cite our paper in Nucleic Acids Research
 **Automating microbial taxonomy workflows with PHANTASM: PHylogenomic ANalyses for the TAxonomy and Systematics of Microbes**
 
 Joseph S. Wirth & Eliot C. Bush, 2023
 
-This manuscript was accepted for publication in [Nucleic Acids Research](http://doi.org/10.1093/nar/gkad196) on March 6, 2023. A preprint can be found on [bioRxiv](https://www.biorxiv.org/content/10.1101/2022.10.18.512716v3).
+http://doi.org/10.1093/nar/gkad196
 
 ##### Note: PHANTASM requires an email address for communicating with NCBI as described in python's [Bio.Entrez](https://biopython.org/docs/latest/api/Bio.Entrez.html) package. The email address is not stored or used for any other purposes.
 
