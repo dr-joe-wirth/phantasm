@@ -8,7 +8,7 @@ import glob, os, sys
 
 # constants
 PHANTASM_PY = "python3 " + os.path.join(PHANTASM_DIR, "phantasm.py")
-VERSION = "v1.0.0"
+VERSION = "v1.0.2"
 JOB_0A = 'help'
 JOB_0B = "-h"
 JOB_0C = ["-v", "version"]
