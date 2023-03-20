@@ -24,6 +24,8 @@ doi: [10.1093/nar/gkad196](https://doi.org/10.1093/nar/gkad196)
 
     1.3 [Mounting the image as a container](#13-mounting-the-image-as-a-container)
 
+    1.4 [Using Singularity instead of Docker](#14-using-singularity-instead-of-docker)
+
 2. [Getting started with PHANTASM](#2-getting-started-with-phantasm)
 
     2.1. [Getting help](#21-getting-help)
@@ -65,7 +67,7 @@ Docker must be run as `root`. This should not be a problem if [Docker Desktop](h
     $ sudo groupadd docker
     $ sudo usermod -aG docker $USER
 
-Performing these steps will allow Docker to run as `root` without requiring `sudo` or `su`.
+Performing these steps will allow Docker to run as `root` without requiring `sudo` or `su`. If you are unable to be a sudoer, you might consider using Singularity instead (see [section 1.4](#14-using-singularity-instead-of-docker))
 
 ## 1.2. Preparing Docker settings
 Be sure to allocate at least 8gb of memory to docker.
@@ -126,6 +128,25 @@ You should also be able to see your genome file of interest within the container
 
     root@fe46a3c61f0b:/# ls /mydata
     my_genome.gbff
+
+## 1.4. Using Singularity instead of Docker
+If you are unable to use Docker (eg. your server admin prohibits Docker due to issues with root acces), then you can use Singularity instead. First, pull the image with the following command:
+
+    $ singularity pull docker://jwirth/phantasm:latest
+  
+and this should generate the file `phantasm_latest.sif`. Next you can create a container using Singularity:
+
+    $ singularity run phantasm_latest.sif
+
+If you have successfully created the container, then you should seem something like this:
+
+    Singularity>
+
+Singularity does not grant root access and automatically mounts your computer's folders into the container. Because the Docker image assumes the user will be `root`, an alias present `/root/.bashrc` will not be loaded for you. In order to bypass this issue, run the following command:
+
+    Singularity> alias phantasm="python3 /phantasm/phantasm.py"
+
+You should now be able to run PHANTASM inside the container as described below.
 
 # 2. Getting started with PHANTASM
 ## 2.1. Getting help:
