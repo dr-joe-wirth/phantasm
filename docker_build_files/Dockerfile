@@ -8,7 +8,7 @@ FROM ubuntu:22.04
 # unminimize the image so that manpages exist
 RUN yes | unminimize
 
-# install nano, wget, git, python, curl, libcurl, mummer, blast+, and locales
+# install nano, wget, git, python, curl, libcurl, mummer, and blast+
 RUN apt-get update
 RUN apt-get -y install nano
 RUN apt-get -y install wget
