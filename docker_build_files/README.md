@@ -8,7 +8,7 @@
 
 Joseph S. Wirth & Eliot C. Bush, 2023
 
-_This manuscript is currently in revision. A preprint can be found on **[bioRxiv](https://www.biorxiv.org/content/10.1101/2022.10.18.512716v1)**._
+doi: [10.1093/nar/gkad196](https://doi.org/10.1093/nar/gkad196)
 ‎
 ##### Note: PHANTASM requires an email address for communicating with NCBI as described in python's [Bio.Entrez](https://biopython.org/docs/latest/api/Bio.Entrez.html) package. The email address is not stored or used for any other purposes.
 ##### Note: PHANTASM does not always run properly with the current version of `podman` (3.4.7). It is unclear what is causing this issue.
