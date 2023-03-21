@@ -94,7 +94,7 @@ Make a working directory containing an input gbff file or a directory containing
 
 Mount the image as a container (named `myContainer` below) and designate your working directory as a volume within it (named `/mydata` below). You must provide the __ABSOLUTE PATH__ to your working directory.
 
-    $ docker run -it --name myContainer -v /Users/<USERNAME>/myworkdir:/mydata jwirth/phantasm
+    $ docker run -it --name myContainer -v ~/myworkdir:/mydata jwirth/phantasm
 
 The following names __cannot__ be used for the volume (`/mydata` in the example above):
   * `/bin`
@@ -136,17 +136,17 @@ If you are unable to use Docker (eg. your server admin prohibits Docker due to i
   
 and this should generate the file `phantasm_latest.sif`. Next you can create a container using Singularity:
 
-    $ singularity run phantasm_latest.sif
+    $ singularity run --writable-tmpfs --containall --bind ~/myworkdir:/mydata:rw phantasm_latest.sif
 
 If you have successfully created the container, then you should seem something like this:
 
-    Singularity>
+    Singularity> 
 
-Singularity does not grant root access and automatically mounts your computer's folders into the container. Because the Docker image assumes the user will be `root`, an alias present `/root/.bashrc` will not be loaded for you. In order to bypass this issue, run the following command:
+Singularity does not grant root access. Because the Docker image assumes the user will be `root`, an alias present `/root/.bashrc` will not be loaded for you. In order to bypass this issue, run the following command:
 
     Singularity> alias phantasm="python3 /phantasm/phantasm.py"
 
-You should now be able to run PHANTASM inside the container as described below.
+You should now be able to run PHANTASM inside the container as described below (with `root@fe46a3c61f0b:/#` replaced with `Sinuglarity>`).
 
 # 2. Getting started with PHANTASM
 ## 2.1. Getting help:
