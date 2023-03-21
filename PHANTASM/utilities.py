@@ -1,6 +1,6 @@
 # Author: Joseph S. Wirth
 
-import csv, ftplib, glob, gzip, math, os, re, shutil
+import csv, ftplib, glob, gzip, math, os, re, shutil, string
 from Bio import Entrez, SeqIO
 from Bio.SeqRecord import SeqRecord
 from Bio.SeqFeature import SeqFeature
@@ -680,6 +680,8 @@ def checkForValidHumanMapFile(paramO:Parameters) -> None:
     ERR_MSG_1 = "filenames in the map file are not unique"
     ERR_MSG_2 = "human names in the map file are not unique"
     ERR_MSG_3 = "input genbank filenames do not match those in the human map file"
+    ERR_MSG_4 = "human names may only contain alphanumeric and the following characters _-|."
+    ALLOWED_CHARS = string.ascii_letters + string.digits + "_-|."
 
     # extract the relevant data from paramO
     gbffL = glob.glob(paramO.genbankFilePath)
@@ -705,6 +707,12 @@ def checkForValidHumanMapFile(paramO:Parameters) -> None:
     # make sure the specified files match those that were found
     if not foundGbk == specifiedGbk:
         raise ValueError(ERR_MSG_3)
+
+    # make sure there are no illegal characters in the human names
+    for humanName in mapD.values():
+        for char in humanName:
+            if char not in ALLOWED_CHARS:
+                raise ValueError(ERR_MSG_4)
 
 
 def getLpsnAge() -> str:
