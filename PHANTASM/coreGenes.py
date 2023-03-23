@@ -614,23 +614,34 @@ def __concatenateAlignments(qryHumanNamesL:list, speciesTreeWorkDir:str, \
     keyFH.close()
 
     # load the wgsHumanMap file into memory
-    wgsMapL = parseCsv(wgsMapFN, delim=DELIM)
+    mapD = loadHumanMap(wgsMapFN)
 
     # convert the dictionary to a list of SeqRecord objects
     allConcatenatedRecords = list()
     for key in seqD.keys():
         rec = SeqRecord(seqD[key])
 
-        # find the name that contains the key
-        for row in wgsMapL:
-            # taxon name is the second column
-            taxonName = row[1]
-
-            # if the key is within the taxon name
-            if key in taxonName:
-                # then use this as the id
-                rec.id = taxonName
-                break
+        # get a list of all the taxa containing the key
+        taxaL = [x for x in mapD.values() if key in x]
+        
+        # if only one taxon matched, then use it
+        if len(taxaL) == 1:
+            rec.id = taxaL.pop()
+        
+        # if multiple taxa matched, then find the proper taxon
+        else:
+            # go through each taxon and see if the key matches
+            found = False
+            for taxonName in taxaL:
+                if key == taxonName:
+                    # use the name that matched and stop looping
+                    rec.id = taxonName
+                    found = True
+                    break
+            
+            # if a key couldn't be found, then raise an error
+            if not found:
+                raise RuntimeError("untested condition; please report this at https://github.com/dr-joe-wirth/phantasm")
             
         # description field should be empty
         rec.description = ""
