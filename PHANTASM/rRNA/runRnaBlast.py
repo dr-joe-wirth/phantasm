@@ -8,7 +8,7 @@ from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from Bio.SeqFeature import SeqFeature
 from Bio.SeqIO.InsdcIO import GenBankIterator
-import os
+import logging, os
 
 
 def rnaBlastRunner(allQryGbksL:list, workingDir:str, blastExecutDirPath:str) \
@@ -64,6 +64,9 @@ def __blastPrep(allQryGbksL:list, rnaDir:str, blastDir:str, \
     PRNT_4 = "Making blast database from '"
     DONE = "Done.\n"
     
+    # create logger
+    logger = logging.getLogger(__name__ + ".__blastPrep")
+    
     # add path information to queryFnaFile
     queryFnaFile = os.path.join(rnaDir, QUERY_FNA_FILENAME)
 
@@ -86,13 +89,17 @@ def __blastPrep(allQryGbksL:list, rnaDir:str, blastDir:str, \
 
     # download the sequence files from NCBI and save the gbff
     print(PRNT_2)
+    logger.info(PRNT_2)
     __downloadRnaSequences(subjectGbff, rnaDir)
     print(DONE)
+    logger.info(DONE)
 
     # construct an fna with all of NCBI's curated 16S rRNA gene sequences
     print(PRNT_3, end='', flush=True)
+    logger.info(PRNT_3)
     subjectFna = __makeFastaForBlastDB(subjectGbff)
     print(DONE)
+    logger.info(PRNT_3)
 
     # get the blastn database filename
     dbFilename = os.path.splitext(subjectFna)[0]
@@ -101,8 +108,10 @@ def __blastPrep(allQryGbksL:list, rnaDir:str, blastDir:str, \
 
     # create the blastn database from the subject fna
     print(PRNT_4 + subjectFna + EOL, end="", flush=True)
+    logger.info(PRNT_4 + subjectFna)
     __makeblastdbFromFna(subjectFna, dbFilename, blastExecutDirPath)
     print(DONE)
+    logger.info(DONE)
 
     # generate the filename for saving the blast result
     blastResultFilename = changeFileExtension(queryFnaFile, RESULT_EXTENSION)
@@ -122,10 +131,13 @@ def __rnaFastaFromGbk(filename:str, outFH:TextIOWrapper) -> None:
     ERR_MSG = "Could not extract 16S rRNA gene sequences from the " + \
                                                        "provided genbank file."
     
+    logger = logging.getLogger(__name__ + ".__rnaFastaFromGbk")
+    
     # get a list of 16S rRNA SeqRecord objects
     recs = __rnaSeqGrabber(filename)
 
     if len(recs) == 0:
+        logger.error(ERR_MSG)
         raise BaseException(ERR_MSG)
 
     # write the records to file
@@ -338,6 +350,8 @@ def __runRnaBlast(queryFna:str, blastdb:str, outFile:str, \
     QCOV_HSP_PERC = '70'
     EVALUE_CUTOFF = '1e-5'
 
+    # make logger
+    logger = logging.getLogger(__name__ + ".__runRnaBlast")
 
     # make the outfmt string
     outfmtStr = __makeOutfmtString(OUTFMT, HEADERS)
@@ -354,8 +368,10 @@ def __runRnaBlast(queryFna:str, blastdb:str, outFile:str, \
 
     # execute the command with the shell (runs blastn)
     print(PRNT_1, end='', flush=True)
+    logger.info(PRNT_1)
     blastn()
     print(DONE)
+    logger.info(DONE)
 
 
 def __makeOutfmtString(outfmt:str, headers:list) -> str:
