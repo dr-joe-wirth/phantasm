@@ -96,7 +96,7 @@ def getTaxidsFromFile(taxidsFN:str) -> list[str]:
     DONE = "Done.\n"
     
     # initialize logger
-    logger = logging.getLogger(__name__ + ".getTaxidsFromFile")
+    logger = logging.getLogger(__name__ + "." + getTaxidsFromFile.__name__)
     
     # print status
     print(PRNT_1, end="", flush=True)
@@ -170,7 +170,7 @@ def checkEntrezEmail(email:str) -> None:
     ERR_MSG = "Entrez.email has not been set."
     
     # initialize logger
-    logger = logging.getLogger(__name__ + ".checkEntrezEmail")
+    logger = logging.getLogger(__name__ + "." + checkEntrezEmail.__name__)
     
     # make sure Entrez.email can be set
     if Entrez.email is None:
@@ -193,7 +193,7 @@ def loadHumanMap(humanMapFN:str) -> dict:
     HUMAN_NAME_IDX = 1
     
     # initialize logger
-    logger = logging.getLogger(__name__ + ".loadHumanMap")
+    logger = logging.getLogger(__name__ + "." + loadHumanMap.__name__)
 
     # read the file into memory
     parsed = parseCsv(humanMapFN, '\t')
@@ -294,6 +294,10 @@ def ncbiSummaryFromIdList(idList:list, database:str, email:str=None):
     RESULT_K1 = 'DocumentSummarySet'
     RESULT_K2 = 'DocumentSummary'
     VALIDATE  = False   # Bio.Entrez may throw a tantrum if modified
+    ERR_MSG_1 = "invalid input: expected a list of ids or a single id"
+    ERR_MSG_2 = "invalid id present in the input list: "
+    
+    logger = logging.getLogger(__name__ + "." + ncbiSummaryFromIdList.__name__)
 
     # check that Entrez.email has been set
     checkEntrezEmail(email)
@@ -303,7 +307,8 @@ def ncbiSummaryFromIdList(idList:list, database:str, email:str=None):
         try:
             int(idList)
         except ValueError:
-            raise ValueError("invalid input: expected a list of ids or a single id")
+            logger.error(ERR_MSG_1)
+            raise ValueError(ERR_MSG_1)
 
     if type(idList) in [int, str]:
         queryL = [str(idList)]
@@ -319,7 +324,8 @@ def ncbiSummaryFromIdList(idList:list, database:str, email:str=None):
             try:
                 int(id)
             except ValueError:
-                raise ValueError("invalid id present in the input list: " + str(id))
+                logger.error(ERR_MSG_2 + str(id))
+                raise ValueError(ERR_MSG_2 + str(id))
 
             # separate each id with a comma
             idStr += str(id) + SEP_CHAR
@@ -623,7 +629,7 @@ def checkForValidInputGenomes(gbffL:list) -> None:
     MSG_START = "'"
     
     # initialize logger
-    logger = logging.getLogger(__name__ + ".checkForValidInputGenomes")
+    logger = logging.getLogger(__name__ + "." + checkForValidInputGenomes.__name__)
 
     # invalid if an empty list is provided
     if len(gbffL) == 0:
@@ -671,7 +677,7 @@ def checkForValidExecutables(paramO:Parameters) -> None:
     MSG_END = "'"
     
     # initialize logger
-    logger = logging.getLogger(__name__ + ".checkForValidExecutables")
+    logger = logging.getLogger(__name__ + "." + checkForValidExecutables.__name__)
 
     # get a list of the blast+ executables
     blastExeL = glob.glob(os.path.join(paramO.blastExecutDirPath, "*"))
@@ -711,7 +717,7 @@ def checkForValidHumanMapFile(paramO:Parameters) -> None:
     ALLOWED_CHARS = string.ascii_letters + string.digits + "_-|."
 
     # initialize logger
-    logger = logging.getLogger(__name__ + ".checkForValidHumanMapFile")
+    logger = logging.getLogger(__name__ + "." + checkForValidHumanMapFile.__name__)
 
     # extract the relevant data from paramO
     gbffL = glob.glob(paramO.genbankFilePath)
