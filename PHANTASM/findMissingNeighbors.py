@@ -1,6 +1,6 @@
 # Author: Joseph S. Wirth
 
-import sys, os, re, glob, copy
+import glob, logging, os, re, sys
 from PHANTASM.Parameter import Parameters
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
 from PHANTASM.taxonomy.taxonomyConstruction import constructTaxonomy
@@ -37,8 +37,11 @@ def phyloMarkerBlastRunner(geneNumsL:list, paramO:Parameters) -> None:
     DONE = 'Done.\n'
     FORMAT = 'fasta'
 
+    logger = logging.getLogger(__name__ + "." + phyloMarkerBlastRunner.__name__)
+
     # print status
     print(PRINT_1)
+    logger.info(PRINT_1)
     
     # extract relevant parameters
     faaFN = paramO.phyloMarkerFaaFN
@@ -58,6 +61,7 @@ def phyloMarkerBlastRunner(geneNumsL:list, paramO:Parameters) -> None:
     __blastPhyloMarkerSeqRecords(allSeqRecs, faaFN, blastFN, blastExecutDirPath)
 
     print(DONE)
+    logger.info(DONE)
 
 
 def __getSeqRecordFromGeneNum(geneNum:int, paramO:Parameters) -> SeqRecord:
@@ -72,6 +76,9 @@ def __getSeqRecordFromGeneNum(geneNum:int, paramO:Parameters) -> SeqRecord:
     GREP_REPL = r"\1"
     GENE_NAME_IDX = 0
     FORMAT = "fasta"
+    ERR_MSG = "invalid gene number provided"
+    
+    logger = logging.getLogger(__name__ + "." + __getSeqRecordFromGeneNum.__name__)
 
     # get the necessary data from paramO
     geneInfoFN = paramO.geneInfoFN
@@ -110,7 +117,8 @@ def __getSeqRecordFromGeneNum(geneNum:int, paramO:Parameters) -> SeqRecord:
             return record
     
     # if record was not found, then raise an exception
-    raise Exception("invalid gene number provided")
+    logger.error(ERR_MSG)
+    raise Exception(ERR_MSG)
 
 
 def __blastPhyloMarkerSeqRecords(seqRecL:list, faaFN:str, blastFN:str, \
@@ -126,7 +134,8 @@ def __blastPhyloMarkerSeqRecords(seqRecL:list, faaFN:str, blastFN:str, \
             put files. Does not return.
     """
     # constants
-    PRINT_1A = 4*" " + "Searching "
+    GAP = 4*" "
+    PRINT_1A = GAP + "Searching "
     PRINT_1B = " against NCBI's "
     PRINT_1C = " database ... "
     FAILED = 'Failed.'
@@ -136,6 +145,9 @@ def __blastPhyloMarkerSeqRecords(seqRecL:list, faaFN:str, blastFN:str, \
     FORMAT = 'fasta'
     DB_1 = "nr"
     DB_2 = "refseq_protein"
+    ERR_MSG = "blastp failed."
+    
+    logger = logging.getLogger(__name__ + "." + __blastPhyloMarkerSeqRecords.__name__)
 
     # determine the temporary filenames
     tempFaaFN = os.path.join(os.path.dirname(faaFN), TEMP_FAA_FN)
@@ -156,25 +168,30 @@ def __blastPhyloMarkerSeqRecords(seqRecL:list, faaFN:str, blastFN:str, \
         # run the blastp with the new fasta against nr
         printStatement = PRINT_1A + seqRec.id + PRINT_1B + DB_1 + PRINT_1C
         print(printStatement, end='', flush=True)
+        logger.info(printStatement)
         __blastFaaAgainstDb(tempFaaFN, tempBlastFN, blastExeDir, DB_1)
 
         # check that the blast was successful
         if os.path.getsize(tempBlastFN) == 0:
             # if not, then blast against nr failed
             print(FAILED)
+            logger.info(GAP + FAILED)
 
             # so try to run a blast against refseq_protein
             printStatement = PRINT_1A + seqRec.id + PRINT_1B + DB_2 + PRINT_1C
             print(printStatement, end='', flush=True)
+            logger.info(GAP + printStatement)
             __blastFaaAgainstDb(tempFaaFN, tempBlastFN, blastExeDir, DB_2)
         
         # check that the blast was successful
         if os.path.getsize(tempBlastFN) == 0:
             # if not, then clean up and raise an error
             print(FAILED)
+            logger.info(GAP + FAILED)
             os.remove(tempFaaFN)
             os.remove(tempBlastFN)
-            raise RuntimeError("blastp failed.")
+            logger.error(ERR_MSG)
+            raise RuntimeError(ERR_MSG)
         
         # open the temp file
         tempBlastFH = open(tempBlastFN, 'r')
@@ -197,6 +214,7 @@ def __blastPhyloMarkerSeqRecords(seqRecL:list, faaFN:str, blastFN:str, \
 
         # print status
         print(DONE)
+        logger.info(GAP + DONE)
 
 
 def _locusTagToGeneNum(locusTag:str, geneInfoFN:str) -> int:
@@ -207,6 +225,9 @@ def _locusTagToGeneNum(locusTag:str, geneInfoFN:str) -> int:
     """
     # constants
     LOCUS_TAG_IDX = 2
+    ERR_MSG = "Invalid locus tag provided"
+
+    logger = logging.getLogger(__name__ + "." + _locusTagToGeneNum.__name__)
 
     # load the genesO object
     genesO = xenoGI.genomes.genes(geneInfoFN)
@@ -218,7 +239,8 @@ def _locusTagToGeneNum(locusTag:str, geneInfoFN:str) -> int:
             return geneNum
     
     # if a number was not found then raise an exception
-    raise Exception("Invalid locus tag provided")
+    logger.error(ERR_MSG)
+    raise Exception(ERR_MSG)
 
 
 def __blastFaaAgainstDb(faaFN:str, outFN:str, blastExecutDirPath:str, \
@@ -798,6 +820,8 @@ def __getExcludedTaxa(taxO:Taxonomy, excludedTaxidsFN:str) -> list:
     """
     # constants
     ERR_MSG = "invalid file format for "
+    
+    logger = logging.getLogger(__name__ + "." + __getExcludedTaxa.__name__)
 
     # navigate to the root
     root = taxO.getRoot()
@@ -1160,6 +1184,8 @@ def xenogiInterfacer_2(allQryGbksL:list, oldParamO:Parameters, \
     PRINT_1 = 'Finding missing relatives and updating the Taxonomy object ... '
     PRINT_2 = 'Downloading genbank files from NCBI ... '
     DONE = 'Done.'
+    
+    logger = logging.getLogger(__name__ + "." + xenogiInterfacer_2.__name__)
 
     # extract relevant data from the Parameters objects
     maxNumSeqs = newParamO.maxNumTreeLeaves - len(allQryGbksL) - 1 # 1 outgroup
@@ -1175,8 +1201,10 @@ def xenogiInterfacer_2(allQryGbksL:list, oldParamO:Parameters, \
 
     # get the new relatives based on phylogenetic marker blastp
     print(PRINT_1, end='', flush=True)
+    logger.info(PRINT_1)
     speciesL = getRelatives(oldParamO,newParamO,lpsnD,maxNumSeqs,allQryGbksL)
     print(DONE)
+    logger.info(DONE)
 
     # load the taxonomy object created by getRelatives
     taxFN = glob.glob(taxObjectFilePath).pop()
@@ -1273,8 +1301,10 @@ def xenogiInterfacer_2(allQryGbksL:list, oldParamO:Parameters, \
     
     # download the species in the list
     print(PRINT_2, end='', flush=True)
+    logger.info(PRINT_2)
     __downloadGbffFromSpeciesList(speciesL, newHumanMapFN, newGbkDir)
     print(DONE)
+    logger.info(DONE)
 
     # append the human map string to the file
     filehandle = open(newHumanMapFN, 'a')
@@ -1310,6 +1340,8 @@ def xenogiInterfacer_3(allQueryGenbanksL:list, locusTagsL:list, \
     FORMAT = 'fasta'
     TAXIDS_KEY = 'taxids'
 
+    logger = logging.getLogger(__name__ + "." + xenogiInterfacer_3.__name__)
+
     # set Entrez.email
     Entrez.email = paramO.email
 
@@ -1330,6 +1362,7 @@ def xenogiInterfacer_3(allQueryGenbanksL:list, locusTagsL:list, \
 
     # print status
     print(PRINT_1)
+    logger.info(PRINT_1)
 
     # get the sequence records from the input locus tags
     seqRecordsL = __seqRecordsFromLocusTags(locusTagsL, allQueryGenbanksL)
@@ -1346,7 +1379,9 @@ def xenogiInterfacer_3(allQueryGenbanksL:list, locusTagsL:list, \
 
     # print status
     print(DONE + "\n")
+    logger.info(DONE)
     print(PRINT_2, end='', flush=True)
+    logger.info(PRINT_2)
 
     # parse the blast file and link results to assemblies
     assemblyD = __linkAssembliesWithBlastpResults(blastFN)
@@ -1380,6 +1415,7 @@ def xenogiInterfacer_3(allQueryGenbanksL:list, locusTagsL:list, \
 
     # print status
     print(DONE + "\n")
+    logger.info(DONE)
 
     # construct a taxonomy object for the observed taxids
     taxO = constructTaxonomy(taxids, saveTax=True, dir=workdir)
@@ -1399,6 +1435,7 @@ def xenogiInterfacer_3(allQueryGenbanksL:list, locusTagsL:list, \
 
     # print status
     print(PRINT_3, end="", flush=True)
+    logger.info(PRINT_3)
 
     # make a list of the human names for the query genomes
     inputNamesL = list()
@@ -1418,6 +1455,7 @@ def xenogiInterfacer_3(allQueryGenbanksL:list, locusTagsL:list, \
 
     # print status
     print(DONE)
+    logger.info(DONE)
 
     # determine the taxonomy object filename
     taxDir = os.path.dirname(taxFilePath)
@@ -1435,12 +1473,14 @@ def xenogiInterfacer_3(allQueryGenbanksL:list, locusTagsL:list, \
 
     # print status
     print(PRINT_4, end='', flush=True)
+    logger.info(PRINT_4)
 
     # download the genomes
     __downloadGbffFromSpeciesList(speciesL, humanMapFN, genbankWorkdir)
 
     # print status
     print(DONE)
+    logger.info(DONE)
 
     # open the human map file
     mapFH = open(humanMapFN, 'a')
