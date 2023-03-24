@@ -69,10 +69,17 @@ RUN tar xzf v3.1.1.tar.gz
 RUN rm v3.1.1.tar.gz
 
 # get phantasm v1.0.2
-RUN wget https://github.com/dr-joe-wirth/phantasm/archive/refs/tags/v1.0.2.tar.gz
-RUN tar xzf v1.0.2.tar.gz
-RUN rm v1.0.2.tar.gz
-RUN mv /phantasm-1.0.2 /phantasm
+# RUN wget https://github.com/dr-joe-wirth/phantasm/archive/refs/tags/v1.0.2.tar.gz
+# RUN tar xzf v1.0.2.tar.gz
+# RUN rm v1.0.2.tar.gz
+# RUN mv /phantasm-1.0.2 /phantasm
+
+
+##### UNCOMMENT BLOCK ABOVE BEFORE MERGING!
+##### THIS LINE IS FOR TESTING PURPOSES ONLY
+##### REMOVE THIS LINE BEFORE MERGING
+RUN git clone -b devel https://github.com/dr-joe-wirth/phantasm.git
+
 
 # copy the param file and make remove restricted permissions
 COPY ./docker_param.py /phantasm/param.py
