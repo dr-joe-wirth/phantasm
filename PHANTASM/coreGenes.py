@@ -2,7 +2,7 @@
 # Last edit: September 28, 2022
 
 from __future__ import annotations
-import csv, glob, os, re, scipy.stats, string, subprocess, sys
+import csv, glob, logging, os, re, scipy.stats, string, subprocess, sys
 from PHANTASM.utilities import parseCsv, loadHumanMap
 from PHANTASM.Parameter import Parameters
 from Bio import Phylo, SeqIO
@@ -107,13 +107,19 @@ def parseGenbank(paramD:dict) -> None:
             Accepts the parameter dictionary as input. Calls the 'parseGenbank'
             command of xenoGI. Does not return.
     """
+    # constants
     PRINT = 'Parsing genbank files ... '
     DONE = 'Done.'
 
+    # intialize logger
+    logger = logging.getLogger(__name__ + ".parseGenbank")
+
     # parse the genbank files
     print(PRINT, end='', flush=True)
+    logger.info(PRINT)
     xenoGI.xenoGI.parseGenbankWrapper(paramD)
     print(DONE)
+    logger.info(DONE)
 
 
 def allVsAllBlast(paramD:dict) -> None:
@@ -124,11 +130,16 @@ def allVsAllBlast(paramD:dict) -> None:
     # constants
     PRINT = 'Running all pairwise blastp comparisons ... '
     DONE = 'Done.'
+    
+    # initialize logger
+    logger = logging.getLogger(__name__ + ".allVsAllBlast")
 
     # run all pairwise blast comparisons
     print(PRINT, end='', flush=True)
+    logger.info(PRINT)
     xenoGI.xenoGI.runBlastWrapper(paramD)
     print(DONE)
+    logger.info(DONE)
 
 
 def copyExistingBlastFiles(oldParamO:Parameters, newParamO:Parameters) -> None:
@@ -141,9 +152,12 @@ def copyExistingBlastFiles(oldParamO:Parameters, newParamO:Parameters) -> None:
     # constants
     PRINT = "Copying existing blastp comparisons ... "
     DONE = 'Done.'
+    
+    logger = logging.getLogger(__name__ + ".copyExistingBlastFiles")
 
     # print job-start statement
     print(PRINT, end='', flush=True)
+    logger.info(PRINT)
 
     # extract the new blast directory from newParamD
     newBlastDir = os.path.splitext(newParamO.blastFilePath)[0][:-1]
@@ -170,6 +184,7 @@ def copyExistingBlastFiles(oldParamO:Parameters, newParamO:Parameters) -> None:
                                                             locusTagToNewNameD)
     
     print(DONE)
+    logger.info(DONE)
 
 
 def __getBlastFilesToCopy(oldParamO:Parameters, newParamO:Parameters) -> dict:
@@ -322,6 +337,8 @@ def calculateCoreGenes(paramO:Parameters) -> None:
     # constants
     PRINT_1 = 'Calculating core genes ... '
     DONE = 'Done.'
+    
+    logger = logging.getLogger(__name__ + ".calculateCoreGenes")
 
     # parse parameters into shorter variable names
     strainInfoFN = paramO.strainInfoFN
@@ -337,6 +354,7 @@ def calculateCoreGenes(paramO:Parameters) -> None:
 
     # determine the all-against-all best reciprocal hits (hardcore genes)
     print(PRINT_1, end='', flush=True)
+    logger.info(PRINT_1)
     xenoGI.scores.createAabrhL(strainNamesL,
                                blastFileJoinStr,
                                blastDir,
@@ -346,6 +364,7 @@ def calculateCoreGenes(paramO:Parameters) -> None:
                                percIdentThresh,
                                aabrhFN)
     print(DONE)
+    logger.info(DONE)
 
 
 def makeSpeciesTree(allQryGbksL:list, paramO:Parameters, outgroup:Taxonomy, \
@@ -368,17 +387,23 @@ def makeSpeciesTree(allQryGbksL:list, paramO:Parameters, outgroup:Taxonomy, \
     FAST_TREE = 'fasttree'
     IQTREE = 'iqtree'
     ERR_MSG = 'Invalid program specified.'
+    
+    logger = logging.getLogger(__name__ + ".makeSpeciesTree")
 
     # align hardcore genes and build gene trees with fasttree
     if makeGeneTrees:
         print(PRINT_1A, end='', flush=True)
+        logger.info(PRINT_1A)
         __makeGeneTreesWrapper(paramO)
         print(DONE)
+        logger.info(DONE)
     
     else:
         print(PRINT_1B, end='', flush=True)
+        logger.info(PRINT_1B)
         __alignGenesWrapper(paramO)
         print(DONE)
+        logger.info(DONE)
 
     # parse data from paramO
     speTreWorkDir = paramO.makeSpeciesTreeWorkingDir
@@ -422,21 +447,25 @@ def makeSpeciesTree(allQryGbksL:list, paramO:Parameters, outgroup:Taxonomy, \
     # use fast tree if requested
     if program == FAST_TREE:
         print(PRINT_2A, end='', flush=True)
+        logger.info(PRINT_2A)
         __runFastTree(paramO)
     
     # use iqtree if requested
     elif program == IQTREE:
+        logger.info(PRINT_2B)
         print(PRINT_2B, end='', flush=True)
         __runIqTree(outgroupTaxonName, paramO)
     
     # raise an error if an unexpected program was requested
     else:
+        logger.error(ERR_MSG)
         raise ValueError(ERR_MSG)
 
     # root the tree on the specified outgroup
     __rootTree(speTreeFN, [outgroupTaxonName])
 
     print(DONE)
+    logger.info(DONE)
 
 
 def __makeGeneTreesWrapper(paramO:Parameters) -> None:
@@ -543,6 +572,9 @@ def __concatenateAlignments(qryHumanNamesL:list, speciesTreeWorkDir:str, \
     GREP_REPL = r'\1'
     DELIM = "\t"
     EOL = "\n"
+    ERR_MSG = "untested condition; please report this at https://github.com/dr-joe-wirth/phantasm"
+
+    logger = logging.getLogger(__name__ + ".__concatenateAlignments")
 
     # get the files sring
     fileString = os.path.join(speciesTreeWorkDir, FILE_NAME_PATTERN)
@@ -641,7 +673,8 @@ def __concatenateAlignments(qryHumanNamesL:list, speciesTreeWorkDir:str, \
             
             # if a key couldn't be found, then raise an error
             if not found:
-                raise RuntimeError("untested condition; please report this at https://github.com/dr-joe-wirth/phantasm")
+                logger.error(ERR_MSG)
+                raise RuntimeError(ERR_MSG)
             
         # description field should be empty
         rec.description = ""
@@ -685,6 +718,8 @@ def __lessThanFivePercentGaps(alignmentFN:str) -> bool:
     GAP_CHAR = "-"
     MAX_PERC = 0.05
     ERR_MSG = "alignment length inconsistent for "
+    
+    logger = logging.getLogger(__name__ + ".__lessThanFivePercentGaps")
 
     # parse the file
     parsed = SeqIO.parse(alignmentFN, FORMAT)
@@ -703,6 +738,7 @@ def __lessThanFivePercentGaps(alignmentFN:str) -> bool:
     
         # raise an error if seq length changed and it's not the first record
         if notFirstRecord and seqLenChanged:
+            logger.error(ERR_MSG + alignmentFN)
             raise RuntimeError(ERR_MSG + alignmentFN)
         
         seqLen = newSeqLen
