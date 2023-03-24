@@ -1,6 +1,6 @@
 # Author: Joseph S. Wirth
 
-import csv, ftplib, glob, gzip, math, os, re, shutil, string
+import csv, ftplib, glob, gzip, logging, math, os, re, shutil, string
 from Bio import Entrez, SeqIO
 from Bio.SeqRecord import SeqRecord
 from Bio.SeqFeature import SeqFeature
@@ -95,8 +95,12 @@ def getTaxidsFromFile(taxidsFN:str) -> list[str]:
     PRNT_1 = "Extracting taxids from the specified file" + EOL
     DONE = "Done.\n"
     
+    # initialize logger
+    logger = logging.getLogger(__name__ + ".getTaxidsFromFile")
+    
     # print status
     print(PRNT_1, end="", flush=True)
+    logger.info(PRNT_1)
 
     # open the file
     fh = open(taxidsFN, "r")
@@ -116,6 +120,7 @@ def getTaxidsFromFile(taxidsFN:str) -> list[str]:
 
     # check that the file was not empty
     if len(outL) == 0:
+        logger.error(ERR_MSG_1)
         raise BaseException(ERR_MSG_1)
     
     for txid in outL:
@@ -123,10 +128,12 @@ def getTaxidsFromFile(taxidsFN:str) -> list[str]:
         try:
             int(txid)
         except:
+            logger.error(ERR_MSG_2)
             raise BaseException(ERR_MSG_2)
 
     # print status
     print(DONE)
+    logger.info(DONE)
 
     return outL
 
@@ -159,12 +166,19 @@ def checkEntrezEmail(email:str) -> None:
             email address. If not possible, then it raises an exception. Does 
             not return.
     """
+    # constant
+    ERR_MSG = "Entrez.email has not been set."
+    
+    # initialize logger
+    logger = logging.getLogger(__name__ + ".checkEntrezEmail")
+    
     # make sure Entrez.email can be set
     if Entrez.email is None:
         if email is not None:
             Entrez.email = email
         else:
-            raise BaseException("Entrez.email has not been set.")
+            logger.error()
+            raise BaseException(ERR_MSG)
 
 
 def loadHumanMap(humanMapFN:str) -> dict:
@@ -177,6 +191,9 @@ def loadHumanMap(humanMapFN:str) -> dict:
     ERR_MSG = "human map file is improperly formatted"
     FILE_NAME_IDX  = 0
     HUMAN_NAME_IDX = 1
+    
+    # initialize logger
+    logger = logging.getLogger(__name__ + ".loadHumanMap")
 
     # read the file into memory
     parsed = parseCsv(humanMapFN, '\t')
@@ -192,6 +209,7 @@ def loadHumanMap(humanMapFN:str) -> dict:
     for row in parsed:
         # invalid format if the row does not have exactly two columns
         if len(row) != 2:
+            logger.error(ERR_MSG)
             raise ValueError(ERR_MSG)
 
         # keys are filenames; values are human names
@@ -603,9 +621,13 @@ def checkForValidInputGenomes(gbffL:list) -> None:
     ERR_MSG_2 = "' is not in genbank format"
     ERR_MSG_3 = "' is missing 'locus_tag' for one or more of its CDS features"
     MSG_START = "'"
+    
+    # initialize logger
+    logger = logging.getLogger(__name__ + ".checkForValidInputGenomes")
 
     # invalid if an empty list is provided
     if len(gbffL) == 0:
+        logger.error(ERR_MSG_1)
         raise FileNotFoundError(ERR_MSG_1)
     
     # for each file in the list
@@ -615,6 +637,7 @@ def checkForValidInputGenomes(gbffL:list) -> None:
 
         # if there are no records, then the file is invalid
         if len(list(parsed)) == 0:
+            logger.error(MSG_START + gbFN + ERR_MSG_2)
             raise ValueError(MSG_START + gbFN + ERR_MSG_2)
 
         # for each record in the file
@@ -630,6 +653,7 @@ def checkForValidInputGenomes(gbffL:list) -> None:
                     
                     # raise an error if there are no locus tags
                     except:
+                        logger.error(MSG_START + gbFN + ERR_MSG_3)
                         raise ValueError(MSG_START + gbFN + ERR_MSG_3)
 
 
@@ -645,29 +669,32 @@ def checkForValidExecutables(paramO:Parameters) -> None:
     ERR_MSG_3 = "FastTree is not executable: '"
     ERR_MSG_4 = "IQTree is not executable: '"
     MSG_END = "'"
+    
+    # initialize logger
+    logger = logging.getLogger(__name__ + ".checkForValidExecutables")
 
     # get a list of the blast+ executables
     blastExeL = glob.glob(os.path.join(paramO.blastExecutDirPath, "*"))
 
     # check each blast+ executable
-    blastOK = True
     for exe in blastExeL:
         if not os.access(exe, os.X_OK):
+            logger.error(ERR_MSG_1 + paramO.blastExecutDirPath + MSG_END)
             raise ValueError(ERR_MSG_1 + paramO.blastExecutDirPath + MSG_END)
 
     # check muscle
-    muscleOK = True
     if not os.access(paramO.musclePath, os.X_OK):
+        logger.error(ERR_MSG_2 + paramO.musclePath + MSG_END)
         raise ValueError(ERR_MSG_2 + paramO.musclePath + MSG_END)
 
     # check fasttree
-    fasttreeOK = True
     if not os.access(paramO.fastTreePath, os.X_OK):
+        logger.error(ERR_MSG_2 + paramO.musclePath + MSG_END)
         raise ValueError(ERR_MSG_3 + paramO.fastTreePath + MSG_END)
 
     # check iqtree
-    iqtreeOK = True
     if not os.access(paramO.iqTreePath, os.X_OK):
+        logger.error(ERR_MSG_2 + paramO.musclePath + MSG_END)
         raise ValueError(ERR_MSG_4 + paramO.iqTreePath + MSG_END)
 
 
@@ -683,6 +710,9 @@ def checkForValidHumanMapFile(paramO:Parameters) -> None:
     ERR_MSG_4 = "human names may only contain alphanumeric and the following characters _-|."
     ALLOWED_CHARS = string.ascii_letters + string.digits + "_-|."
 
+    # initialize logger
+    logger = logging.getLogger(__name__ + ".checkForValidHumanMapFile")
+
     # extract the relevant data from paramO
     gbffL = glob.glob(paramO.genbankFilePath)
     mapFN = paramO.fileNameMapFN
@@ -692,10 +722,12 @@ def checkForValidHumanMapFile(paramO:Parameters) -> None:
 
     # make sure that the filenames in the human map file are unique
     if len(mapD.keys()) != len(set(mapD.keys())):
+        logger.error(ERR_MSG_1)
         raise ValueError(ERR_MSG_1)
     
     # make sure that the human names in the human map file are unique
     if len(mapD.values()) != len(set(mapD.values())):
+        logger.error(ERR_MSG_2)
         raise ValueError(ERR_MSG_2)
 
     # get a set of the gbff basenames that were found
@@ -706,12 +738,14 @@ def checkForValidHumanMapFile(paramO:Parameters) -> None:
 
     # make sure the specified files match those that were found
     if not foundGbk == specifiedGbk:
+        logger.error(ERR_MSG_3)
         raise ValueError(ERR_MSG_3)
 
     # make sure there are no illegal characters in the human names
     for humanName in mapD.values():
         for char in humanName:
             if char not in ALLOWED_CHARS:
+                logger.error(ERR_MSG_4)
                 raise ValueError(ERR_MSG_4)
 
 
