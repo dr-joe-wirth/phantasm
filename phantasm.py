@@ -4,7 +4,7 @@ from PHANTASM.utilities import validEmailAddress, getParamO_1, getParamO_2, getP
 from PHANTASM.main import getPhyloMarker, refinePhylogeny, knownPhyloMarker, analyzeSpecifiedGenomes
 from PHANTASM.findMissingNeighbors import _locusTagToGeneNum
 from param import PHANTASM_DIR
-import glob, os, sys
+import glob, logging, os, sys
 
 # constants
 PHANTASM_PY = "python3 " + os.path.join(PHANTASM_DIR, "phantasm.py")
@@ -193,8 +193,18 @@ if __name__ == "__main__":
             age = getLpsnAge()
             print(AGE_MSG + age + "\n\n")
 
+            # initialize logger
+            logging.basicConfig(filename=paramO.logFN, level=logging.INFO)
+            logger = logging.getLogger(__name__)
+            
+            # save the version and input command
+            logger.info(VERSION)
+            logger.info(" ".join(sys.argv))
+
             # execute job 1
+            logger.info("start job 1")
             getPhyloMarker(gbffL, paramO)
+            logger.info("end job 1")            
         
         # if JOB_2 requested
         elif job == JOB_2:
@@ -260,12 +270,22 @@ if __name__ == "__main__":
             if len(genesL) != len(geneNumsL):
                 raise ValueError(ERR_MSG_5)
 
+            # initialize logger
+            logging.basicConfig(filename=paramO_1.logFN, level=logging.INFO)
+            logger = logging.getLogger(__name__)
+            
+            # save the input command and version
+            logger.info(VERSION)
+            logger.info(" ".join(sys.argv))
+
             # print the LPSN age data
             age = getLpsnAge()
             print(AGE_MSG + age + "\n\n")
 
             # execute JOB_2
+            logger.info("start job 2")
             refinePhylogeny(geneNumsL, gbffL, paramO_1, paramO_2)
+            logger.info('end job 2')
         
         # if JOB_3 requested
         elif job == JOB_3:
@@ -309,8 +329,18 @@ if __name__ == "__main__":
             age = getLpsnAge()
             print(AGE_MSG + age + "\n\n")
             
+            # initialize logger
+            logging.basicConfig(filename=paramO.logFN, level=logging.INFO)
+            logger = logging.getLogger(__name__)
+            
+            # save the input command and version
+            logger.info(VERSION)
+            logger.info(" ".join(sys.argv))
+            
             # execute JOB_3
+            logger.info("start job 3")
             knownPhyloMarker(gbffL, locusTagsL, paramO)
+            logger.info('end job 3')
 
         # if JOB_4 requested
         elif job == JOB_4:
@@ -358,8 +388,18 @@ if __name__ == "__main__":
             else:
                 raise FileExistsError(ERR_MSG_8)
 
+            # initialize logger
+            logging.basicConfig(filename=paramO.logFN, level=logging.INFO)
+            logger = logging.getLogger(__name__)
+            
+            # save the input command and version
+            logger.info(VERSION)
+            logger.info(" ".join(sys.argv))
+            
             # analyze the specified genomes
+            logger.info("start job 4")
             analyzeSpecifiedGenomes(gbffL, paramO)
+            logger.info("end job 4")
 
         # raise an error if an invalid job was specified
         else:
