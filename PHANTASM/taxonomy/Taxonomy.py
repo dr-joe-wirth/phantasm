@@ -2,7 +2,7 @@
 # Last edit: September 29, 2022
 
 from __future__ import annotations
-import re, copy, random, textdistance, os
+import copy, logging, os, random, re, textdistance
 from Bio.Entrez import Parser
 from PHANTASM.taxonomy.TaxRank import TaxRank
 from PHANTASM. utilities import ncbiEfetchById, ncbiIdsFromSearchTerm, \
@@ -17,10 +17,12 @@ class Taxonomy:
             saved in the object. It is capable of automatically selecting refe-
             rence genomes to use for phylogenomic analyses.
     """
-    ### constant used for comparing ranks to the taxonomy floor/ceiling
+    ### constants used for comparing ranks to the taxonomy floor/ceiling
     SPECIES = TaxRank('species')
     DOMAIN  = TaxRank('domain')
-
+    
+    ### constant for naming logger objects
+    __LOGGER_PREFIX = __name__ + ".Taxonomy."
 
 
 
@@ -1154,11 +1156,14 @@ class Taxonomy:
         # constants
         ERR_MSG = " (taxid) is not a direct descendant of the calling object."
 
+        logger = logging.getLogger(Taxonomy.__LOGGER_PREFIX + Taxonomy.__removeDirectDescendant.__name__)
+
         # make sure the input is a string
         childTxid = str(childTxid)
         
         # make sure that the input is an NCBI taxonomy id and is a descendant
         if not childTxid in self.getChildren():
+            logger.error(childTxid + ERR_MSG)
             raise ValueError(childTxid + ERR_MSG)
         
         # delete the matching object
@@ -1175,12 +1180,16 @@ class Taxonomy:
         ERR_MSG_1 = "Input is not an instance of type 'Taxonomy'."
         ERR_MSG_2 = "Input is not exactly one taxonomic rank below the current object!"
 
+        logger = logging.getLogger(Taxonomy.__LOGGER_PREFIX + Taxonomy._importDirectDescendant.__name__)
+
         # make sure the input is a Taxonomy object
         if type(other) is not Taxonomy:
+            logger.error(ERR_MSG_1)
             raise TypeError(ERR_MSG_1)
 
         # make sure that the input is exactly one rank below current
         if self.rank.getRankBelow() != other.rank:
+            logger.error(ERR_MSG_2)
             raise AttributeError(ERR_MSG_2)
     
         # save the original parent
@@ -1215,6 +1224,7 @@ class Taxonomy:
         # resolve any duplicate names that have been introduced
         self.__resolveDuplicateNames()
 
+
     def _importExistingSubTax(self, other:Taxonomy, lpsnD:dict) -> None:
         """ importExistingSubTax:
                 Accepts a Taxonomy object and the LPSN dictionary as inputs.
@@ -1227,8 +1237,11 @@ class Taxonomy:
         ERR_MSG_1 = "The calling object's rank does not exceed the input's rank."
         ERR_MSG_2 = "failed to find a suitable parent"
 
+        logger = logging.getLogger(Taxonomy.__LOGGER_PREFIX + Taxonomy._importExistingSubTax.__name__)
+
         # other must be at a rank below self
         if self.rank <= other.rank:
+            logger.error(ERR_MSG_1)
             raise AttributeError(ERR_MSG_1)
 
         # get the root of tax1
@@ -1240,6 +1253,7 @@ class Taxonomy:
         while not root1.getDescendantByTaxId(root2.taxid):
             # raise an error if we're at the rank ceiling
             if root2.rank == Taxonomy.DOMAIN:
+                logger.error(ERR_MSG_2)
                 raise RuntimeError(ERR_MSG_2)
             
             # find a new parent
@@ -1295,6 +1309,8 @@ class Taxonomy:
         ERR_2 = "Cannot merge objects with shared taxids. Aborting."
         ERR_3 = "Cannot merge different domains (eg. Archaea and Bacteria)."
     
+        logger = logging.getLogger(Taxonomy.__LOGGER_PREFIX + Taxonomy._mergeMultipleRoots.__name__)
+    
         # sort inputs so the highest ranks come first (important for looping)
         taxaL = sorted(allRoots, key=lambda x: x.rank, reverse=True)
 
@@ -1309,10 +1325,12 @@ class Taxonomy:
 
             # make sure they are at the root
             if not tax1.isRoot() or not tax2.isRoot():
+                logger.error(ERR_1)
                 raise AttributeError(ERR_1)
 
             # if the taxids are identical, a safe merge cannot be performed
             if tax1.taxid == tax2.taxid:
+                logger.error(ERR_2)
                 raise AttributeError(ERR_2)
 
             # make sure the objects start at the same rank
@@ -1661,13 +1679,17 @@ class Taxonomy:
                 the Taxonomy object of the calling object's ancestor at the sp-
                 ecified rank.
         """
+        # constants
+        ERR_MSG_1 = "Provided rank is lower than the calling object's rank."
+        ERR_MSG_2 = "Provided rank exceeds the root object's rank."
+        
         # make sure rank is a TaxRank object
         if type(rank) is not TaxRank:
             rank = TaxRank(rank)
 
         # raise an error if the rank is below self
         if rank < self.rank:
-            raise AttributeError("Provided rank is lower than the calling object's rank.")
+            raise AttributeError(ERR_MSG_1)
         
         # base case: rank matches self
         if rank == self.rank:
@@ -1675,7 +1697,7 @@ class Taxonomy:
         
         # raise an error if the rank exceeds the root's rank
         if self.parent is None:
-            raise AttributeError("Provided rank exceeds the root object's rank.")
+            raise AttributeError(ERR_MSG_2)
         
         # recursive case: rank exceeds self
         else:
@@ -2311,6 +2333,10 @@ class Taxonomy:
         # constants
         AND = ' AND '
         RANK_SUFFIX = '[Rank]'
+        ERR_MSG_1 = 'untested scenario; please report at https://github.com/jwirth/phantasm'
+        ERR_MSG_2 = 'Failed to find a preferred node.'
+        
+        logger = logging.getLogger(Taxonomy.__LOGGER_PREFIX + Taxonomy.__findPreferredNode.__name__)
 
         # determine the rank for the collision; will be used in the ncbi search
         firstTaxon:Taxonomy = collidingTaxa[0]
@@ -2330,7 +2356,8 @@ class Taxonomy:
 
         # if more than one taxid was found, then raise an error (untested)
         elif len(goodTaxid) > 1:
-            raise RuntimeError('untested scenario')
+            logger.error(ERR_MSG_1)
+            raise RuntimeError(ERR_MSG_1)
 
         # If preferred node still not found, then ncbiNamesL indices will match
         # those of probList. Pick the most similar string (arbitrary).
@@ -2355,7 +2382,8 @@ class Taxonomy:
 
         # raise an exception if this function failed to find a preferred node
         if preferredNode is None or preferredNode is False:
-            raise RuntimeError('Failed to find a preferred node.')
+            logger.error(ERR_MSG_2)
+            raise RuntimeError(ERR_MSG_2)
 
         return preferredNode
 
@@ -2457,6 +2485,8 @@ class Taxonomy:
         ERR_MSG = "attempting to merge inequivalent objects" + \
                   " that share keys! (DANGEROUS COLLISION!)" + SEP
         
+        logger = logging.getLogger(Taxonomy.__LOGGER_PREFIX + Taxonomy.__updateStructureHelper.__name__)
+        
         # get lpsnD key
         lpsnKey = str(self.rank)
 
@@ -2519,6 +2549,8 @@ class Taxonomy:
                             # abort if inequivalent objects share a name
                             if curRoot.sciName == newRoot.sciName:
                                 # bad LPSN data can produce this error!!
+                                logger.critical(ERR_MSG + str(curRoot) + \
+                                                    SEP + str(newRoot))
                                 raise RuntimeError(ERR_MSG + str(curRoot) + \
                                                     SEP + str(newRoot))
 
@@ -3031,6 +3063,8 @@ class Taxonomy:
         # constants
         ERR_1 = "Cannot find taxonomic MRCA. '"
         ERR_2 = "' not within the root of the calling object"
+        
+        logger = logging.getLogger(Taxonomy.__LOGGER_PREFIX + Taxonomy.__findTaxonomicMrca.__name__)
 
         # get the root
         root = self.getRoot()
@@ -3041,7 +3075,9 @@ class Taxonomy:
         for spe in species:
             # quit if a species is not witin the calling object's root
             if not root.getDescendantByTaxId(spe.taxid):
-                raise BaseException(ERR_1 + str(spe.taxid) + ERR_2)
+                errMsg = ERR_1 + str(spe.taxid) + ERR_2
+                logger.error(errMsg)
+                raise BaseException(errMsg)
             
             # if this is the first species, then initialize the parent
             if not curParentInitialized:
@@ -3460,6 +3496,9 @@ class Taxonomy:
         # constants
         BACT_NAME = "Bacteria"
         ARCH_NAME = "Archaea"
+        ERR_MSG = "Could not find an outgroup"
+
+        logger = logging.getLogger(Taxonomy.__LOGGER_PREFIX + Taxonomy._pickOutgroup.__name__)
 
         # attempt to retrieve the outgroup
         try:
@@ -3480,7 +3519,8 @@ class Taxonomy:
             
             # raise an error if the root isn't at a domain (should not happen)
             else:
-                raise RuntimeError("Could not find an outgroup")
+                logger.critical(ERR_MSG)
+                raise RuntimeError(ERR_MSG)
 
         # get the root
         root = self.getRoot()
@@ -3803,6 +3843,9 @@ class Taxonomy:
         SEARCH_SUFFIX = " AND superkingdom[RANK]"
         DATABASE = 'taxonomy'
         ORDER = 'order'
+        ERR_MSG = "Could not find an outgroup"
+        
+        logger = logging.getLogger(Taxonomy.__LOGGER_PREFIX + Taxonomy.__outgroupFromDiffDomain.__name__)
 
         # determine the taxid ny searching NCBI
         result = ncbiIdsFromSearchTerm(name + SEARCH_SUFFIX, DATABASE)
@@ -3839,7 +3882,8 @@ class Taxonomy:
         
         # if an assembly was not found, then raise an error
         if not found:
-            raise RuntimeError("Could not find an outgroup")
+            logger.critical(ERR_MSG)
+            raise RuntimeError(ERR_MSG)
         
         # set the order as external
         order.__setAsExternal()
@@ -3860,11 +3904,16 @@ class Taxonomy:
         """
         # constants
         MIN_NUM_SEQS = 2
+        ERR_MSG_1 = 'max sequences must be greater than '
+        ERR_MSG_2 = 'ingroup contains redundant species!'
+        
+        logger = logging.getLogger(Taxonomy.__LOGGER_PREFIX + Taxonomy._pickIngroup.__name__)
 
         # make sure the max number is greater than the minimum
         if maxNumSeqs < MIN_NUM_SEQS:
-            raise ValueError('max sequences must be greater than ' + \
-                                                             str(MIN_NUM_SEQS))
+            errMsg = ERR_MSG_1 + str(MIN_NUM_SEQS)
+            logger.error(errMsg)
+            raise ValueError(errMsg)
 
         # evenly distribute the sequences across the "internal" Taxonomy
         ingroupRaw:list
@@ -3884,7 +3933,8 @@ class Taxonomy:
 
         # check that all ingroup species are unique
         if len(ingroupSpecies) != len(set(ingroupSpecies)):
-            raise RuntimeError('ingroup contains redundant species!')
+            logger.error(ERR_MSG_2)
+            raise RuntimeError(ERR_MSG_2)
 
         # get a set of all the genera represented by the ingroup species
         ingroupGenera = set()
@@ -4279,6 +4329,9 @@ class Taxonomy:
         TAX = 'tax'
         SURPLUS = 'surplus'
         MAX_CHANCES_BEFORE_AVOIDING = 24
+        ERR_MSG = "'ingroupSpecies' is not the expected length"
+
+        logger = logging.getLogger(Taxonomy.__LOGGER_PREFIX + Taxonomy.__redistributeSurplusToCandidates.__name__)
 
         # calculate total surplus contained in the candidates list
         sumCand = 0
@@ -4486,7 +4539,8 @@ class Taxonomy:
                 
         # check that the maxNumSeqs has not been modified by this function
         if len(ingroupSpecies) != maxNumSeqs:
-            raise RuntimeError("'ingroupSpecies' is not the expected length")
+            logger.info(ERR_MSG)
+            raise RuntimeError(ERR_MSG)
 
 
     def __pickTypeAssembly(ingroupSpecies:list, ingroupHigherTaxa:list, \
