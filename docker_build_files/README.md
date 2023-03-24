@@ -124,23 +124,28 @@ If you have successfully mounted the image, then you should see something like t
 
     root@fe46a3c61f0b:/#
 
-You should also be able to see your genome file of interest within the container. For example:
+You should also be able to see the contents of your mounted folder within the container. For example:
 
     root@fe46a3c61f0b:/# ls /mydata
     my_genome.gbff
 
 ## 1.4. Using Singularity instead of Docker
-If you are unable to use Docker (eg. your server admin prohibits Docker due to issues with root acces), then you can use Singularity instead. First, pull the image with the following command:
+If you are unable to use Docker (eg. your server admin prohibits Docker due to issues with root access), then you can use Singularity instead. Instructions for installing and using Singularity can be found on [their website](https://docs.sylabs.io/guides/latest/user-guide/). Once installed, pull the image with the following command:
 
     $ singularity pull docker://jwirth/phantasm:latest
-  
-and this should generate the file `phantasm_latest.sif`. Next you can create a container using Singularity:
+
+which will generate the file `phantasm_latest.sif`. Next you can create a container with a local folder (`~/myworkdir` in the example below) mounted as a volume (`/mydata` in the example below) with read-write (`rw`) privileges. You also need to make sure that the file structure is writeable. All of this can be accomplished using the following command:
 
     $ singularity run --writable-tmpfs --containall --bind ~/myworkdir:/mydata:rw phantasm_latest.sif
 
 If you have successfully created the container, then you should seem something like this:
 
     Singularity> 
+
+You should also be able to see the contents of your mounted folder within the container. For example:
+
+    Singularity> ls /mydata
+    my_genome.gbff
 
 Singularity does not grant root access. Because the Docker image assumes the user will be `root`, an alias present `/root/.bashrc` will not be loaded for you. In order to bypass this issue, run the following command:
 
