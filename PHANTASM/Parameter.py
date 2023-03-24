@@ -111,7 +111,7 @@ class Parameters:
         self.aniBlastFilePath = os.path.join(self.workdir, Parameters.__aniBlastFilePath)
         self.excludedTaxidsFN = os.path.join(os.path.dirname(self.workdir), Parameters.__excludedTaxidsFN)
         self.taxidsFN = os.path.join(os.path.dirname(self.workdir), Parameters.__taxidsFN)
-        self.logFN = os.path.join(os.path.dirname(self.workdir), Parameters.__logFN)
+        self.logFN = os.path.join(self.workdir, Parameters.__logFN)
 
         # import remaining variables from static class members
         self.dnaBasedGeneTrees = Parameters.__dnaBasedGeneTrees
