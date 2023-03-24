@@ -1,6 +1,6 @@
 # Author: Joseph S. Wirth
 
-import re
+import logging, re
 from PHANTASM.utilities import ncbiIdsFromSearchTerm, isFloat, parseCsv
 
 
@@ -12,6 +12,9 @@ def getTaxIdsFromRnaBlast(blastResultFile:str) -> list:
     # constants
     ERR_MSG_1 = "The file '"
     ERR_MSG_2 = "' does not contain any valid blastn hits."
+    
+    # initialize logger
+    logger = logging.getLogger(__name__ + ".getTaxIdsFromRnaBlast")
 
     # get subjects from file
     subjects = __readRnaBlastFile(blastResultFile)
@@ -23,6 +26,7 @@ def getTaxIdsFromRnaBlast(blastResultFile:str) -> list:
     __fixTaxIds(taxids)
 
     if len(taxids) == 0:
+        logger.error(ERR_MSG_1 + blastResultFile + ERR_MSG_2)
         raise RuntimeError(ERR_MSG_1 + blastResultFile + ERR_MSG_2)
     
     return taxids
@@ -100,6 +104,9 @@ def __fixTaxIds(taxids:set) -> None:
     ERR = 'The following search to NCBI failed:\n  database:    ' + DATABASE \
                                                           + '\n  search term: '
 
+    # initialize logger
+    logger = logging.getLogger(__name__ + ".__fixTaxIds")
+
     # make a search term to find missing taxids and remove bad names from set
     searchTerm = ''
     badTaxIds = set()
@@ -128,6 +135,7 @@ def __fixTaxIds(taxids:set) -> None:
         try:
             newTaxIds = ncbiIdsFromSearchTerm(searchTerm, DATABASE)
         except:
+            logger.error(ERR + searchTerm)
             raise RuntimeError(ERR + searchTerm)
         
         # for each new taxid retrieved, add it to the set
