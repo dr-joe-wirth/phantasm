@@ -75,7 +75,7 @@ def __blastPrep(allQryGbksL:list, rnaDir:str, blastDir:str, \
 
     # make query fasta from the input gbffs
     print(PRNT_1, end="", flush=True)
-    logger.info(PRINT_1)
+    logger.info(PRNT_1)
     
     # open the file as a filehandle
     queryFnaFH = open(queryFnaFile, "w")
