@@ -36,14 +36,14 @@ def downloadGbffsForRootTaxonomy(taxO:Taxonomy, maxNumSeqs:int, paramO:Parameter
     logger.info(PRINT_1)
     speciesList = __selectSpeciesFromTaxonomyObject(taxO, maxNumSeqs, lpsnD)
     print(DONE)
-    logger.info(PRINT_2)
+    logger.info(DONE)
 
     # download the genomes
     print(PRINT_2, end='', flush=True)
     logger.info(PRINT_2)
     __downloadGbffFromSpeciesList(speciesList, humanMapFN, gbffDir)
     print(DONE)
-    logger.info(DONE)
+    logger.info(DONE + "\n")
 
     # outgroup is always the last element of speciesList; return it
     return speciesList[-1]

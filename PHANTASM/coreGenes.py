@@ -119,7 +119,7 @@ def parseGenbank(paramD:dict) -> None:
     logger.info(PRINT)
     xenoGI.xenoGI.parseGenbankWrapper(paramD)
     print(DONE)
-    logger.info(DONE)
+    logger.info(DONE + "\n")
 
 
 def allVsAllBlast(paramD:dict) -> None:
@@ -139,7 +139,7 @@ def allVsAllBlast(paramD:dict) -> None:
     logger.info(PRINT)
     xenoGI.xenoGI.runBlastWrapper(paramD)
     print(DONE)
-    logger.info(DONE)
+    logger.info(DONE + "\n")
 
 
 def copyExistingBlastFiles(oldParamO:Parameters, newParamO:Parameters) -> None:
@@ -184,7 +184,7 @@ def copyExistingBlastFiles(oldParamO:Parameters, newParamO:Parameters) -> None:
                                                             locusTagToNewNameD)
     
     print(DONE)
-    logger.info(DONE)
+    logger.info(DONE + "\n")
 
 
 def __getBlastFilesToCopy(oldParamO:Parameters, newParamO:Parameters) -> dict:
@@ -364,7 +364,7 @@ def calculateCoreGenes(paramO:Parameters) -> None:
                                percIdentThresh,
                                aabrhFN)
     print(DONE)
-    logger.info(DONE)
+    logger.info(DONE + "\n")
 
 
 def makeSpeciesTree(allQryGbksL:list, paramO:Parameters, outgroup:Taxonomy, \
@@ -465,7 +465,7 @@ def makeSpeciesTree(allQryGbksL:list, paramO:Parameters, outgroup:Taxonomy, \
     __rootTree(speTreeFN, [outgroupTaxonName])
 
     print(DONE)
-    logger.info(DONE)
+    logger.info(DONE + "\n")
 
 
 def __makeGeneTreesWrapper(paramO:Parameters) -> None:
@@ -1091,7 +1091,7 @@ def rankPhylogeneticMarkers(paramO:Parameters) -> None:
     # close the file
     filehandle.close()
     print(DONE)
-    logger.info(DONE)
+    logger.info(DONE + "\n")
 
 
 def __calculateCopheneticCorrelations(paramO:Parameters) -> list:

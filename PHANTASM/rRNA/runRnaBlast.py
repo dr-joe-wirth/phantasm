@@ -101,7 +101,7 @@ def __blastPrep(allQryGbksL:list, rnaDir:str, blastDir:str, \
     logger.info(PRNT_3)
     subjectFna = __makeFastaForBlastDB(subjectGbff)
     print(DONE)
-    logger.info(PRNT_3)
+    logger.info(DONE)
 
     # get the blastn database filename
     dbFilename = os.path.splitext(subjectFna)[0]
