@@ -1,6 +1,6 @@
 # Author: Joseph S. Wirth
 
-import glob, math, os, sys, subprocess
+import glob, logging, math, os, sys, subprocess
 import rpy2.robjects as robjects
 from Bio import SeqIO
 from PHANTASM.Parameter import Parameters
@@ -22,11 +22,13 @@ def overallGenomeRelatedIndices(paramO:Parameters, outgroup:Taxonomy) -> None:
             the results to file. Does not return.
     """
     # constants
-    INDENT  = ' '*4
+    GAP  = ' '*4
     PRINT_1 = 'Calculating average amino acid identity (AAI) ... '
-    SAVE_PRINT = INDENT + 'Saving result to '
+    SAVE_PRINT = GAP + 'Saving result to '
     PRINT_2 = 'Calculating average nucleotide identity (ANI) ... '
     DONE = 'Done.'
+
+    logger = logging.getLogger(__name__ + "." + overallGenomeRelatedIndices.__name__)
 
     # extract relevant data from paramO
     aaiFN = paramO.aaiFN
@@ -34,8 +36,10 @@ def overallGenomeRelatedIndices(paramO:Parameters, outgroup:Taxonomy) -> None:
 
     # calculate AAI
     print(PRINT_1, end='', flush=True)
+    logger.info(PRINT_1)
     aaiD = _calculateAAI(paramO, outgroup)
     print(DONE)
+    logger.info(DONE)
 
     # save the result to file
     print(SAVE_PRINT + aaiFN)
@@ -43,8 +47,10 @@ def overallGenomeRelatedIndices(paramO:Parameters, outgroup:Taxonomy) -> None:
 
     # calculate ANI
     print(PRINT_2, end='', flush=True)
+    logger.info(PRINT_2)
     aniD = _calculateANI(paramO, outgroup)
     print(DONE)
+    logger.info(DONE)
 
     # save the result to file
     print(SAVE_PRINT + aniFN)
