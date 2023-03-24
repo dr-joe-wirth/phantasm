@@ -47,6 +47,7 @@ class Parameters:
     __aniBlastFilePath = os.path.join(__aniWorkDir, 'blast', '*.blastn')
     __excludedTaxidsFN = 'excludedTaxids.txt'
     __taxidsFN = 'taxids.txt'
+    __logFN = 'phantasm.log'
 
     # these objects will never change
     __dnaBasedGeneTrees = False
@@ -110,6 +111,7 @@ class Parameters:
         self.aniBlastFilePath = os.path.join(self.workdir, Parameters.__aniBlastFilePath)
         self.excludedTaxidsFN = os.path.join(os.path.dirname(self.workdir), Parameters.__excludedTaxidsFN)
         self.taxidsFN = os.path.join(os.path.dirname(self.workdir), Parameters.__taxidsFN)
+        self.logFN = os.path.join(os.path.dirname(self.workdir), Parameters.__logFN)
 
         # import remaining variables from static class members
         self.dnaBasedGeneTrees = Parameters.__dnaBasedGeneTrees
