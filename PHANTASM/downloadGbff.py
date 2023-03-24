@@ -1,6 +1,6 @@
 # Author: Joseph S. Wirth
 
-import os, re, string
+import logging, os, re, string
 from PHANTASM.utilities import downloadFileFromFTP, decompressGZ
 from PHANTASM.Parameter import Parameters
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
@@ -20,6 +20,8 @@ def downloadGbffsForRootTaxonomy(taxO:Taxonomy, maxNumSeqs:int, paramO:Parameter
     PRINT_2 = 'Downloading genbank files from NCBI ... '
     DONE = 'Done.'
 
+    logger = logging.getLogger(__name__ + ".downloadGbffsForRootTaxonomy")
+
     # extract necessary data from paramO
     humanMapFN = paramO.fileNameMapFN
     gbffFN = paramO.genbankFilePath
@@ -31,13 +33,17 @@ def downloadGbffsForRootTaxonomy(taxO:Taxonomy, maxNumSeqs:int, paramO:Parameter
 
     # get a list of species for phylogenetic anlayses
     print(PRINT_1, end='', flush=True)
+    logger.info(PRINT_1)
     speciesList = __selectSpeciesFromTaxonomyObject(taxO, maxNumSeqs, lpsnD)
     print(DONE)
+    logger.info(PRINT_2)
 
     # download the genomes
     print(PRINT_2, end='', flush=True)
+    logger.info(PRINT_2)
     __downloadGbffFromSpeciesList(speciesList, humanMapFN, gbffDir)
     print(DONE)
+    logger.info(DONE)
 
     # outgroup is always the last element of speciesList; return it
     return speciesList[-1]
@@ -56,6 +62,8 @@ def __selectSpeciesFromTaxonomyObject(taxO:Taxonomy, maxNumSeqs:int, \
     ERR_PREFIX = "Could not pick an ingroup with exactly "
     ERR_SUFFIX = " sequences. Please try a larger number."
     
+    logger = logging.getLogger(__name__ + ".__selectSpeciesFromTaxonomyObject")
+    
     # get the outgroup first (taxO may be modified in the process)
     outgroup:Taxonomy
     taxO, outgroup = taxO._pickOutgroup(lpsnD)
@@ -64,6 +72,7 @@ def __selectSpeciesFromTaxonomyObject(taxO:Taxonomy, maxNumSeqs:int, \
     speciesL = taxO._pickIngroup(maxNumSeqs)
 
     if speciesL == []:
+        logger.error(ERR_PREFIX + str(maxNumSeqs) + ERR_SUFFIX)
         raise RuntimeError(ERR_PREFIX + str(maxNumSeqs) + ERR_SUFFIX)
 
     # append the outgroup to the end of the list
@@ -148,6 +157,8 @@ def _makeHumanMapString(speciesO:Taxonomy, filename:str) -> str:
     # constant
     ERR_MSG = "invalid input"
 
+    logger = logging.getLogger(__name__ + "._makeHumanMapString")
+
     # if a string was provided, then just use it
     # this functionality allows for 'user_input' humanMap
     if type(speciesO) is str:
@@ -157,6 +168,7 @@ def _makeHumanMapString(speciesO:Taxonomy, filename:str) -> str:
         taxonName = _makeTaxonName(speciesO)
 
     else:
+        logger.error(ERR_MSG)
         raise Exception(ERR_MSG)
 
     # combine inputs to make map string and return it
