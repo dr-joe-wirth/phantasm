@@ -143,7 +143,7 @@ def constructTaxonomy(taxids:list, saveTax:bool=False, dir:str='./') -> Taxonomy
         __saveTaxonomy(taxonomy, dir)
     
     print(DONE + "\n")
-    logger.info(DONE)
+    logger.info(DONE + "\n")
 
     return taxonomy
 
