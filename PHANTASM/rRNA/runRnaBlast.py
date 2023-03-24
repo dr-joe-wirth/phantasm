@@ -65,7 +65,7 @@ def __blastPrep(allQryGbksL:list, rnaDir:str, blastDir:str, \
     DONE = "Done.\n"
     
     # create logger
-    logger = logging.getLogger(__name__ + ".__blastPrep")
+    logger = logging.getLogger(__name__ + "." + __blastPrep.__name__)
     
     # add path information to queryFnaFile
     queryFnaFile = os.path.join(rnaDir, QUERY_FNA_FILENAME)
@@ -75,6 +75,7 @@ def __blastPrep(allQryGbksL:list, rnaDir:str, blastDir:str, \
 
     # make query fasta from the input gbffs
     print(PRNT_1, end="", flush=True)
+    logger.info(PRINT_1)
     
     # open the file as a filehandle
     queryFnaFH = open(queryFnaFile, "w")
@@ -86,6 +87,7 @@ def __blastPrep(allQryGbksL:list, rnaDir:str, blastDir:str, \
     # close the fasta file
     queryFnaFH.close()
     print(DONE)
+    logger.info(DONE)
 
     # download the sequence files from NCBI and save the gbff
     print(PRNT_2)
@@ -131,7 +133,7 @@ def __rnaFastaFromGbk(filename:str, outFH:TextIOWrapper) -> None:
     ERR_MSG = "Could not extract 16S rRNA gene sequences from the " + \
                                                        "provided genbank file."
     
-    logger = logging.getLogger(__name__ + ".__rnaFastaFromGbk")
+    logger = logging.getLogger(__name__ + "." + __rnaFastaFromGbk.__name__)
     
     # get a list of 16S rRNA SeqRecord objects
     recs = __rnaSeqGrabber(filename)
@@ -204,11 +206,13 @@ def __downloadRnaSequences(outFile:str, outDir:str) -> None:
     NCBI_FTP = "ftp.ncbi.nlm.nih.gov"
     BACTERIA_FTP_PATH = "/refseq/TargetedLoci/Bacteria/bacteria.16SrRNA.gbff.gz"
     ARCHAEA_FTP_PATH = "/refseq/TargetedLoci/Archaea/archaea.16SrRNA.gbff.gz"
-    INDENT = " " * 4
+    GAP = " " * 4
     SUFFIX = "'."
-    PRNT_1 = INDENT + "Saving bacterial 16S rRNA sequences to '"
-    PRNT_2 = INDENT + "Saving archaeal  16S rRNA sequences to '"
-    PRNT_3 = INDENT + "Writing subject gbff to '"
+    PRNT_1 = GAP + "Saving bacterial 16S rRNA sequences to '"
+    PRNT_2 = GAP + "Saving archaeal  16S rRNA sequences to '"
+    PRNT_3 = GAP + "Writing subject gbff to '"
+    
+    logger = logging.getLogger(__name__ + "." + __downloadRnaSequences.__name__)
 
     # get the filenames so that they can be written with their original names
     bacteriaFile = os.path.basename(BACTERIA_FTP_PATH)
@@ -220,8 +224,10 @@ def __downloadRnaSequences(outFile:str, outDir:str) -> None:
 
     # download the individual files
     print(PRNT_1 + bacteriaFile + SUFFIX)
+    logger.info(PRNT_1 + bacteriaFile + SUFFIX)
     downloadFileFromFTP(NCBI_FTP, BACTERIA_FTP_PATH, bacteriaFile)
     print(PRNT_2 + archaeaFile + SUFFIX)
+    logger.info(PRNT_2 + archaeaFile + SUFFIX)
     downloadFileFromFTP(NCBI_FTP,  ARCHAEA_FTP_PATH, archaeaFile)
 
     # extract the contents of the files
@@ -230,6 +236,7 @@ def __downloadRnaSequences(outFile:str, outDir:str) -> None:
 
     # combine the two files
     print(PRNT_3 + outFile + SUFFIX)
+    logger.info(PRNT_3 + outFile + SUFFIX)
     allContents = bacteriaFileContents + archaeaFileContents
 
     # write the file
@@ -351,7 +358,7 @@ def __runRnaBlast(queryFna:str, blastdb:str, outFile:str, \
     EVALUE_CUTOFF = '1e-5'
 
     # make logger
-    logger = logging.getLogger(__name__ + ".__runRnaBlast")
+    logger = logging.getLogger(__name__ + "." + __runRnaBlast.__name__)
 
     # make the outfmt string
     outfmtStr = __makeOutfmtString(OUTFMT, HEADERS)

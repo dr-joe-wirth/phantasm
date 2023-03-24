@@ -14,7 +14,7 @@ def getTaxIdsFromRnaBlast(blastResultFile:str) -> list:
     ERR_MSG_2 = "' does not contain any valid blastn hits."
     
     # initialize logger
-    logger = logging.getLogger(__name__ + ".getTaxIdsFromRnaBlast")
+    logger = logging.getLogger(__name__ + "." + getTaxIdsFromRnaBlast.__name__)
 
     # get subjects from file
     subjects = __readRnaBlastFile(blastResultFile)
@@ -105,7 +105,7 @@ def __fixTaxIds(taxids:set) -> None:
                                                           + '\n  search term: '
 
     # initialize logger
-    logger = logging.getLogger(__name__ + ".__fixTaxIds")
+    logger = logging.getLogger(__name__ + "." + __fixTaxIds.__name__)
 
     # make a search term to find missing taxids and remove bad names from set
     searchTerm = ''

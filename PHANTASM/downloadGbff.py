@@ -20,7 +20,7 @@ def downloadGbffsForRootTaxonomy(taxO:Taxonomy, maxNumSeqs:int, paramO:Parameter
     PRINT_2 = 'Downloading genbank files from NCBI ... '
     DONE = 'Done.'
 
-    logger = logging.getLogger(__name__ + ".downloadGbffsForRootTaxonomy")
+    logger = logging.getLogger(__name__ + "." + downloadGbffsForRootTaxonomy.__name__)
 
     # extract necessary data from paramO
     humanMapFN = paramO.fileNameMapFN
@@ -62,7 +62,7 @@ def __selectSpeciesFromTaxonomyObject(taxO:Taxonomy, maxNumSeqs:int, \
     ERR_PREFIX = "Could not pick an ingroup with exactly "
     ERR_SUFFIX = " sequences. Please try a larger number."
     
-    logger = logging.getLogger(__name__ + ".__selectSpeciesFromTaxonomyObject")
+    logger = logging.getLogger(__name__ + "." + __selectSpeciesFromTaxonomyObject.__name__)
     
     # get the outgroup first (taxO may be modified in the process)
     outgroup:Taxonomy
@@ -157,7 +157,7 @@ def _makeHumanMapString(speciesO:Taxonomy, filename:str) -> str:
     # constant
     ERR_MSG = "invalid input"
 
-    logger = logging.getLogger(__name__ + "._makeHumanMapString")
+    logger = logging.getLogger(__name__ + "." + _makeHumanMapString.__name__)
 
     # if a string was provided, then just use it
     # this functionality allows for 'user_input' humanMap

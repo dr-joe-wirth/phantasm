@@ -112,7 +112,7 @@ def parseGenbank(paramD:dict) -> None:
     DONE = 'Done.'
 
     # intialize logger
-    logger = logging.getLogger(__name__ + ".parseGenbank")
+    logger = logging.getLogger(__name__ + "." + parseGenbank.__name__)
 
     # parse the genbank files
     print(PRINT, end='', flush=True)
@@ -132,7 +132,7 @@ def allVsAllBlast(paramD:dict) -> None:
     DONE = 'Done.'
     
     # initialize logger
-    logger = logging.getLogger(__name__ + ".allVsAllBlast")
+    logger = logging.getLogger(__name__ + "." + allVsAllBlast.__name__)
 
     # run all pairwise blast comparisons
     print(PRINT, end='', flush=True)
@@ -153,7 +153,7 @@ def copyExistingBlastFiles(oldParamO:Parameters, newParamO:Parameters) -> None:
     PRINT = "Copying existing blastp comparisons ... "
     DONE = 'Done.'
     
-    logger = logging.getLogger(__name__ + ".copyExistingBlastFiles")
+    logger = logging.getLogger(__name__ + "." + copyExistingBlastFiles.__name__)
 
     # print job-start statement
     print(PRINT, end='', flush=True)
@@ -338,7 +338,7 @@ def calculateCoreGenes(paramO:Parameters) -> None:
     PRINT_1 = 'Calculating core genes ... '
     DONE = 'Done.'
     
-    logger = logging.getLogger(__name__ + ".calculateCoreGenes")
+    logger = logging.getLogger(__name__ + "." + calculateCoreGenes.__name__)
 
     # parse parameters into shorter variable names
     strainInfoFN = paramO.strainInfoFN
@@ -388,7 +388,7 @@ def makeSpeciesTree(allQryGbksL:list, paramO:Parameters, outgroup:Taxonomy, \
     IQTREE = 'iqtree'
     ERR_MSG = 'Invalid program specified.'
     
-    logger = logging.getLogger(__name__ + ".makeSpeciesTree")
+    logger = logging.getLogger(__name__ + "." + makeSpeciesTree.__name__)
 
     # align hardcore genes and build gene trees with fasttree
     if makeGeneTrees:
@@ -574,7 +574,7 @@ def __concatenateAlignments(qryHumanNamesL:list, speciesTreeWorkDir:str, \
     EOL = "\n"
     ERR_MSG = "untested condition; please report this at https://github.com/dr-joe-wirth/phantasm"
 
-    logger = logging.getLogger(__name__ + ".__concatenateAlignments")
+    logger = logging.getLogger(__name__ + "." + __concatenateAlignments.__name__)
 
     # get the files sring
     fileString = os.path.join(speciesTreeWorkDir, FILE_NAME_PATTERN)
@@ -719,7 +719,7 @@ def __lessThanFivePercentGaps(alignmentFN:str) -> bool:
     MAX_PERC = 0.05
     ERR_MSG = "alignment length inconsistent for "
     
-    logger = logging.getLogger(__name__ + ".__lessThanFivePercentGaps")
+    logger = logging.getLogger(__name__ + "." + __lessThanFivePercentGaps.__name__)
 
     # parse the file
     parsed = SeqIO.parse(alignmentFN, FORMAT)
@@ -1054,9 +1054,12 @@ def rankPhylogeneticMarkers(paramO:Parameters) -> None:
                     "protein_len" + DELIM + "gene_name" + DELIM + \
                     "annotation" + DELIM + "gene_number" + EOL
 
+    logger = logging.getLogger(__name__ + "." + rankPhylogeneticMarkers.__name__)
+
     # print status
     print(PRINT_1, end='', flush=True)
-
+    logger.info(PRINT_1)
+    
     # extract necessary data from paramO
     geneInfoFN = paramO.geneInfoFN
     phyloMarkersFN = paramO.phyloMarkersFN
@@ -1088,6 +1091,7 @@ def rankPhylogeneticMarkers(paramO:Parameters) -> None:
     # close the file
     filehandle.close()
     print(DONE)
+    logger.info(DONE)
 
 
 def __calculateCopheneticCorrelations(paramO:Parameters) -> list:
@@ -1211,9 +1215,15 @@ def __cophenetic(speciesDistMat:dict, geneDistMat:dict) -> float:
             two tips in the tuple. Calculates and returns the cophenetic corre-
             lation coefficient based on the input matrices.
     """
+    # constant
+    ERR_MSG = "The distance matrices must use identical names."
+    
+    logger = logging.getLogger(__name__ + "." + __cophenetic.__name__)
+    
     # make sure the tip names match
     if speciesDistMat.keys() != geneDistMat.keys():
-        raise ValueError("The distance matrices must use identical names.")
+        logger.error(ERR_MSG)
+        raise ValueError(ERR_MSG)
 
     # flatten the matrices into 1d arrays that are linked by their indices
     speDistArray = list()

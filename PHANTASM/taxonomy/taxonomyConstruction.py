@@ -32,7 +32,7 @@ def constructTaxonomy(taxids:list, saveTax:bool=False, dir:str='./') -> Taxonomy
     ERR_MSG_3 = "Resulting taxonomy is not consistent. Aborting."
     
     # initialize logger
-    logger = logging.getLogger(__name__ + ".constructTaxonomy")
+    logger = logging.getLogger(__name__ + "." + constructTaxonomy.__name__)
 
     # retrieve a list of Taxonomy objects at the order-level 
     # that are represented by the input taxids
@@ -167,7 +167,7 @@ def __initializeTaxonomy(taxids:list) -> list:
               ". Please select a different phylogenetic marker(s)."
 
     # initialize a logger
-    logger = logging.getLogger(__name__ + ".__initializeTaxonomy")
+    logger = logging.getLogger(__name__ + "." + __initializeTaxonomy.__name__)
 
     # make sure that all orders are in the same domain
     domInfo = getParentalTaxIds(taxids, DOMAIN)
@@ -210,7 +210,7 @@ def __getOrder(ordInfo:dict) -> Taxonomy:
     DONE = "Done."
     RANK = 'order'
     
-    logger = logging.getLogger(__name__ + ".__getOrder")
+    logger = logging.getLogger(__name__ + "." + __getOrder.__name__)
     
     # print the status
     status = GAP + ordInfo['name'] + PRNT_2 + ordInfo['txid'] + PRNT_3
@@ -252,7 +252,7 @@ def __resolveCollidingRoots(taxO:Taxonomy, otherO:Taxonomy) -> None:
     ERR_MSG_3 = "untested condition: taxid present, but name doesn't exist"
     ERR_MSG_4 = "untested condition: synonym names don't match"
 
-    logger = logging.getLogger(__name__ + ".__resolveCollidingRoots")
+    logger = logging.getLogger(__name__ + "." + __resolveCollidingRoots.__name__)
 
     # ensure that the taxids of the two objects are identical
     if taxO.taxid != otherO.taxid:
