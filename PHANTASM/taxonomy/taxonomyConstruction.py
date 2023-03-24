@@ -3,6 +3,7 @@
 from PHANTASM.taxonomy.Taxonomy import *
 from PHANTASM.taxonomy.processLpsn import makeLpsnD
 from PHANTASM.utilities import getParentalTaxIds
+import logging
 
 
 def constructTaxonomy(taxids:list, saveTax:bool=False, dir:str='./') -> Taxonomy:
@@ -29,17 +30,23 @@ def constructTaxonomy(taxids:list, saveTax:bool=False, dir:str='./') -> Taxonomy
     ERR_MSG_1 = "Taxonomic order could not be identified from provided taxids."
     ERR_MSG_2 = "Failed to create a Taxonomy object. Aborting"
     ERR_MSG_3 = "Resulting taxonomy is not consistent. Aborting."
+    
+    # initialize logger
+    logger = logging.getLogger(__name__ + ".constructTaxonomy")
 
     # retrieve a list of Taxonomy objects at the order-level 
     # that are represented by the input taxids
     print(PRNT_1)
+    logger.info(PRNT_1)
     allOrdersL = __initializeTaxonomy(taxids)
 
     # raise an error if no orders were found
     if len(allOrdersL) == 0:
+        logger.error(ERR_MSG_1)
         raise RuntimeError(ERR_MSG_1)
 
     print(PRNT_2, end='', flush=True)
+    logger.info(PRNT_2)
     lpsnD = _getLpsnData()
 
     # initialize a dictionary to resolve colliding root taxids
@@ -93,6 +100,7 @@ def constructTaxonomy(taxids:list, saveTax:bool=False, dir:str='./') -> Taxonomy
         allOrdersL.pop(idx) 
 
     print(DONE)
+    logger.info(GAP + DONE)
     
     # if only one order was made, then use it
     if len(allOrdersL) == 1:
@@ -101,24 +109,33 @@ def constructTaxonomy(taxids:list, saveTax:bool=False, dir:str='./') -> Taxonomy
     # if multiple orders were made, then merge them into a single object
     elif len(allOrdersL) > 1:
         print(PRNT_3, end='', flush=True)
+        logger.info(PRNT_3)
         taxonomy = Taxonomy._mergeMultipleRoots(allOrdersL, lpsnD)
         print(DONE)
+        logger.info(GAP + DONE)
     
     # otherwise, no orders were made; raise an error
-    else: raise BaseException(ERR_MSG_2)
+    else:
+        logger.error(ERR_MSG_2)
+        raise BaseException(ERR_MSG_2)
     
     # use the taxids to update which taxa are considered interal/external
     print(PRNT_4, end="", flush=True)
+    logger.info(PRNT_4)
     taxonomy._updateInternalExternalStatus(taxids, lpsnD)
     print(DONE)
+    logger.info(GAP + DONE)
 
     # import data from NCBI assembly for the object
     print(PRNT_5, end='', flush=True)
+    logger.info(PRNT_5)
     taxonomy._importAssemblies()
     print(DONE)
+    logger.info(GAP + DONE)
 
     # make sure the resulting object is consistent
     if not taxonomy._isConsistent():
+        logger.error(ERR_MSG_3)
         raise RuntimeError(ERR_MSG_3)
 
     # write object to file (if requested)
@@ -126,6 +143,7 @@ def constructTaxonomy(taxids:list, saveTax:bool=False, dir:str='./') -> Taxonomy
         __saveTaxonomy(taxonomy, dir)
     
     print(DONE + "\n")
+    logger.info(DONE)
 
     return taxonomy
 
@@ -148,18 +166,25 @@ def __initializeTaxonomy(taxids:list) -> list:
     ERR_MSG = "Blast results contain taxids from both Bacteria and Archaea" + \
               ". Please select a different phylogenetic marker(s)."
 
+    # initialize a logger
+    logger = logging.getLogger(__name__ + ".__initializeTaxonomy")
+
     # make sure that all orders are in the same domain
     domInfo = getParentalTaxIds(taxids, DOMAIN)
     if len(domInfo) > 1:
+        logger.error(ERR_MSG)
         raise RuntimeError(ERR_MSG)
 
     # find the order(s) represented by the blastn
     print(PRNT_1, end='', flush=True)
+    logger.info(PRNT_1)
     ordInfo = getParentalTaxIds(taxids, ORDER)
     print(DONE)
+    logger.info(GAP + DONE)
 
     # print the status
     status = PRNT_2 + str(len(ordInfo)) + PRNT_3
+    logger.info(status)
     print(status)
 
     # for each order found ...
@@ -185,14 +210,18 @@ def __getOrder(ordInfo:dict) -> Taxonomy:
     DONE = "Done."
     RANK = 'order'
     
+    logger = logging.getLogger(__name__ + ".__getOrder")
+    
     # print the status
     status = GAP + ordInfo['name'] + PRNT_2 + ordInfo['txid'] + PRNT_3
+    logger.info(status)
     print(status, end="", flush=True)
 
     # create a taxonomy object for the order
     order =  Taxonomy(ordInfo['txid'], ordInfo['name'], RANK, isExternal=False)
     order._initializeDescendants()
     print(DONE)
+    logger.info(GAP + DONE)
     
     return order
 
@@ -223,8 +252,11 @@ def __resolveCollidingRoots(taxO:Taxonomy, otherO:Taxonomy) -> None:
     ERR_MSG_3 = "untested condition: taxid present, but name doesn't exist"
     ERR_MSG_4 = "untested condition: synonym names don't match"
 
+    logger = logging.getLogger(__name__ + ".__resolveCollidingRoots")
+
     # ensure that the taxids of the two objects are identical
     if taxO.taxid != otherO.taxid:
+        logger.error(ERR_MSG_1)
         raise RuntimeError(ERR_MSG_1)
 
     # only do work if objects are inequivalent
@@ -246,6 +278,7 @@ def __resolveCollidingRoots(taxO:Taxonomy, otherO:Taxonomy) -> None:
 
                     # artificial ids colliding here is untested. raise an error
                     if int(taxChild.taxid) < 0 or int(otherChild.taxid) < 0:
+                        logger.error(ERR_MSG_2)
                         raise RuntimeError(ERR_MSG_2)
 
                     # import the descendant, then resolve the duplicate names
@@ -253,6 +286,7 @@ def __resolveCollidingRoots(taxO:Taxonomy, otherO:Taxonomy) -> None:
 
             # taxid present with the name absent is an untested condition
             elif otherChild.sciName not in taxO:
+                logger.error(ERR_MSG_3)
                 raise RuntimeError(ERR_MSG_3)
 
             # if taxid is present in taxO 
@@ -262,6 +296,7 @@ def __resolveCollidingRoots(taxO:Taxonomy, otherO:Taxonomy) -> None:
 
                 # make sure the names match; error if not
                 if taxChild.sciName != otherChild.sciName:
+                    logger.error(ERR_MSG_4)
                     raise RuntimeError(ERR_MSG_4)
                 
                 # recurse on the two synonymous children
