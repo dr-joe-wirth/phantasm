@@ -775,6 +775,31 @@ def getLpsnAge() -> str:
     return date
     
 
+def obscureEmailAddress(email:str) -> str:
+    """ obscureEmailAddress
+            Accepts an email address as input. Replaces address and domain with
+            'x'. Returns the obscured address. This function is deployed in co-
+            njuction with the logger to ensure that the user's email remains
+            anonymous with the resulting log file.
+    """
+    # constants
+    GREP_FIND = r'^([^\@]+)\@(.+)(\.[^\.]+)$'
+    GREP_REPL = r'\1,\2,\3'
+    X = 'x'
+    
+    # extract the address, domain, and extension from the email address
+    address,domain,ext = re.sub(GREP_FIND, GREP_REPL, email).split(',')
+    
+    # replace all characters in the address (except the first) with `x`
+    address = address[0] + (len(address)-1)*X
+    
+    # replace all characters in domain (except the first) with `x`
+    domain = domain[0] + (len(domain)-1)*X
+    
+    # construct and return the obscured email address
+    return address + '@' + domain + ext
+    
+
 def cleanup(paramO:Parameters) -> None:
     """ cleanup:
             Accepts a Parameters object as input. Removes unnecessary
