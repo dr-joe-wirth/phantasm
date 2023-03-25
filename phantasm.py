@@ -1,9 +1,9 @@
 # Author: Joseph S. Wirth
 
-from PHANTASM.utilities import validEmailAddress, getParamO_1, getParamO_2, getParamO_3, checkForValidInputGenomes, checkForValidExecutables, checkForValidHumanMapFile, getLpsnAge
+from PHANTASM.utilities import validEmailAddress, getParamO_1, getParamO_2, getParamO_3, checkForValidInputGenomes, checkForValidExecutables, checkForValidHumanMapFile, getLpsnAge, obscureEmailAddress
 from PHANTASM.main import getPhyloMarker, refinePhylogeny, knownPhyloMarker, analyzeSpecifiedGenomes
 from PHANTASM.findMissingNeighbors import _locusTagToGeneNum
-from param import PHANTASM_DIR
+from param import PHANTASM_DIR, NUM_PROCESSORS, MAX_LEAVES, REDUCE_NUM_CORE_GENES, BOOTSTRAP_FINAL_TREE, NUM_BOOTSTRAPS
 import glob, logging, os, sys
 
 # constants
@@ -197,14 +197,20 @@ if __name__ == "__main__":
             logging.basicConfig(filename=paramO.logFN, level=logging.INFO)
             logger = logging.getLogger(__name__)
             
-            # save the version and input command
+            # save details about the run
+            cmdL = sys.argv[:-1] + [obscureEmailAddress(sys.argv[-1])]
+            logger.info(" ".join(cmdL))
             logger.info(VERSION)
-            logger.info(" ".join(sys.argv))
+            logger.info('num cpus:        ' + str(NUM_PROCESSORS))
+            logger.info('max leaves:      ' + str(MAX_LEAVES))
+            logger.info('reduce num core: ' + str(REDUCE_NUM_CORE_GENES))
+            logger.info('bootstrap tree:  ' + str(BOOTSTRAP_FINAL_TREE))
+            logger.info('num bootstraps:  ' + str(NUM_BOOTSTRAPS) + "\n")
 
             # execute job 1
-            logger.info("start job 1")
+            logger.info("start " + JOB_1 + "\n")
             getPhyloMarker(gbffL, paramO)
-            logger.info("end job 1")            
+            logger.info("end " + JOB_1 + "\n")            
         
         # if JOB_2 requested
         elif job == JOB_2:
@@ -270,22 +276,28 @@ if __name__ == "__main__":
             if len(genesL) != len(geneNumsL):
                 raise ValueError(ERR_MSG_5)
 
+            # print the LPSN age data
+            age = getLpsnAge()
+            print(AGE_MSG + age + "\n\n")
+            
             # initialize logger
             logging.basicConfig(filename=paramO_1.logFN, level=logging.INFO)
             logger = logging.getLogger(__name__)
             
-            # save the input command and version
+            # save details about the run
+            cmdL = sys.argv[:-1] + [obscureEmailAddress(sys.argv[-1])]
+            logger.info(" ".join(cmdL))
             logger.info(VERSION)
-            logger.info(" ".join(sys.argv))
-
-            # print the LPSN age data
-            age = getLpsnAge()
-            print(AGE_MSG + age + "\n\n")
+            logger.info('num cpus:        ' + str(NUM_PROCESSORS))
+            logger.info('max leaves:      ' + str(MAX_LEAVES))
+            logger.info('reduce num core: ' + str(REDUCE_NUM_CORE_GENES))
+            logger.info('bootstrap tree:  ' + str(BOOTSTRAP_FINAL_TREE))
+            logger.info('num bootstraps:  ' + str(NUM_BOOTSTRAPS) + "\n")
 
             # execute JOB_2
-            logger.info("start job 2")
+            logger.info("start " + JOB_2 + "\n")
             refinePhylogeny(geneNumsL, gbffL, paramO_1, paramO_2)
-            logger.info('end job 2')
+            logger.info('end ' + JOB_2 + "\n")
         
         # if JOB_3 requested
         elif job == JOB_3:
@@ -333,14 +345,20 @@ if __name__ == "__main__":
             logging.basicConfig(filename=paramO.logFN, level=logging.INFO)
             logger = logging.getLogger(__name__)
             
-            # save the input command and version
+            # save details about the run
+            cmdL = sys.argv[:-1] + [obscureEmailAddress(sys.argv[-1])]
+            logger.info(" ".join(cmdL))
             logger.info(VERSION)
-            logger.info(" ".join(sys.argv))
+            logger.info('num cpus:        ' + str(NUM_PROCESSORS))
+            logger.info('max leaves:      ' + str(MAX_LEAVES))
+            logger.info('reduce num core: ' + str(REDUCE_NUM_CORE_GENES))
+            logger.info('bootstrap tree:  ' + str(BOOTSTRAP_FINAL_TREE))
+            logger.info('num bootstraps:  ' + str(NUM_BOOTSTRAPS) + "\n")
             
             # execute JOB_3
-            logger.info("start job 3")
+            logger.info("start " + JOB_3 + "\n")
             knownPhyloMarker(gbffL, locusTagsL, paramO)
-            logger.info('end job 3')
+            logger.info('end ' + JOB_3 + "\n")
 
         # if JOB_4 requested
         elif job == JOB_4:
@@ -392,14 +410,20 @@ if __name__ == "__main__":
             logging.basicConfig(filename=paramO.logFN, level=logging.INFO)
             logger = logging.getLogger(__name__)
             
-            # save the input command and version
+            # save details about the run
+            cmdL = sys.argv[:-1] + [obscureEmailAddress(sys.argv[-1])]
+            logger.info(" ".join(cmdL))
             logger.info(VERSION)
-            logger.info(" ".join(sys.argv))
+            logger.info('num cpus:        ' + str(NUM_PROCESSORS))
+            logger.info('max leaves:      ' + str(MAX_LEAVES))
+            logger.info('reduce num core: ' + str(REDUCE_NUM_CORE_GENES))
+            logger.info('bootstrap tree:  ' + str(BOOTSTRAP_FINAL_TREE))
+            logger.info('num bootstraps:  ' + str(NUM_BOOTSTRAPS) + "\n")
             
             # analyze the specified genomes
-            logger.info("start job 4")
+            logger.info("start " + JOB_4 + "\n")
             analyzeSpecifiedGenomes(gbffL, paramO)
-            logger.info("end job 4")
+            logger.info("end " + JOB_4 + "\n")
 
         # raise an error if an invalid job was specified
         else:
