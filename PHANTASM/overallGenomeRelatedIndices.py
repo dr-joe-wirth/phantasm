@@ -50,7 +50,7 @@ def overallGenomeRelatedIndices(paramO:Parameters, outgroup:Taxonomy) -> None:
     logger.info(PRINT_2)
     aniD = _calculateANI(paramO, outgroup)
     print(DONE)
-    logger.info(DONE)
+    logger.info(DONE + "\n")
 
     # save the result to file
     print(SAVE_PRINT + aniFN)

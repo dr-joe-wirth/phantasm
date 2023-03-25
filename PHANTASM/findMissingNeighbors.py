@@ -1304,7 +1304,7 @@ def xenogiInterfacer_2(allQryGbksL:list, oldParamO:Parameters, \
     logger.info(PRINT_2)
     __downloadGbffFromSpeciesList(speciesL, newHumanMapFN, newGbkDir)
     print(DONE)
-    logger.info(DONE)
+    logger.info(DONE + "\n")
 
     # append the human map string to the file
     filehandle = open(newHumanMapFN, 'a')
