@@ -177,7 +177,7 @@ def checkEntrezEmail(email:str) -> None:
         if email is not None:
             Entrez.email = email
         else:
-            logger.error()
+            logger.error(ERR_MSG)
             raise BaseException(ERR_MSG)
 
 
