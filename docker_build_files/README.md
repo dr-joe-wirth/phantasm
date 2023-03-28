@@ -58,8 +58,6 @@ doi: [10.1093/nar/gkad196](https://doi.org/10.1093/nar/gkad196)
 
     6.1. [Problems with 16S rRNA gene sequence annotation (or lack thereof) in your input genome(s)](#61-problems-with-16s-rrna-gene-sequence-annotation-or-lack-thereof-in-your-input-genomes)
 
-    6.2. [Failed to connect to NCBI database(s)](#62-failed-to-connect-to-ncbi-databases)
-
 # 1. Mounting the Docker image
 ## 1.1. Running Docker as `root`
 Docker must be run as `root`. This should not be a problem if [Docker Desktop](https://www.docker.com/products/docker-desktop/) is installed on your computer. However, running with the command line may require the use of `sudo` (`su` to switch to `root`). To circumvent this issue, add yourself to the group `docker` as described [here](https://docs.docker.com/engine/install/linux-postinstall/):
@@ -472,10 +470,3 @@ All data can be found within the volume that you mounted into the container (`~/
 __Option 1.__ Create a file named `taxids.txt` as described in the [section 3.1](#optional-bypassing-the-requirement-for-annotated-16s-rrna-gene-sequences-in-your-input-genomes).
 
 __Option 2.__ Use a known phylogenetic marker as described in [section 3.2](#32-option-2-unknown-reference-genomes-and-known-phylogenetic-markers).
-
-## 6.2. Failed to connect to NCBI database(s)
-### Possible error messages
-    urllib.error.HTTPError: HTTP Error 400: Bad Request
-
-### Possible solutions
-This error message only occurs when PHANTASM fails to connect to one or more NCBI databases. Currently, the only option is to rerun PHANTASM from the beginning
