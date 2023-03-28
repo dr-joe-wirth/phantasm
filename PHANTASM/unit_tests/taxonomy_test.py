@@ -101,7 +101,7 @@ class TestTaxonomy(unittest.TestCase):
         end = time.time()
         duration = int(round((end-start)))
         print(MSG_2 + str(duration) + MSG_3)
-        logging.info(MSG_2 + str(duration) + MSG_3[:-1])
+        logging.info(MSG_2[1:] + str(duration) + MSG_3[:-1])
         return taxO
 
 
