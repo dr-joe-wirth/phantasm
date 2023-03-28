@@ -476,9 +476,9 @@ def __esummary(query:str, db:str):
     
     # raise an error if a result was not obtained
     if result is None:
-        logger.critical(ERR_MSG)
-        logger.critical("database: " + db)
-        logger.critical("query:    " + query)
+        logger.error(ERR_MSG)
+        logger.error("database: " + db)
+        logger.error("query:    " + query)
         raise RuntimeError(ERR_MSG)
 
     return result
