@@ -88,7 +88,7 @@ class TestTaxonomy(unittest.TestCase):
         MSG_3 = " seconds **\n"
         
         # required for building the Taxonomy objects
-        Entrez.email = 'jwirth@hmc.edu'
+        Entrez.email = 'jwirth@cdc.gov'
 
         # log start time and print message
         start = time.time()
