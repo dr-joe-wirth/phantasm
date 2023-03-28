@@ -1,6 +1,7 @@
 # Author: Joseph S. Wirth
 
-import csv, ftplib, glob, gzip, logging, math, os, re, shutil, string
+import csv, ftplib, glob, gzip, logging, math, os, re, shutil, string, time
+from http.client import HTTPResponse
 from Bio import Entrez, SeqIO
 from Bio.SeqRecord import SeqRecord
 from Bio.SeqFeature import SeqFeature
@@ -219,7 +220,7 @@ def loadHumanMap(humanMapFN:str) -> dict:
 
 
 def ncbiEfetchById(id, database:str, mode:str='text', rettype:str='xml', \
-                                             retmode:str=None, email:str=None):
+                       retmode:str=None, email:str=None) -> Parser.ListElement:
     """ ncbiEfetchById:
             Accepts an NCBI id (or a list of ids) and an NCBI database as 
             input. Uses NCBI's Efetch tool to retrieve full records from NCBI
@@ -228,11 +229,48 @@ def ncbiEfetchById(id, database:str, mode:str='text', rettype:str='xml', \
     # make sure Entrez.email has been set
     checkEntrezEmail(email)
 
-    # retrieve the result from NCBI and return it
-    handle = Entrez.efetch(db=database, id=id, mode=mode, rettype=rettype, retmode=retmode)
-    result = Entrez.read(handle)
-    handle.close()
+    result = __efetch(database, id, mode, rettype, retmode)
 
+    return result
+
+
+def __efetch(db:str, id:str, mode:str, rettype:str, retmode:str) -> \
+                                                            Parser.ListElement:
+    """ efetch:
+            Accepts a database, a uid, a query mode, a return type, and return
+            mode as inputs. Obtains efetch records from NCBI. Handles errors
+            associated with failed requests to NCBI. Returns the records as a
+            "list" (Entrez format).
+    """
+    # constants
+    MAX_ATTEMPTS = 5
+    PAUSE = 0.5
+    ERR_MSG = "failed to retrieve records from NCBI after " + str(MAX_ATTEMPTS) + " tries"
+
+    logger = logging.getLogger(__name__ + "." + __efetch.__name__)
+
+    # keep trying until it works or fails too many times
+    result = None
+    numAttempts = 0
+    while result is None and numAttempts < MAX_ATTEMPTS:
+        try:
+            # retrieve the result from NCBI
+            handle = Entrez.efetch(db=db, id=id, mode=mode, rettype=rettype, retmode=retmode)
+            result = Entrez.read(handle)
+            handle.close()
+        except:
+            # reset if this fails; pause so NCBI is not overwhelmed
+            result = None
+            numAttempts += 1
+            time.sleep(PAUSE)
+    
+    # raise an error if the result was not retrieved
+    if result is None:
+        logger.critical("database: " + db)
+        logger.critical("query:    " + id)
+        logger.critical(ERR_MSG)
+        raise RuntimeError(ERR_MSG)
+    
     return result
 
 
@@ -258,10 +296,7 @@ def ncbiIdsFromSearchTerm(searchStr:str, database:str, retmax:int=0, \
     else:
         retrieveAll = False
 
-    # retrieve result from NCBI
-    handle = Entrez.esearch(db=database, term=searchStr, retmax=retmax)
-    result = Entrez.read(handle)
-    handle.close()
+    result = __esearch(database, searchStr, retmax)
 
     # grab all results if requested (default)
     if retrieveAll:
@@ -272,15 +307,52 @@ def ncbiIdsFromSearchTerm(searchStr:str, database:str, retmax:int=0, \
         if numFound > retmax:
             retmax = numFound
 
-            # retrieve result from NCBI
-            handle = Entrez.esearch(db=database, term=searchStr, retmax=retmax)
-            result = Entrez.read(handle)
-            handle.close()
+            result = __esearch(database, searchStr, retmax)
     
     # return the list of ids that were found
     return result['IdList']
 
+
+def __esearch(db:str, term:str, retmax:int) -> Parser.DictionaryElement:
+    """ esearch:
+            Accepts a database, a search term, and a max number of records to
+            return as inputs. Obtains esearch records from NCBI. Handles errors
+            associated with failed requests to NCBI. Returns the records as a
+            "dict" (Entrez format) containing the search result.
+    """
+    # constants
+    MAX_ATTEMPTS = 5
+    PAUSE = 0.5
+    ERR_MSG = "failed to connect to NCBI after " + str(MAX_ATTEMPTS) + " tries"
+
+    logger = logging.getLogger(__name__ + "." + __esearch.__name__)
+
+    # keep trying until it works or fails too many times
+    result = None
+    numAttempts = 0
+    while result is None and numAttempts < MAX_ATTEMPTS:
+        # retrieve the result from NCBI
+        try:
+            handle = Entrez.esearch(db=db, term=term, retmax=retmax)
+            result = Entrez.read(handle)
+            handle.close()
+        
+        # reset if it fails; pause to protect NCBI
+        except:
+            result = None
+            numAttempts += 1
+            time.sleep(PAUSE)
     
+    # raise an error if a result was not retrieved
+    if result is None:
+        logger.critical(ERR_MSG)
+        logger.critical("database: " + db)
+        logger.critical("query:    " + term)
+        raise RuntimeError(ERR_MSG)
+
+    return result
+
+
 def ncbiSummaryFromIdList(idList:list, database:str, email:str=None):
     """ ncbiSummaryFromIdList:
             Accepts a list of NCBI ids and an NCBI database as input. Uses 
@@ -293,7 +365,6 @@ def ncbiSummaryFromIdList(idList:list, database:str, email:str=None):
     RET_MAX   = 10000    # this is NCBI's default; cannot be exceeded
     RESULT_K1 = 'DocumentSummarySet'
     RESULT_K2 = 'DocumentSummary'
-    VALIDATE  = False   # Bio.Entrez may throw a tantrum if modified
     ERR_MSG_1 = "invalid input: expected a list of ids or a single id"
     ERR_MSG_2 = "invalid id present in the input list: "
     
@@ -348,17 +419,13 @@ def ncbiSummaryFromIdList(idList:list, database:str, email:str=None):
                 queryL.append(idStr)
 
     # search NCBI with the first query
-    handle = Entrez.esummary(id=queryL[0], db=database)
-    result = Entrez.read(handle, validate=VALIDATE)
-    handle.close()
+    result = __esummary(queryL[0], database)
 
     # if there are multiple queries, then keep querying NCBI until done
     for i in range(1,len(queryL)):
         query = queryL[i]
 
-        handle = Entrez.esummary(id=query, db=database)
-        nextResult = Entrez.read(handle, validate=VALIDATE)
-        handle.close()
+        nextResult = __esummary(query, database)
 
         # something I don't wuote understand is happening here.
         # sometimes, Entrez returns a list, other times its a dict
@@ -371,7 +438,48 @@ def ncbiSummaryFromIdList(idList:list, database:str, email:str=None):
             result.extend(nextResult)
         except:
             # append the results if they are returned as dicts
-            result[RESULT_K1][RESULT_K2] += nextResult[RESULT_K1][RESULT_K2]
+            result[RESULT_K1][RESULT_K2].append(nextResult[RESULT_K1][RESULT_K2])
+
+    return result
+
+
+def __esummary(query:str, db:str):
+    """ esummary:
+            Accepts a query string and a database as inputs. Obtains summary
+            records from NCBI. Handles errors associated with failed requests
+            to NCBI. Returns the records as either a Parser.ListElement or,
+            depending on the database, a Parser.DictionaryElement.
+    """
+    # constants
+    VALIDATE  = False   # Bio.Entrez may throw a tantrum if modified
+    MAX_ATTEMPTS = 5
+    PAUSE = 0.5
+    ERR_MSG = "failed to retrieve the result from NCBI after " + str(MAX_ATTEMPTS) + " tries"
+
+    logger = logging.getLogger(__name__ + "." + __esummary.__name__)
+
+    # keep trying until it works or fails too many times
+    result = None
+    numAttempts = 0
+    while result is None and numAttempts < MAX_ATTEMPTS:
+        # retrieve the result from NCBI
+        try:
+            handle = Entrez.esummary(id=query, db=db)
+            result = Entrez.read(handle, validate=VALIDATE)
+            handle.close()
+
+        # reset on a failure; pause to protect NCBI
+        except:
+            result = None
+            numAttempts += 1
+            time.sleep(PAUSE)
+    
+    # raise an error if a result was not obtained
+    if result is None:
+        logger.critical(ERR_MSG)
+        logger.critical("database: " + db)
+        logger.critical("query:    " + query)
+        raise RuntimeError(ERR_MSG)
 
     return result
 
@@ -401,11 +509,45 @@ def ncbiELinkFromIdList(idL:list, dbFrom:str, dbTo:str) -> list:
         # get a handle to the elink result
         handle = Entrez.elink(id=idL[start:end], dbfrom=dbFrom, db=dbTo)
 
-        # first time through, save the result
-        result += Entrez.read(handle)
+        # save the result
+        result.extend(__elink(handle))
         
         # close the handle
         handle.close()
+
+    return result
+
+
+def __elink(handle:HTTPResponse) -> Parser.ListElement:
+    """ elink:
+            Accepts a handle to an HTTP request (ncbi query) as input. Obtains
+            elink records from NCBI. Handles errors associated with failed req-
+            uests to NCBI. Returns the records as a "list" (Entrez format).
+    """
+    # constants
+    MAX_ATTEMPTS = 5
+    PAUSE = 0.5
+    ERR_MSG = "failed to retreive the result from NCBI after " + str(MAX_ATTEMPTS) + " tries"
+
+    logger = logging.getLogger(__name__ + "." + __elink.__name__)
+
+    # keep trying until it works
+    result = None
+    numAttempts = 0
+    while result is None and numAttempts < MAX_ATTEMPTS:
+        try:
+            result = Entrez.read(handle)
+
+        # reset on a failure; pause to protect NCBI
+        except:
+            result = None
+            numAttempts += 1
+            time.sleep(PAUSE)
+    
+    # raise an error if a result was not obtained
+    if result is None:
+        logger.critical(ERR_MSG)
+        raise RuntimeError(ERR_MSG)
 
     return result
 
