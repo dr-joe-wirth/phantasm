@@ -2209,8 +2209,8 @@ class Taxonomy:
 
             # if none of the names were preferred, then find one another way
             if preferredNode is None:
-                preferredNode = self.__findPreferredNode(probList, ncbiNamesL \
-                                                                     , dupName)
+                preferredNode = self.__findPreferredNode(probList, ncbiNamesL,\
+                                                                       dupName)
                 
             # remove the preferred node from the list of problem taxa
             if preferredNode in probList:
@@ -2354,6 +2354,11 @@ class Taxonomy:
             goodTaxid = goodTaxid.pop()
             preferredNode = self.getDescendantByTaxId(goodTaxid)
 
+            # if this fails, then create a new node and import it
+            if not preferredNode:
+                firstTaxon.parent.__addDescendant(goodTaxid, sciName, rankStr)
+                preferredNode = self.getDescendantByTaxId(goodTaxid)
+
         # if more than one taxid was found, then raise an error (untested)
         elif len(goodTaxid) > 1:
             logger.error(ERR_MSG_1)
@@ -2397,6 +2402,7 @@ class Taxonomy:
         # constants
         TEMP_TAXID = '0'
         INVALID_STR = '" (invalid name)'
+        ERR_MSG = "untested condition encountered; please report this at https://github.com/dr-joe-wirth/phantasm"
 
         # get a list of all of the siblings of the calling object
         allSiblings = self.getSiblings(list)
@@ -2418,16 +2424,44 @@ class Taxonomy:
                 # find the appropriate parent if a mismatch occurs
                 if parent.sciName != preferredParentName:
                     # find a new parent for the sibling
-                    siblingParent = sibling._findNewParent(lpsnD)
+                    siblingParent = sibling._findNewParent(lpsnD, preferredParentName)
 
                     # handle the introduction of any artificial taxids
                     if siblingParent.taxid == TEMP_TAXID:
                         siblingParent.taxid = \
                                      siblingParent.__getUnusedArtificialTaxId()
 
-                    # merge the sibling with the calling object
-                    # this modifies both parent and siblingParent
-                    Taxonomy._mergeMultipleRoots([parent,siblingParent], lpsnD)
+                    # make sure the sibling is inside its new parent
+                    if sibling not in siblingParent:
+                        # cut the sibling from the calling object
+                        parent.__removeDirectDescendant(sibling.taxid)
+                        
+                        # remove the parent from the sibling
+                        sibling.parent = None
+                        
+                        # nest the sibling into its new parent
+                        siblingParent._importExistingSubTax(sibling, lpsnD)  
+                    
+                    # if _findNewParent returned a grandparent or higher
+                    if siblingParent.rank - sibling.rank > 1:
+                        # move the pointer to its parent and make that parent the root
+                        siblingParent = sibling.parent
+                        siblingParent.parent = None
+
+                        # i haven't tested the scenario where the parent is already in self.getRoot()
+                        # raise an error in case this scenario is found in the wild.
+                        if siblingParent.taxid in self.getRoot():
+                            logger = logging.getLogger(Taxonomy.__LOGGER_PREFIX + "." + Taxonomy.__processSiblings.__name__)
+                            logger.error(ERR_MSG)
+                            raise RuntimeError(ERR_MSG)
+
+                        # import the sibling's new parent into the calling object
+                        self.getRoot()._importExistingSubTax(siblingParent, lpsnD)
+                            
+                    else:
+                        # merge the sibling with the calling object
+                        # this modifies both parent and siblingParent
+                        Taxonomy._mergeMultipleRoots([parent,siblingParent], lpsnD)
             
             # if the sibling's parent's name is absent from LPSN ...
             # ... keep the same parent, because a new one cannot be located
