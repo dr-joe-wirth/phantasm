@@ -33,7 +33,7 @@ doi: [10.1093/nar/gkad196](https://doi.org/10.1093/nar/gkad196)
 
 ## 1. Installing PHANTASM
 ### 1.1 Using the Docker image
-The easiest way to get started is is to use the [Docker image](https://hub.docker.com/r/jwirth/phantasm). There are detailed instructions for using phantasm as a Docker container on [dockerhub](https://hub.docker.com/r/jwirth/phantasm). The Docker image contains all of the dependencies pre-installed and only requires that Docker Desktop is installed (or `docker` if using a linux server).
+The easiest way to get started is is to use the [Docker image](https://hub.docker.com/r/jwirth/phantasm). There are instructions for using phantasm as a Docker container on [dockerhub](https://hub.docker.com/r/jwirth/phantasm). The Docker image contains all of the dependencies pre-installed and only requires that Docker Desktop is installed (or `docker` if using a linux server). Alternatively, Singularity may be used. Please see the [detailed tutorial for using a PHANTASM in a container](https://github.com/dr-joe-wirth/phantasm/blob/master/docker_build_files/README.md) for more information.
 
 
 ### 1.2 Native installation
