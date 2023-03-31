@@ -923,6 +923,9 @@ def __linkAssembliesWithBlastpResults(blastFN:str) -> dict:
     PROT_DB = 'protein'
     NUCL_DB = 'nuccore'
     ASSM_DB = 'assembly'
+    ERR_MSG = 'elink failed'
+
+    logger = logging.getLogger(__name__ + "." + __linkAssembliesWithBlastpResults.__name__)
 
     # parse the blastp file into a dictionary of hits and search string
     parsedBlast:tuple = __parseBlastpFile(blastFN)
@@ -975,7 +978,7 @@ def __linkAssembliesWithBlastpResults(blastFN:str) -> dict:
     # use the protein ids to link to nuccore
     # attempt to do a single search 
     try:
-        prot2nuclLink = ncbiELinkFromIdList(protIds, PROT_DB, NUCL_DB)
+        prot2nuclLink = ncbiELinkFromIdList(protIds, PROT_DB, NUCL_DB, False)
 
     # if the single search failed
     except:
@@ -986,7 +989,7 @@ def __linkAssembliesWithBlastpResults(blastFN:str) -> dict:
         for proId in protIds:
             # save successful searches
             try:
-                prot2nuclLink += ncbiELinkFromIdList([proId], PROT_DB, NUCL_DB)
+                prot2nuclLink += ncbiELinkFromIdList([proId], PROT_DB, NUCL_DB, False)
             
             # skip failures
             except:
@@ -997,7 +1000,13 @@ def __linkAssembliesWithBlastpResults(blastFN:str) -> dict:
     nuclIds = list(nucl2protD.keys())
 
     # use the nuccore ids to get link to assembly
-    nucl2assmLink = ncbiELinkFromIdList(nuclIds, NUCL_DB, ASSM_DB)
+    try:
+        nucl2assmLink = ncbiELinkFromIdList(nuclIds, NUCL_DB, ASSM_DB)
+    
+    # elink doesn't log errors; do it here instead
+    except:
+        logger.critical(ERR_MSG)
+        raise RuntimeError(ERR_MSG)
 
     # get a dictionary keyed by assembly ids whos values are nuccore ids
     assm2nuclD = extractIdsFromELink(nucl2assmLink)

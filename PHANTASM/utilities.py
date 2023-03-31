@@ -484,12 +484,13 @@ def __esummary(query:str, db:str):
     return result
 
 
-def ncbiELinkFromIdList(idL:list, dbFrom:str, dbTo:str) -> list:
+def ncbiELinkFromIdList(idL:list, dbFrom:str, dbTo:str, keepTrying=True) -> list:
     """ ncbiELinkFromIdList:
             Accepts a list of uids, a string indicating which database the uids
-            correspond to, and a string indicating which database to link to as
-            inputs. Retrieves and returns a list of the link records for the q-
-            uery.
+            correspond to, a string indicating which database to link to, and a
+            boolean indicating if it should repeat a query after a failed query
+            to NCBI as inputs. Retrieves and returns a list of the link records
+            for the query.
     """
     # max num ids per elink request is roughly 200 
     # (https://www.ncbi.nlm.nih.gov/books/NBK25499/)
@@ -510,7 +511,7 @@ def ncbiELinkFromIdList(idL:list, dbFrom:str, dbTo:str) -> list:
         handle = Entrez.elink(id=idL[start:end], dbfrom=dbFrom, db=dbTo)
 
         # save the result
-        result.extend(__elink(handle))
+        result.extend(__elink(handle, keepTrying))
         
         # close the handle
         handle.close()
@@ -518,18 +519,18 @@ def ncbiELinkFromIdList(idL:list, dbFrom:str, dbTo:str) -> list:
     return result
 
 
-def __elink(handle:HTTPResponse) -> Parser.ListElement:
+def __elink(handle:HTTPResponse, keepTrying:bool) -> Parser.ListElement:
     """ elink:
-            Accepts a handle to an HTTP request (ncbi query) as input. Obtains
-            elink records from NCBI. Handles errors associated with failed req-
-            uests to NCBI. Returns the records as a "list" (Entrez format).
+            Accepts a handle to an HTTP request (ncbi query) and a boolean ind-
+            icating if it should repeat a query after a failed queryto NCBI as
+            inputs. Obtains elink records from NCBI. Handles errors associated
+            with failed requests to NCBI, but does not log the error message.
+            Returns the records as a "list" (Entrez format).
     """
     # constants
     MAX_ATTEMPTS = 5
     PAUSE = 0.5
     ERR_MSG = "failed to retreive the result from NCBI after " + str(MAX_ATTEMPTS) + " tries"
-
-    logger = logging.getLogger(__name__ + "." + __elink.__name__)
 
     # keep trying until it works
     result = None
@@ -538,15 +539,20 @@ def __elink(handle:HTTPResponse) -> Parser.ListElement:
         try:
             result = Entrez.read(handle)
 
-        # reset on a failure; pause to protect NCBI
+        # reset on a failure
         except:
             result = None
             numAttempts += 1
-            time.sleep(PAUSE)
+            
+            # if we are to retry query, then pause to protect ncbi
+            if keepTrying:
+                time.sleep(PAUSE)
+            
+            # stop looping if we are not retrying the query
+            else: break
     
     # raise an error if a result was not obtained
     if result is None:
-        logger.critical(ERR_MSG)
         raise RuntimeError(ERR_MSG)
 
     return result
