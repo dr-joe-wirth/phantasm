@@ -18,14 +18,17 @@ def parseArgs() -> tuple[list, list, Parameters]:
                 2. a list of locus tags
                 3. a Parameters object
     """
-    # import location of dependencies
+    # import location of dependencies and other useful information
+    from phantasm import VERSION, PHANTASM_PY
     from param import BLASTPLUS_DIR, MUSCLE_EXE, FASTTREE_EXE, IQTREE_EXE
     
-    # constants
+    # job names
     JOB_1 = 'getPhyloMarker'
     JOB_2 = 'refinePhylogeny'
     JOB_3 = 'knownPhyloMarker'
     JOB_4 = 'analyzeGenomes'
+
+    # command line flags
     SHORT_OPTS = "i:e:t:m:o:N:L:B:F"
     LONG_OPTS = ["input=",
                  "email=",
@@ -45,20 +48,30 @@ def parseArgs() -> tuple[list, list, Parameters]:
     LEAF_FLAGS = ("-L", "--max_leaves")
     BOOTS_FLAGS = ("-B", "--bootstrap")
     REDUCE_FLAGS = ("-F", "--fewer_coregenes")
+    
+    # default values for some parameters
     DEFAULT_DIR_1 = os.path.join(os.getcwd(), "initialAnalysis")
     DEFAULT_DIR_2 = os.path.join(os.getcwd(), "finalAnalysis")
     DEFAULT_THREADS = 1
     DEFAULT_BOOTS = 0
     DEFAULT_LEAVES = 50
     DEFAULT_REDUCE = False
+    
+    # misc
     MIN_NUM_GENOMES = 4
+    TAG_SEP = ","
+    
+    # messages
     INVALID_MSG = "ignoring invalid option: "
     UNUSED_MSG = "ignoring unused option: "
     ERR_MSG_1 = "invalid (or missing) email address"
     ERR_MSG_2 = "locus tag(s) (-t or --locus_tag) required for "
     ERR_MSG_3 = "The number of genes is not a multiple of the number of input genomes."
-    ERR_MSG_4 = "cannot analyze fewer than " + str(MIN_NUM_GENOMES) + " genomes"
-    TAG_SEP =","
+    ERR_MSG_4 = "The specified genome directory is not a directory."
+    ERR_MSG_5 = "cannot analyze fewer than " + str(MIN_NUM_GENOMES) + " genomes"
+    
+    # initialize the logger
+    logger = logging.getLogger(__name__ + "." + parseArgs.__name__)
     
     # extract the job name
     job = sys.argv[1]
@@ -128,6 +141,7 @@ def parseArgs() -> tuple[list, list, Parameters]:
     
     # email address is always required
     if not validEmailAddress(email):
+        logger.critical(ERR_MSG_1)
         raise ValueError(ERR_MSG_1)
     
     # process getPhyloMarker
@@ -147,6 +161,7 @@ def parseArgs() -> tuple[list, list, Parameters]:
         
         # ensure that locus tags have been provided
         if tagsL == []:
+            logger.critical(ERR_MSG_2)
             raise RuntimeError(ERR_MSG_2 + job)
         
         # report any unused arguments
@@ -162,10 +177,12 @@ def parseArgs() -> tuple[list, list, Parameters]:
         
         # ensure that locus tags have been provided
         if tagsL == []:
+            logger.critical(ERR_MSG_2)
             raise RuntimeError(ERR_MSG_2 + job)
         
         # raise error if num locus tags is not a multiple of num genomes
         if len(tagsL) % len(genomesL) != 0:
+            logger.critical(ERR_MSG_3)
             raise ValueError(ERR_MSG_3)
         
         # report any unused arguments
@@ -179,9 +196,15 @@ def parseArgs() -> tuple[list, list, Parameters]:
         if outDir == "":
             outDir = DEFAULT_DIR_2
         
-        # make sure that multiple genomes were provided
-        if len(genomesL) < MIN_NUM_GENOMES:
+        # make sure genomeDir is a directory
+        if not os.path.isdir(genomeDir):
+            logger.critical(ERR_MSG_4)
             raise ValueError(ERR_MSG_4)
+        
+        # make sure that enough genomes are present
+        if len(genomesL) < MIN_NUM_GENOMES:
+            logger.critical(ERR_MSG_4)
+            raise ValueError(ERR_MSG_5)
         
         # ensure that a valid map file has been provided
         checkForValidHumanMapFile(mapFN)
