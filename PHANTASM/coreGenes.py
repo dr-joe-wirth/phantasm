@@ -411,6 +411,7 @@ def makeSpeciesTree(allQryGbksL:list, paramO:Parameters, outgroup:Taxonomy, \
     keyFN = paramO.famToGeneKeyFN
     mapFN = paramO.fileNameMapFN
     speTreeFN = paramO.speciesTreeFN
+    reduce = paramO.reduceNumCoreGenes
 
     # load the human map file
     humanMapD = loadHumanMap(mapFN)
@@ -427,7 +428,8 @@ def makeSpeciesTree(allQryGbksL:list, paramO:Parameters, outgroup:Taxonomy, \
                             speTreWorkDir,
                             catAlnFN,
                             keyFN,
-                            mapFN)
+                            mapFN,
+                            reduce)
 
     # print the summary
     __printSummary(paramO)
@@ -554,17 +556,17 @@ def __alignGenesWrapper(paramO:Parameters) -> None:
 
 
 def __concatenateAlignments(qryHumanNamesL:list, speciesTreeWorkDir:str, \
-                                alnOutFN:str, keyFN:str, wgsMapFN:str) -> None:
+       alnOutFN:str, keyFN:str, wgsMapFN:str, reduceNumCoreGenes:bool) -> None:
     """ concatenateAlignments:
             Accepts a list of human names for the query genomes, a string indi-
             cating the make species tree working directory, a string indicating
             the output filename, a string indicating the famToGeneKey filename,
-            and a string indicating the wgsHumanMap filename as inputs. Concat-
-            enates the alignments of all the hardcore genes and then saves the
-            concatenated alignment in fasta format. Does not return.
+            a string indicating the wgsHumanMap filename, and a boolean indica-
+            ting if the number of core genes should be reduced as inputs. Conc-
+            atenates the alignments of all the hardcore genes and then saves
+            the concatenated alignment in fasta format. Does not return.
     """
     # constants
-    from param import REDUCE_NUM_CORE_GENES
     FILE_NAME_PATTERN = 'align*afa'
     FORMAT = 'fasta'
     GREP_FIND_1 = r'^.+align-aabrhHardCoreFam-(\d+)\.afa$'
@@ -582,7 +584,7 @@ def __concatenateAlignments(qryHumanNamesL:list, speciesTreeWorkDir:str, \
     # get a list of all the alignment files
     allAfa = glob.glob(fileString)
 
-    if REDUCE_NUM_CORE_GENES:
+    if reduceNumCoreGenes:
         __reduceCoreGenes(allAfa)
 
     # concatenate sequences in dictionary format
