@@ -58,11 +58,10 @@ class Parameters:
     __percIdentThresh = 0.35
     __aabrhHardCoreGeneTreeFileStem = 'aabrhHardCoreFam'
     
+    
 
-    def __init__(self, email:str, workdir:str, blastExecutDirPath:str, \
-                            musclePath:str, fastTreePath:str, iqTreePath:str, \
-                                 numProcesses:int=1, maxNumTreeLeaves:int=50, \
-                                          numBootstraps:int=100) -> Parameters:
+    def __init__(self, email:str, workdir:str, blastExecutDirPath:str, musclePath:str, fastTreePath:str, iqTreePath:str, \
+                 numProcesses:int=1, maxNumTreeLeaves:int=50, numBootstraps:int=100, reduceNumCoreGenes:bool=False) -> Parameters:
         """ __init__:
                 Accepts an email address, a working directory, a directory con-
                 taining blast+ executables, a path to a MUSCLE executable, a
@@ -83,6 +82,7 @@ class Parameters:
         self.numProcesses = numProcesses
         self.maxNumTreeLeaves = maxNumTreeLeaves
         self.numBootstraps = numBootstraps
+        self.reduceNumCoreGenes = reduceNumCoreGenes
 
         # add the workdir to the path of selected static class members
         self.genbankFilePath = os.path.join(self.workdir, Parameters.__genbankFilePath)
@@ -148,5 +148,6 @@ class Parameters:
                           paramD['iqTreePath'],
                           paramD['numProcesses'],
                           paramD['maxNumTreeLeaves'],
-                          paramD['numBootstraps'])
+                          paramD['numBootstraps'],
+                          paramD['reduceNumCoreGenes'])
 
