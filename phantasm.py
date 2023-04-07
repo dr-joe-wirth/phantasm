@@ -1,37 +1,30 @@
 # Author: Joseph S. Wirth
 
-from PHANTASM.utilities import validEmailAddress, getParamO_1, getParamO_2, getParamO_3, checkForValidInputGenomes, checkForValidExecutables, checkForValidHumanMapFile, getLpsnAge, obscureEmailAddress
+
 from PHANTASM.main import getPhyloMarker, refinePhylogeny, knownPhyloMarker, analyzeSpecifiedGenomes
+from PHANTASM.utilities import parseArgs, getLpsnAge, getCmdWithRedactedEmail
 from PHANTASM.findMissingNeighbors import _locusTagToGeneNum
-from param import PHANTASM_DIR, NUM_PROCESSORS, MAX_LEAVES, REDUCE_NUM_CORE_GENES, BOOTSTRAP_FINAL_TREE, NUM_BOOTSTRAPS
-import glob, logging, os, sys
+from param import PHANTASM_DIR
+import copy, glob, logging, os, sys
 
 # constants
 PHANTASM_PY = "python3 " + os.path.join(PHANTASM_DIR, "phantasm.py")
 VERSION = "v1.0.4"
 JOB_0A = 'help'
 JOB_0B = "-h"
-JOB_0C = ["-v", "version"]
+JOB_0C = ("-v", "version")
 JOB_1 = 'getPhyloMarker'
 JOB_2 = 'refinePhylogeny'
 JOB_3 = 'knownPhyloMarker'
 JOB_4 = 'analyzeGenomes'
 SEP = ","
 GAP = " "*4
-LOCUS_TAG = "--locus_tag"
-GENE_NUM  = "--gene_num"
 
 # error messages
-ERR_MSG_1 = "Incorrect syntax used.\nType '" + PHANTASM_PY + " help' for more information."
-ERR_MSG_2 = "Invalid email address"
-ERR_MSG_3 = "The number of genes is not a multiple of the number of input genomes."
-ERR_MSG_4 = "Invalid flag: "
-ERR_MSG_5 = "One or more specified genes could not be extracted."
-ERR_MSG_6 = "The specified genome directory is not a directory."
-ERR_MSG_7 = "Less than 2 files were found in the specified genome directory."
-ERR_MSG_8 = "The specified output directory already exists."
-ERR_MSG_10A = "Invalid task: "
-ERR_MSG_10B = "\n\ntype '" + PHANTASM_PY + " help' for information."
+ERR_MSG_1 = "One or more specified genes could not be extracted."
+ERR_MSG_2 = "The specified output directory already exists."
+ERR_MSG_3A = "Invalid task: "
+ERR_MSG_3B = "\n\ntype '" + PHANTASM_PY + " help' for information."
 
 # reference message
 REF_MSG = "\nIf you use this software in your research, please cite our paper:\n" + \
@@ -162,32 +155,8 @@ if __name__ == "__main__":
 
         # if JOB_1 specified
         elif job == JOB_1:
-            # check that the expected number of arguments has been provided
-            if len(sys.argv) != 4:
-                raise SyntaxError(ERR_MSG_1)
-            
-            # extract the data from the arguments
-            inputFile = sys.argv[2]
-            email = sys.argv[3]
-
-            # ensure that a valid email address is being used
-            if not validEmailAddress(email):
-                raise ValueError(ERR_MSG_2)
-
-            # if a directory was provided, then get the list of files within it
-            if os.path.isdir(inputFile):
-                gbffL = glob.glob(os.path.join(inputFile, "*"))
-            
-            # if a single file was provided, then convert it to a one-item list
-            else:
-                gbffL = [inputFile]
-            
-            # construct the Parameters object
-            paramO = getParamO_1(email)
-
-            # check inputs
-            checkForValidInputGenomes(gbffL)
-            checkForValidExecutables(paramO)
+            # parse the parameters
+            gbffL, locusTagsL, paramO = parseArgs()
 
             # print the LPSN age data
             age = getLpsnAge()
@@ -198,14 +167,13 @@ if __name__ == "__main__":
             logger = logging.getLogger(__name__)
             
             # save details about the run
-            cmdL = sys.argv[:-1] + [obscureEmailAddress(sys.argv[-1])]
-            logger.info(" ".join(cmdL))
+            logger.info(getCmdWithRedactedEmail())
             logger.info(VERSION)
-            logger.info('num cpus:        ' + str(NUM_PROCESSORS))
-            logger.info('max leaves:      ' + str(MAX_LEAVES))
-            logger.info('reduce num core: ' + str(REDUCE_NUM_CORE_GENES))
-            logger.info('bootstrap tree:  ' + str(BOOTSTRAP_FINAL_TREE))
-            logger.info('num bootstraps:  ' + str(NUM_BOOTSTRAPS) + "\n")
+            logger.info('num cpus:        ' + str(paramO.numProcesses))
+            logger.info('max leaves:      ' + str(paramO.maxNumTreeLeaves))
+            logger.info('reduce num core: ' + str(paramO.reduceNumCoreGenes))
+            logger.info('bootstrap tree:  ' + str(paramO.numBootstraps > 0))
+            logger.info('num bootstraps:  ' + str(paramO.numBootstraps) + "\n")
 
             # execute job 1
             logger.info("start " + JOB_1 + "\n")
@@ -214,67 +182,24 @@ if __name__ == "__main__":
         
         # if JOB_2 requested
         elif job == JOB_2:
-            # check that the expected number of arguments has been provided
-            if len(sys.argv) != 6:
-                raise SyntaxError(ERR_MSG_1)
+            # parse the parameters
+            gbffL, locusTagsL, paramO_2 = parseArgs()
             
-            # extract the data from the arguments
-            flag = sys.argv[2]
-            gene = sys.argv[3]
-            inputFile = sys.argv[4]
-            email = sys.argv[5]
-
-            # ensure that a valid email address is being used
-            if not validEmailAddress(email):
-                raise ValueError(ERR_MSG_2)
-            
-            # if a directory was provided
-            if os.path.isdir(inputFile):
-                # get the list of files within it
-                gbffL = glob.glob(os.path.join(inputFile, "*"))
-            
-            # if a single file was provided, then convert it to a one-item list
-            else:
-                gbffL = [inputFile]
-
-            # split the gene argument into a list of genes
-            genesL = gene.split(SEP)
-
-            # raise error if num genes is not a multiple of num genomes
-            if len(genesL) % len(gbffL) != 0:
-                raise ValueError(ERR_MSG_3)
-
-            # construct the Parameters objects
-            paramO_1 = getParamO_1(email)
-            paramO_2 = getParamO_2(email)
-
-            # check inputs
-            checkForValidInputGenomes(gbffL)
-            checkForValidExecutables(paramO_1)
-            checkForValidExecutables(paramO_2)
+            # create paramO_1 from paramO_2
+            paramO_1 = copy.deepcopy(paramO_2)
+            paramO_1.workdir = os.path.join(os.path.dirname(paramO_1.workdir), "finalAnalysis")
 
             # initialize geneNumsL
             geneNumsL = list()
-
-            # if a locus tag was provided, convert it to an integer
-            if flag == LOCUS_TAG:
-                for gene in genesL:
-                    geneNum = _locusTagToGeneNum(gene, paramO_1.geneInfoFN)
-                    geneNumsL.append(geneNum)
-                    
-            # otherwise, a gene number should have been specified
-            elif flag == GENE_NUM:
-                for gene in genesL:
-                    geneNum = int(gene)
-                    geneNumsL.append(geneNum)
             
-            # if an invalid flag was specified, then raise an error
-            else:
-                raise ValueError(ERR_MSG_4 + flag)
+            # convert the locus tags to gene numbers
+            for tag in locusTagsL:
+                geneNum = _locusTagToGeneNum(tag, paramO_1.geneInfoFN)
+                geneNumsL.append(geneNum)
             
             # make sure the number of gene numbers matches the number of genes
-            if len(genesL) != len(geneNumsL):
-                raise ValueError(ERR_MSG_5)
+            if len(locusTagsL) != len(geneNumsL):
+                raise ValueError(ERR_MSG_1)
 
             # print the LPSN age data
             age = getLpsnAge()
@@ -285,14 +210,13 @@ if __name__ == "__main__":
             logger = logging.getLogger(__name__)
             
             # save details about the run
-            cmdL = sys.argv[:-1] + [obscureEmailAddress(sys.argv[-1])]
-            logger.info(" ".join(cmdL))
+            logger.info(getCmdWithRedactedEmail())
             logger.info(VERSION)
-            logger.info('num cpus:        ' + str(NUM_PROCESSORS))
-            logger.info('max leaves:      ' + str(MAX_LEAVES))
-            logger.info('reduce num core: ' + str(REDUCE_NUM_CORE_GENES))
-            logger.info('bootstrap tree:  ' + str(BOOTSTRAP_FINAL_TREE))
-            logger.info('num bootstraps:  ' + str(NUM_BOOTSTRAPS) + "\n")
+            logger.info('num cpus:        ' + str(paramO.numProcesses))
+            logger.info('max leaves:      ' + str(paramO.maxNumTreeLeaves))
+            logger.info('reduce num core: ' + str(paramO.reduceNumCoreGenes))
+            logger.info('bootstrap tree:  ' + str(paramO.numBootstraps > 0))
+            logger.info('num bootstraps:  ' + str(paramO.numBootstraps) + "\n")
 
             # execute JOB_2
             logger.info("start " + JOB_2 + "\n")
@@ -301,42 +225,9 @@ if __name__ == "__main__":
         
         # if JOB_3 requested
         elif job == JOB_3:
-            # check that the expected number of arguments has been provided
-            if len(sys.argv) != 5:
-                raise SyntaxError(ERR_MSG_1)
+            # parse the parameters
+            gbffL, locusTagsL, paramO = parseArgs()
             
-            # extract the data from the arguments
-            locusTag = sys.argv[2]
-            inputFile = sys.argv[3]
-            email = sys.argv[4]
-
-            # ensure that a valid email address is being used
-            if not validEmailAddress(email):
-                raise ValueError(ERR_MSG_2)
-            
-            # if a directory was provided
-            if os.path.isdir(inputFile):
-                # get the list of files within it
-                gbffL = glob.glob(os.path.join(inputFile, "*"))
-            
-            # if a single file was provided, then convert it to a one-item list
-            else:
-                gbffL = [inputFile]
-            
-            # split the locusTag argument into a list of locus tags
-            locusTagsL = locusTag.split(SEP)
-
-            # raise error if num locus tags is not a multiple of num genomes
-            if len(locusTagsL) % len(gbffL) != 0:
-                raise ValueError(ERR_MSG_3)
-            
-            # create the Parameters object
-            paramO = getParamO_2(email)
-
-            # check inputs
-            checkForValidInputGenomes(gbffL)
-            checkForValidExecutables(paramO)
-
             # print the LPSN age data
             age = getLpsnAge()
             print(AGE_MSG + age + "\n\n")
@@ -346,14 +237,13 @@ if __name__ == "__main__":
             logger = logging.getLogger(__name__)
             
             # save details about the run
-            cmdL = sys.argv[:-1] + [obscureEmailAddress(sys.argv[-1])]
-            logger.info(" ".join(cmdL))
+            logger.info(getCmdWithRedactedEmail())
             logger.info(VERSION)
-            logger.info('num cpus:        ' + str(NUM_PROCESSORS))
-            logger.info('max leaves:      ' + str(MAX_LEAVES))
-            logger.info('reduce num core: ' + str(REDUCE_NUM_CORE_GENES))
-            logger.info('bootstrap tree:  ' + str(BOOTSTRAP_FINAL_TREE))
-            logger.info('num bootstraps:  ' + str(NUM_BOOTSTRAPS) + "\n")
+            logger.info('num cpus:        ' + str(paramO.numProcesses))
+            logger.info('max leaves:      ' + str(paramO.maxNumTreeLeaves))
+            logger.info('reduce num core: ' + str(paramO.reduceNumCoreGenes))
+            logger.info('bootstrap tree:  ' + str(paramO.numBootstraps > 0))
+            logger.info('num bootstraps:  ' + str(paramO.numBootstraps) + "\n")
             
             # execute JOB_3
             logger.info("start " + JOB_3 + "\n")
@@ -362,63 +252,28 @@ if __name__ == "__main__":
 
         # if JOB_4 requested
         elif job == JOB_4:
-            # check that the expected number of arguments has been provided
-            if len(sys.argv) != 6:
-                raise SyntaxError(ERR_MSG_1)
-            
-            # parse command line arguments
-            genomeDir = os.path.abspath(sys.argv[2])
-            humanMapFN = os.path.abspath(sys.argv[3])
-            outdir = sys.argv[4]
-            email = sys.argv[5]
-
-            # ensure that a valid email address is being used
-            if not validEmailAddress(email):
-                raise ValueError(ERR_MSG_2)
-
-            # make sure genomeDir is a directory
-            if not os.path.isdir(genomeDir):
-                raise ValueError(ERR_MSG_6)
-
-            # make a Parameters object
-            paramO = getParamO_3(email, outdir)
-
-            # update the parameters object with the genomes and map locations
-            paramO.genbankFilePath = os.path.join(genomeDir, "*")
-            paramO.fileNameMapFN = humanMapFN
-
-            # get a list of all the genbank files
-            gbffL = glob.glob(paramO.genbankFilePath)
-
-            # make sure there are at least two files in the list
-            if len(gbffL) < 2:
-                raise ValueError(ERR_MSG_7)
-
-            # check for invalid inputs
-            checkForValidInputGenomes(gbffL)
-            checkForValidExecutables(paramO)
-            checkForValidHumanMapFile(paramO)
+            # parse the parameters
+            gbffL, locusTagsL, paramO = parseArgs()
 
             # make the output directory; error if it already exists
             if not os.path.exists(paramO.workdir):
                 os.mkdir(paramO.workdir)
         
             else:
-                raise FileExistsError(ERR_MSG_8)
+                raise FileExistsError(ERR_MSG_2)
 
             # initialize logger
             logging.basicConfig(filename=paramO.logFN, level=logging.INFO)
             logger = logging.getLogger(__name__)
             
             # save details about the run
-            cmdL = sys.argv[:-1] + [obscureEmailAddress(sys.argv[-1])]
-            logger.info(" ".join(cmdL))
+            logger.info(getCmdWithRedactedEmail())
             logger.info(VERSION)
-            logger.info('num cpus:        ' + str(NUM_PROCESSORS))
-            logger.info('max leaves:      ' + str(MAX_LEAVES))
-            logger.info('reduce num core: ' + str(REDUCE_NUM_CORE_GENES))
-            logger.info('bootstrap tree:  ' + str(BOOTSTRAP_FINAL_TREE))
-            logger.info('num bootstraps:  ' + str(NUM_BOOTSTRAPS) + "\n")
+            logger.info('num cpus:        ' + str(paramO.numProcesses))
+            logger.info('max leaves:      ' + str(paramO.maxNumTreeLeaves))
+            logger.info('reduce num core: ' + str(paramO.reduceNumCoreGenes))
+            logger.info('bootstrap tree:  ' + str(paramO.numBootstraps > 0))
+            logger.info('num bootstraps:  ' + str(paramO.numBootstraps) + "\n")
             
             # analyze the specified genomes
             logger.info("start " + JOB_4 + "\n")
@@ -427,5 +282,5 @@ if __name__ == "__main__":
 
         # raise an error if an invalid job was specified
         else:
-            raise ValueError(ERR_MSG_10A + job + ERR_MSG_10B)
+            raise ValueError(ERR_MSG_3A + job + ERR_MSG_3B)
 
