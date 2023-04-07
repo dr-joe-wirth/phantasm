@@ -1,25 +1,3 @@
-# specify the number of processors to use
-NUM_PROCESSORS:int = 1
-
-# specify the maximum number of taxa in a given analysis
-# do not set this value below 10
-MAX_LEAVES:int = 50
-
-# specify if the number of core genes used to calculate the final tree should be reduced
-#### `True` indicates yes
-#### `False` indicates no
-REDUCE_NUM_CORE_GENES:bool = False
-
-# specify if the final tree should have bootstrap supports
-#### WARNING: Bootstrapping trees will significantly increase run times
-#### `True` indicates yes
-#### `False` indicates no
-BOOTSTRAP_FINAL_TREE:bool = False
-
-# specify the number of bootstrap supports for the final species tree
-#### this is only relevant if BOOTSTRAP_FINAL_TREE is True
-NUM_BOOTSTRAPS:int = 100
-
 # specify the path to the folder containing the blast+ executables
 BLASTPLUS_DIR:str = '/usr/local/ncbi/blast/bin'
 
