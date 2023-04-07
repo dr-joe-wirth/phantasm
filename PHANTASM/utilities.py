@@ -1,6 +1,6 @@
 # Author: Joseph S. Wirth
 
-import csv, ftplib, glob, gzip, logging, math, os, re, shutil, string, time
+import csv, ftplib, getopt, glob, gzip, logging, math, os, re, shutil, string, sys, time
 from http.client import HTTPResponse
 from Bio import Entrez, SeqIO
 from Bio.SeqRecord import SeqRecord
@@ -10,78 +10,208 @@ from PHANTASM.taxonomy.TaxRank import TaxRank
 from PHANTASM.Parameter import Parameters
 
 
-def getParamO_1(email:str) -> Parameters:
-    """ getParamO_1:
-            Helper function to facilitate the creation of the first Parameters
-            object. Accepts a valid email address as input. Returns the Parame-
-            ters object.
+def parseArgs() -> tuple[list, list, Parameters]:
+    """ parseArgs:
+            Accepts no inputs. Parses arguments from the command line and
+            handles invalid syntax/inputs. Returns a three-ple containing:
+                1. a list of input genomes
+                2. a list of locus tags
+                3. a Parameters object
     """
-    # import relevant data from param.py and specify the anlysis directory
-    from param import BLASTPLUS_DIR, MUSCLE_EXE, FASTTREE_EXE, IQTREE_EXE, \
-                                     NUM_PROCESSORS, MAX_LEAVES, NUM_BOOTSTRAPS
-    ANALYSIS_DIR = './initialAnalysis'
-
-    # build the parameter object
-    parameterO = Parameters(email,
-                            ANALYSIS_DIR,
-                            BLASTPLUS_DIR,
-                            MUSCLE_EXE,
-                            FASTTREE_EXE,
-                            IQTREE_EXE,
-                            NUM_PROCESSORS,
-                            MAX_LEAVES,
-                            NUM_BOOTSTRAPS)
-
-    return parameterO
-
-
-def getParamO_2(email:str) -> Parameters:
-    """ getParamO_2:
-            Helper function to facilitate the creation of the second Parameters
-            object. Accepts a valid email address as input. Returns the Parame-
-            ters object.
-    """
-    # import relevant data from param.py and specify the anlysis directory
-    from param import BLASTPLUS_DIR, MUSCLE_EXE, FASTTREE_EXE, IQTREE_EXE, \
-                                     NUM_PROCESSORS, MAX_LEAVES, NUM_BOOTSTRAPS
-    ANALYSIS_DIR = './finalAnalysis'
-
-    # build the parameter object
-    parameterO = Parameters(email,
-                            ANALYSIS_DIR,
-                            BLASTPLUS_DIR,
-                            MUSCLE_EXE,
-                            FASTTREE_EXE,
-                            IQTREE_EXE,
-                            NUM_PROCESSORS,
-                            MAX_LEAVES,
-                            NUM_BOOTSTRAPS)
+    # import location of dependencies
+    from param import BLASTPLUS_DIR, MUSCLE_EXE, FASTTREE_EXE, IQTREE_EXE
     
-    return parameterO
-
-
-def getParamO_3(email:str, analysisDir:str) -> Parameters:
-    """ getParamO_3:
-            Helper function to facilitate the creation of a Parameters object 
-            for processing user-specified reference genomes. Accepts a valid
-            email address and an output directory as inputs. Returns the newly
-            constructed Parameters object.
-    """
-    from param import BLASTPLUS_DIR, MUSCLE_EXE, FASTTREE_EXE, IQTREE_EXE, \
-                                     NUM_PROCESSORS, MAX_LEAVES, NUM_BOOTSTRAPS
-
-    # build the parameter object
-    parameterO = Parameters(email,
-                            analysisDir,
-                            BLASTPLUS_DIR,
-                            MUSCLE_EXE,
-                            FASTTREE_EXE,
-                            IQTREE_EXE,
-                            NUM_PROCESSORS,
-                            MAX_LEAVES,
-                            NUM_BOOTSTRAPS)
+    # constants
+    JOB_1 = 'getPhyloMarker'
+    JOB_2 = 'refinePhylogeny'
+    JOB_3 = 'knownPhyloMarker'
+    JOB_4 = 'analyzeGenomes'
+    SHORT_OPTS = "i:e:t:m:o:N:L:B:F"
+    LONG_OPTS = ["input=",
+                 "email=",
+                 "locus_tags=",
+                 "map_file=",
+                 "out_dir=",
+                 "num_threads=",
+                 'max_leaves=',
+                 'bootstrap=',
+                 'fewer_coregenes']
+    INPUT_FLAGS = ("-i","--input")
+    EMAIL_FLAGS = ("-e","--email")
+    LOCUS_FLAGS = ("-t", "--locus_tags")
+    MAP_FLAGS = ("-m", "--map_file")
+    OUT_DIR_FLAGS = ("-o", "--out_dir")
+    CORES_FLAGS = ("-N", "--num_threads")
+    LEAF_FLAGS = ("-L", "--max_leaves")
+    BOOTS_FLAGS = ("-B", "--bootstrap")
+    REDUCE_FLAGS = ("-F", "--fewer_coregenes")
+    DEFAULT_DIR_1 = os.path.join(os.getcwd(), "initialAnalysis")
+    DEFAULT_DIR_2 = os.path.join(os.getcwd(), "finalAnalysis")
+    DEFAULT_THREADS = 1
+    DEFAULT_BOOTS = 0
+    DEFAULT_LEAVES = 50
+    DEFAULT_REDUCE = False
+    MIN_NUM_GENOMES = 4
+    INVALID_MSG = "ignoring invalid option: "
+    UNUSED_MSG = "ignoring unused option: "
+    ERR_MSG_1 = "invalid (or missing) email address"
+    ERR_MSG_2 = "locus tag(s) (-t or --locus_tag) required for "
+    ERR_MSG_3 = "The number of genes is not a multiple of the number of input genomes."
+    ERR_MSG_4 = "cannot analyze fewer than " + str(MIN_NUM_GENOMES) + " genomes"
+    TAG_SEP =","
     
-    return parameterO
+    # extract the job name
+    job = sys.argv[1]
+    
+    # parse the additional arguments (start 2 to skip the job name)
+    opts,args = getopt.getopt(sys.argv[2:], SHORT_OPTS, LONG_OPTS)
+    
+    # set default values for a few variables
+    threads = DEFAULT_THREADS
+    boots = DEFAULT_BOOTS
+    leaves = DEFAULT_LEAVES
+    reduce = DEFAULT_REDUCE
+    
+    # set initial empty values for a few other variables
+    genomesL = []
+    genomeDir = None
+    email = ""
+    tagsL = []
+    mapFN = ""
+    outDir = ""
+    
+    # extract the arguments from the command
+    for opt,arg in opts:
+        # input genomes
+        if opt in INPUT_FLAGS:
+            if os.path.isdir(arg):
+                genomeDir = arg
+                genomesL = glob.glob(os.path.join(genomeDir, "*"))
+            else:
+                genomesL = [arg]
+        
+        # email address
+        elif opt in EMAIL_FLAGS:
+            email = arg
+        
+        # locus tags
+        elif opt in LOCUS_FLAGS:
+            tagsL = arg.split(TAG_SEP)
+        
+        # human map file
+        elif opt in MAP_FLAGS:
+            mapFN = os.path.abspath(arg)
+        
+        # out directory
+        elif opt in OUT_DIR_FLAGS:
+            outDir = os.path.abspath(arg)
+        
+        # processors
+        elif opt in CORES_FLAGS:
+            threads = int(arg)
+        
+        # max number of leaves
+        elif opt in LEAF_FLAGS:
+            leaves = int(arg)
+        
+        # num bootstraps
+        elif opt in BOOTS_FLAGS:
+            boots = int(arg)
+        
+        # reduce core genes
+        elif opt in REDUCE_FLAGS:
+            reduce = True
+        
+        # ignore any other flags
+        else:
+            print(INVALID_MSG + opt)
+    
+    # email address is always required
+    if not validEmailAddress(email):
+        raise ValueError(ERR_MSG_1)
+    
+    # process getPhyloMarker
+    if job == JOB_1:
+        # set the output directory
+        outDir = DEFAULT_DIR_1
+        
+        # report any unused arguments
+        for opt,arg in opts:
+            if opt in (OUT_DIR_FLAGS + LOCUS_FLAGS + MAP_FLAGS + BOOTS_FLAGS):
+                print(UNUSED_MSG + opt)
+
+    # process refinePhylogeny
+    elif job in JOB_2:
+        # set the output directory
+        outDir = DEFAULT_DIR_2
+        
+        # ensure that locus tags have been provided
+        if tagsL == []:
+            raise RuntimeError(ERR_MSG_2 + job)
+        
+        # report any unused arguments
+        for opt,arg in opts:
+            if opt in OUT_DIR_FLAGS + MAP_FLAGS:
+                print(UNUSED_MSG  + opt)
+    
+    # process knownPhyloMarker
+    elif job in JOB_3:
+        # set the output directory if one was not specified
+        if outDir == "":
+            outDir = DEFAULT_DIR_2
+        
+        # ensure that locus tags have been provided
+        if tagsL == []:
+            raise RuntimeError(ERR_MSG_2 + job)
+        
+        # raise error if num locus tags is not a multiple of num genomes
+        if len(tagsL) % len(genomesL) != 0:
+            raise ValueError(ERR_MSG_3)
+        
+        # report any unused arguments
+        for opt,arg in opts:
+            if opt in MAP_FLAGS:
+                print(UNUSED_MSG + opt)
+    
+    # process analyzeGenomes
+    elif job == JOB_4:
+        # set the output directory if one was not specified
+        if outDir == "":
+            outDir = DEFAULT_DIR_2
+        
+        # make sure that multiple genomes were provided
+        if len(genomesL) < MIN_NUM_GENOMES:
+            raise ValueError(ERR_MSG_4)
+        
+        # ensure that a valid map file has been provided
+        checkForValidHumanMapFile(mapFN)
+        
+        # report any unused arguments
+        for opt,arg in opts:
+            if opt in LOCUS_FLAGS:
+                print(UNUSED_MSG + opt)
+
+    # create a Parameters object using the extracted values:
+    paramO = Parameters(email,
+                        outDir,
+                        BLASTPLUS_DIR,
+                        MUSCLE_EXE,
+                        FASTTREE_EXE,
+                        IQTREE_EXE,
+                        threads,
+                        leaves,
+                        boots,
+                        reduce)
+    
+    # replace the genomes directory and map file if analyzing genomes
+    if job == JOB_4:
+        paramO.genbankFilePath = os.path.join(genomeDir, "*")
+        paramO.fileNameMapFN = os.path.abspath(mapFN)
+    
+    # make sure that the specified executables are accessible
+    checkForValidExecutables(paramO)
+
+    return genomesL, tagsL, paramO
 
 
 def getTaxidsFromFile(taxidsFN:str) -> list[str]:
@@ -923,20 +1053,28 @@ def getLpsnAge() -> str:
     return date
     
 
-def obscureEmailAddress(email:str) -> str:
-    """ obscureEmailAddress
-            Accepts an email address as input. Replaces address and domain with
-            'x'. Returns the obscured address. This function is deployed in co-
-            njuction with the logger to ensure that the user's email remains
-            anonymous with the resulting log file.
+def getCmdWithRedactedEmail() -> str:
+    """ getCmdWithRedactedEmail:
+            Accepts no inputs. Redacts the email address from the input command
+            to ensure that the user's email remains anonymous in the resulting
+            log files. Returns the command as a string with the email address
+            redacted.
     """
     # constants
-    GREP_FIND = r'^([^\@]+)\@(.+)(\.[^\.]+)$'
-    GREP_REPL = r'\1,\2,\3'
+    SEP = r'|~|'
+    GREP_FIND = r'([^\@]+)\@(.+)(\..+)$'
+    GREP_REPL = r'\1' + SEP + r'\2' + SEP + r'\3'
     X = 'x'
     
+    # extract the email address
+    for idx in range(len(sys.argv)):
+        if sys.argv[idx] == "-e":
+            idx += 1
+            email = sys.argv[idx]
+            break
+    
     # extract the address, domain, and extension from the email address
-    address,domain,ext = re.sub(GREP_FIND, GREP_REPL, email).split(',')
+    address,domain,ext = re.sub(GREP_FIND, GREP_REPL, email).split(SEP)
     
     # replace all characters in the address (except the first) with `x`
     address = address[0] + (len(address)-1)*X
@@ -944,8 +1082,13 @@ def obscureEmailAddress(email:str) -> str:
     # replace all characters in domain (except the first) with `x`
     domain = domain[0] + (len(domain)-1)*X
     
-    # construct and return the obscured email address
-    return address + '@' + domain + ext
+    # construct the obscured email address
+    obscured =  address + '@' + domain + ext
+    
+    # convert the list of arguments to a string command
+    cmdL = sys.argv[:idx] + [obscured] + sys.argv[idx+1:]
+    
+    return " ".join(cmdL)
     
 
 def cleanup(paramO:Parameters) -> None:
