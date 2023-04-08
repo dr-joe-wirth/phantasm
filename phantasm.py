@@ -187,7 +187,7 @@ if __name__ == "__main__":
             
             # create paramO_1 from paramO_2
             paramO_1 = copy.deepcopy(paramO_2)
-            paramO_1.workdir = os.path.join(os.path.dirname(paramO_1.workdir), "finalAnalysis")
+            paramO_1.workdir = os.path.join(os.path.dirname(paramO_1.workdir), "initialAnalysis")
 
             # initialize geneNumsL
             geneNumsL = list()
@@ -212,11 +212,11 @@ if __name__ == "__main__":
             # save details about the run
             logger.info(getCmdWithRedactedEmail())
             logger.info(VERSION)
-            logger.info('num cpus:        ' + str(paramO.numProcesses))
-            logger.info('max leaves:      ' + str(paramO.maxNumTreeLeaves))
-            logger.info('reduce num core: ' + str(paramO.reduceNumCoreGenes))
-            logger.info('bootstrap tree:  ' + str(paramO.numBootstraps > 0))
-            logger.info('num bootstraps:  ' + str(paramO.numBootstraps) + "\n")
+            logger.info('num cpus:        ' + str(paramO_1.numProcesses))
+            logger.info('max leaves:      ' + str(paramO_1.maxNumTreeLeaves))
+            logger.info('reduce num core: ' + str(paramO_1.reduceNumCoreGenes))
+            logger.info('bootstrap tree:  ' + str(paramO_1.numBootstraps > 0))
+            logger.info('num bootstraps:  ' + str(paramO_1.numBootstraps) + "\n")
 
             # execute JOB_2
             logger.info("start " + JOB_2 + "\n")
