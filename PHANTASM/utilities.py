@@ -1091,7 +1091,7 @@ def getCmdWithRedactedEmail() -> str:
     
     # extract the email address
     for idx in range(len(sys.argv)):
-        if sys.argv[idx] == "-e":
+        if sys.argv[idx] in ("-e", "--email"):
             idx += 1
             email = sys.argv[idx]
             break
