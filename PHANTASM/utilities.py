@@ -30,7 +30,7 @@ def parseArgs() -> tuple[list, list, Parameters]:
 
     # command line flags
     SHORT_OPTS = "i:e:t:m:o:N:L:B:F"
-    LONG_OPTS = ["input=",
+    LONG_OPTS = ["input_genomes=",
                  "email=",
                  "locus_tags=",
                  "map_file=",
@@ -39,7 +39,7 @@ def parseArgs() -> tuple[list, list, Parameters]:
                  'max_leaves=',
                  'bootstrap=',
                  'fewer_coregenes']
-    INPUT_FLAGS = ("-i","--input")
+    INPUT_FLAGS = ("-i","--input_genomes")
     EMAIL_FLAGS = ("-e","--email")
     LOCUS_FLAGS = ("-t", "--locus_tags")
     MAP_FLAGS = ("-m", "--map_file")
