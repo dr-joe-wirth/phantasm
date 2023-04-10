@@ -11,10 +11,10 @@ FASTTREE_EXE:str = '/usr/local/bin/FastTree'
 IQTREE_EXE:str = '/usr/local/bin/iqtree'
 
 # specify the path to the phantasm directory
-PHANTASM_DIR:str = '/scicomp/home-pure/uma2/phantasm'
+PHANTASM_DIR:str = '~/phantasm'
 
 # specify the path to the xenoGI v3.1.0 directory
-XENOGI_DIR:str = '/scicomp/home-pure/uma2/xenoGI'
+XENOGI_DIR:str = '~/xenoGI'
 
 # specify the paths to each of the required lpsn csv files
 # MODIFYING THIS MAY CAUSE PHANTASM TO FAIL!
