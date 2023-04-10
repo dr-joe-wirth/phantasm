@@ -1,5 +1,5 @@
 
-# PHANTASM: PHylogenomic ANalyses for the TAxonomy and Systematics of Microbes
+# PHANTASM: <ins>PH</ins>ylogenomic <ins>AN</ins>alyses for the <ins>TA</ins>xonomy and <ins>S</ins>ystematics of <ins>M</ins>icrobes
 
 ## A docker image for this software can be found at https://hub.docker.com/r/jwirth/phantasm
 
