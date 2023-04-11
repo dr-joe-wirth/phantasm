@@ -29,21 +29,21 @@ def parseArgs() -> tuple[list, list, Parameters]:
     JOB_4 = 'analyzeGenomes'
 
     # command line flags
-    SHORT_OPTS = "i:e:t:m:o:N:L:B:F"
-    LONG_OPTS = ["input_genomes=",
+    SHORT_OPTS = "i:e:t:m:O:N:L:B:F"
+    LONG_OPTS = ["input=",
                  "email=",
                  "locus_tags=",
                  "map_file=",
-                 "out_dir=",
+                 "out=",
                  "num_threads=",
                  'max_leaves=',
                  'bootstrap=',
                  'fewer_coregenes']
-    INPUT_FLAGS = ("-i","--input_genomes")
+    INPUT_FLAGS = ("-i","--input")
     EMAIL_FLAGS = ("-e","--email")
     LOCUS_FLAGS = ("-t", "--locus_tags")
     MAP_FLAGS = ("-m", "--map_file")
-    OUT_DIR_FLAGS = ("-o", "--out_dir")
+    OUT_DIR_FLAGS = ("-O", "--out")
     CORES_FLAGS = ("-N", "--num_threads")
     LEAF_FLAGS = ("-L", "--max_leaves")
     BOOTS_FLAGS = ("-B", "--bootstrap")
