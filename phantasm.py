@@ -45,57 +45,85 @@ AGE_MSG = "PHANTASM relies on data manually acquired from the LPSN.\n" + \
           GAP + "These data were last retrieved on "
 
 # detailed help message (for JOB_0A)
-DETAILED_HELP_MSG = "\nPHANTASM: PHylogenomic ANalyses for the TAxonomy and Systematics of Microbes\n\n" + \
-                    "In order to run PHANTASM without a known phylogenetic marker, follow these steps:\n" + \
-                    GAP + "1. cd into the desired working directory\n" + \
-                    GAP + "2. identify a suitable phylogenetic marker:\n\n" + \
-                    GAP*2 + "'" + PHANTASM_PY + " " + JOB_1 + " <gbff file> <email address>'\n\n" + \
-                    GAP + "3. examine the file 'initialAnalysis/putativePhylogeneticMarkers.txt'\n" + \
-                    GAP + "4. refine the phylogeny and perform phylogenomic analyses:\n\n" + \
-                    GAP*2 + "'" + PHANTASM_PY + " " + JOB_2 + " --locus_tag <locus_tag> <gbff file> <email address>'\n" + \
-                    GAP*3 + "OR\n" + \
-                    GAP*2 + "'" + PHANTASM_PY + " " + JOB_2 + " --gene_num <gene_number> <gbff file> <email address>'\n\n" + \
-                    GAP + "5. results can be found in the following files:\n\n" + \
+DETAILED_HELP_MSG = "# Getting detailed help (this message):\n\n" + \
+                    GAP + PHANTASM_PY + " " + JOB_0A + "\n\n\n" + \
+                    "# Getting a short help message:\n\n" + \
+                    GAP + PHANTASM_PY + " " + JOB_0B + "\n\n\n" + \
+                    "# Getting the version:\n\n" + \
+                    GAP + PHANTASM_PY + " " + JOB_0C[0] + "\n" + \
+                    GAP*2 + " OR \n" + \
+                    GAP + PHANTASM_PY + " " + JOB_0C[1] + "\n\n\n" + \
+                    "# Identifying phylogenetic markers (option 1, step 1)\n\n" + \
+                    GAP + PHANTASM_PY + " " + JOB_1 + " [-ieNLF]\n\n" + \
+                    GAP + "required arguments:\n" + \
+                    GAP*2 + "-i, --input <file>         gbff file or a directory containing gbff files\n" + \
+                    GAP*2 + "-e, --email <email>        email address\n\n" + \
+                    GAP + "optional arguments:\n" + \
+                    GAP*2 + "-N, --num_threads <int>    number of processors to use                    [default: 1]\n" + \
+                    GAP*2 + "-L, --max_leaves <int>     maximum number of leaves in the species tree   [default: 50]\n" + \
+                    GAP*2 + "-F, --fewer_coregenes      limit the core genes to those with ≤5% gaps    [default: no limiting]\n\n" + \
+                    GAP + "results:\n" + \
+                    GAP*2 + "'initialAnalysis/putativePhylogeneticMarkers.txt'\n\n\n" + \
+                    "# Refining phylogeny and performing phylogenomic analyses (option 1, step 2)\n\n" + \
+                    GAP + PHANTASM_PY + " " + JOB_2 + " [-ietNLBF]\n\n" + \
+                    GAP + "required arguments:\n" + \
+                    GAP*2 + "-i, --input <file>         gbff file or a directory containing gbff files\n" + \
+                    GAP*2 + "-e, --email <email>        email address\n" + \
+                    GAP*2 + "-t, --locus_tags <str>     a comma-separated list of locus tags to use a phylogenetic markers\n\n" + \
+                    GAP + "optional arguments:\n" + \
+                    GAP*2 + "-N, --num_threads <int>    number of processors to use                    [default: 1]\n" + \
+                    GAP*2 + "-L, --max_leaves <int>     maximum number of leaves in the species tree   [default: 50]\n" + \
+                    GAP*2 + "-B, --bootstrap <int>      number of bootstraps to perform                [default: no bootstrapping]\n" + \
+                    GAP*2 + "-F, --fewer_coregenes      limit the core genes to those with ≤5% gaps    [default: no limiting]\n\n" + \
+                    GAP + "results:\n" + \
                     GAP*2 + "'finalAnalysis/aai_matrix.txt'\n" + \
                     GAP*2 + "'finalAnalysis/aai_heatmap.pdf'\n" + \
                     GAP*2 + "'finalAnalysis/ani_matrix.txt'\n" + \
                     GAP*2 + "'finalAnalysis/ani_heatmap.pdf'\n" + \
                     GAP*2 + "'finalAnalysis/coreGenesSummary.txt\n" + \
                     GAP*2 + "'finalAnalysis/speciesTree.nwk'\n" + \
-                    GAP*2 + "'finalAnalysis/speciesTree_outgroupPruned.nwk'\n\n" + \
-                    "In order to run PHANTASM with a known phylogenetic marker, follow these steps:\n" + \
-                    GAP + "1. cd into the desired working directory\n" + \
-                    GAP + "2. call PHANTASM on the known marker(s) and input genome(s):\n\n" + \
-                    GAP*2 + "'" + PHANTASM_PY + " " + JOB_3 + " <locus tag> <gbff file> <email address>'\n\n" + \
-                    GAP + "3. results can be found in the following files:\n\n" + \
+                    GAP*2 + "'finalAnalysis/speciesTree_outgroupPruned.nwk'\n\n\n" + \
+                    "# Identifying genomes using a known phylogenetic marker and performing phylogenomic analyses (option 2)\n\n" + \
+                    GAP + PHANTASM_PY + " " + JOB_3 + " [-ietONLBF]\n\n" + \
+                    GAP + "required arguments:\n" + \
+                    GAP*2 + "-i, --input <file>         gbff file or a directory containing gbff files\n" + \
+                    GAP*2 + "-e, --email <email>        email address\n" + \
+                    GAP*2 + "-t, --locus_tags <str>     a comma-separated list of locus tags to use a phylogenetic markers\n\n" + \
+                    GAP + "optional arguments:\n" + \
+                    GAP*2 + "-O, --out <dir>            output directory                               [default: '" + os.path.join(".", "finalAnalysis") + "']\n" + \
+                    GAP*2 + "-N, --num_threads <int>    number of processors to use                    [default: 1]\n" + \
+                    GAP*2 + "-L, --max_leaves <int>     maximum number of leaves in the species tree   [default: 50]\n" + \
+                    GAP*2 + "-B, --bootstrap <int>      number of bootstraps to perform                [default: no bootstrapping]\n" + \
+                    GAP*2 + "-F, --fewer_coregenes      limit the core genes to those with ≤5% gaps    [default: no limiting]\n\n" + \
+                    GAP + "results (directory may vary if '-O' or '--out' used):\n" + \
                     GAP*2 + "'finalAnalysis/aai_matrix.txt'\n" + \
                     GAP*2 + "'finalAnalysis/aai_heatmap.pdf'\n" + \
                     GAP*2 + "'finalAnalysis/ani_matrix.txt'\n" + \
                     GAP*2 + "'finalAnalysis/ani_heatmap.pdf'\n" + \
                     GAP*2 + "'finalAnalysis/coreGenesSummary.txt\n" + \
                     GAP*2 + "'finalAnalysis/speciesTree.nwk'\n" + \
-                    GAP*2 + "'finalAnalysis/speciesTree_outgroupPruned.nwk'\n\n" + \
-                    "In order to run PHANTASM to analyze user-specified genomes, follow these steps:\n" + \
-                    GAP + "1. cd into the desired working directory\n" + \
-                    GAP + "2. make a directory containing ONLY the genomes you wish to analyze\n" + \
-                    GAP + "3. make a 'human map' file with the outgroup as the last entry in file (see readme for more details).\n" + \
-                    GAP + "4. call PHANTASM on the specified genomes:\n\n" + \
-                    GAP*2 + "'" + PHANTASM_PY + " " + JOB_4 + " <gbff directory> <human map file> <output directory> <email address>'\n\n" + \
-                    GAP + "5. results can be found in the following files:\n\n" + \
-                    GAP*2 + "'<output dir>/aai_matrix.txt'\n" + \
-                    GAP*2 + "'<output dir>/aai_heatmap.pdf'\n" + \
-                    GAP*2 + "'<output dir>/ani_matrix.txt'\n" + \
-                    GAP*2 + "'<output dir>/ani_heatmap.pdf'\n" + \
-                    GAP*2 + "'<output dir>/coreGenesSummary.txt\n" + \
-                    GAP*2 + "'<output dir>/speciesTree.nwk'\n" + \
-                    GAP*2 + "'<output dir>/speciesTree_outgroupPruned.nwk'\n\n" + \
-                    "Optional Features\n" + \
-                    GAP + "multiple input genomes:\n" + \
-                    GAP*2 + "replace '<gbff file>' with '<gbff directory>'\n" + \
-                    GAP*2 + "the specified directory must contain all of the input genome files\n\n" + \
-                    GAP + "multiple phylogenetic markers:\n" + \
-                    GAP*2 + "list each desired marker separated by a comma (no spaces)\n" + \
-                    GAP*2 + "the number of specified markers must be a multiple of the number input genomes\n\n" + \
+                    GAP*2 + "'finalAnalysis/speciesTree_outgroupPruned.nwk'\n\n\n" + \
+                    "# Performing phylogenomic analyses on a user-specified set of genomes (option 3)\n\n" + \
+                    GAP + PHANTASM_PY + " " + JOB_4 + " [-iemONLBF]\n\n" + \
+                    GAP + "required arguments:\n" + \
+                    GAP*2 + "-i, --input <file>         gbff file or a directory containing gbff files\n" + \
+                    GAP*2 + "-e, --email <email>        email address\n" + \
+                    GAP*2 + "-m, --map_file <file>      a file with two tab-separated columns (no headers): filename, taxon name\n\n" + \
+                    GAP + "optional arguments:\n" + \
+                    GAP*2 + "-O, --out <dir>            output directory                               [default: '" + os.path.join(".", "finalAnalysis") + "']\n" + \
+                    GAP*2 + "-N, --num_threads <int>    number of processors to use                    [default: 1]\n" + \
+                    GAP*2 + "-L, --max_leaves <int>     maximum number of leaves in the species tree   [default: 50]\n" + \
+                    GAP*2 + "-B, --bootstrap <int>      number of bootstraps to perform                [default: no bootstrapping]\n" + \
+                    GAP*2 + "-F, --fewer_coregenes      limit the core genes to those with ≤5% gaps    [default: no limiting]\n\n" + \
+                    GAP + "results (directory may vary if '-O' or '--out' used):\n" + \
+                    GAP*2 + "'finalAnalysis/aai_matrix.txt'\n" + \
+                    GAP*2 + "'finalAnalysis/aai_heatmap.pdf'\n" + \
+                    GAP*2 + "'finalAnalysis/ani_matrix.txt'\n" + \
+                    GAP*2 + "'finalAnalysis/ani_heatmap.pdf'\n" + \
+                    GAP*2 + "'finalAnalysis/coreGenesSummary.txt\n" + \
+                    GAP*2 + "'finalAnalysis/speciesTree.nwk'\n" + \
+                    GAP*2 + "'finalAnalysis/speciesTree_outgroupPruned.nwk'\n\n\n" + \
+                    "# Optional Features\n" + \
                     GAP + "excluding specific taxa from the final analysis:\n" + \
                     GAP*2 + "create a file in the working directory named 'excludedTaxids.txt'\n" + \
                     GAP*2 + "the file should contain exactly one NCBI Taxonomy ID to be excluded per line\n" + \
