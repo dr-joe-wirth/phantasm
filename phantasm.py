@@ -2,7 +2,7 @@
 
 
 from PHANTASM.main import getPhyloMarker, refinePhylogeny, knownPhyloMarker, analyzeSpecifiedGenomes
-from PHANTASM.utilities import parseArgs, getLpsnAge, getCmdWithRedactedEmail
+from PHANTASM.utilities import parseArgs, getLpsnAge, redactEmailAddress
 from PHANTASM.findMissingNeighbors import _locusTagToGeneNum
 from PHANTASM.Parameter import Parameters
 from param import PHANTASM_DIR
@@ -11,9 +11,9 @@ import copy, glob, logging, os, sys
 # constants
 PHANTASM_PY = "python3 " + os.path.join(PHANTASM_DIR, "phantasm.py")
 VERSION = "v1.0.4"
-JOB_0A = 'help'
+JOB_0A = '--help'
 JOB_0B = "-h"
-JOB_0C = ("-v", "version")
+JOB_0C = ("-v", "--version")
 JOB_1 = 'getPhyloMarker'
 JOB_2 = 'refinePhylogeny'
 JOB_3 = 'knownPhyloMarker'
@@ -108,24 +108,20 @@ DETAILED_HELP_MSG = "\nPHANTASM: PHylogenomic ANalyses for the TAxonomy and Syst
 
 # short help message (for JOB_0B)
 SHORT_HELP_MSG = "Getting detailed help\n" + \
-                  GAP + PHANTASM_PY + " help\n\n\n" + \
+                  GAP + PHANTASM_PY + " " + JOB_0A + "\n\n\n" + \
                   "Getting this message\n" + \
-                  GAP + PHANTASM_PY + " -h\n\n\n" + \
+                  GAP + PHANTASM_PY + " " + JOB_0B + "\n\n\n" + \
                   "Getting the version\n" + \
-                  GAP + PHANTASM_PY + " -v\n" + \
-                  GAP*2 + "OR\n" +\
-                  GAP + PHANTASM_PY + " version\n\n\n" + \
+                  GAP + PHANTASM_PY + " -v\n\n\n" + \
                   "Option 1: unknown reference genomes and unknown phylogenetic markers\n" + \
                   GAP + "Step 1: rank phylogenetic markers\n" + \
-                  GAP*2 + PHANTASM_PY + " " + JOB_1 + " <input genome(s)> <email>\n\n" + \
+                  GAP*2 + PHANTASM_PY + " " + JOB_1 + " -i <input genome(s)> -e <email>\n\n" + \
                   GAP + "Step 2: refine phylogeny using a phylogenetic marker\n" + \
-                  GAP*2 + PHANTASM_PY + " " + JOB_2 + " --locus_tag <locus tag(s)> <input genome(s)> <email>\n" + \
-                  GAP*3 + "OR\n" + \
-                  GAP*2 + PHANTASM_PY + " " + JOB_2 + " --gene_num <gene number(s)> <input genome(s)> <email>\n\n\n" + \
+                  GAP*2 + PHANTASM_PY + " " + JOB_2 + " -t <locus tag(s)> -i <input genome(s)> -e <email>\n\n\n" + \
                   "Option 2: unkonwn reference genomes and known phylogenetic marker\n" + \
-                  GAP + PHANTASM_PY + " " + JOB_3 + " <locus tag(s)> <input genome(s)> <email>\n\n\n" + \
+                  GAP + PHANTASM_PY + " " + JOB_3 + " -t <locus tag(s)> -i <input genome(s)> -e <email>\n\n\n" + \
                   "Option 3: known reference genomes\n" + \
-                  GAP + PHANTASM_PY + " " + JOB_4 + " <genome directory> <human map file> <output directory> <email>\n"
+                  GAP + PHANTASM_PY + " " + JOB_4 + " -i <genome directory> -m <map file> -o <output directory> -e <email>\n"
 
 
 # begin main function
@@ -168,7 +164,7 @@ if __name__ == "__main__":
             logger = logging.getLogger(__name__)
             
             # save details about the run
-            logger.info(getCmdWithRedactedEmail())
+            logger.info(redactEmailAddress())
             logger.info(VERSION)
             logger.info('num cpus:        ' + str(paramO.numProcesses))
             logger.info('max leaves:      ' + str(paramO.maxNumTreeLeaves))
@@ -212,7 +208,7 @@ if __name__ == "__main__":
             logger = logging.getLogger(__name__)
             
             # save details about the run
-            logger.info(getCmdWithRedactedEmail())
+            logger.info(redactEmailAddress())
             logger.info(VERSION)
             logger.info('num cpus:        ' + str(paramO_1.numProcesses))
             logger.info('max leaves:      ' + str(paramO_1.maxNumTreeLeaves))
@@ -239,7 +235,7 @@ if __name__ == "__main__":
             logger = logging.getLogger(__name__)
             
             # save details about the run
-            logger.info(getCmdWithRedactedEmail())
+            logger.info(redactEmailAddress())
             logger.info(VERSION)
             logger.info('num cpus:        ' + str(paramO.numProcesses))
             logger.info('max leaves:      ' + str(paramO.maxNumTreeLeaves))
@@ -269,7 +265,7 @@ if __name__ == "__main__":
             logger = logging.getLogger(__name__)
             
             # save details about the run
-            logger.info(getCmdWithRedactedEmail())
+            logger.info(redactEmailAddress())
             logger.info(VERSION)
             logger.info('num cpus:        ' + str(paramO.numProcesses))
             logger.info('max leaves:      ' + str(paramO.maxNumTreeLeaves))
