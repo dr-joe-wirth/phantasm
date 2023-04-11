@@ -76,7 +76,6 @@ RUN mv /phantasm-1.0.4 /phantasm
 
 # copy the param file and make remove restricted permissions
 COPY ./docker_param.py /phantasm/param.py
-RUN chmod ugo+rw /phantasm/param.py
 
 # make an alias for easily calling phantasm
 RUN echo "alias phantasm='python3 /phantasm/phantasm.py'" >> ~/.bashrc
