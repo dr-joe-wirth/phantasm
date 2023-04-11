@@ -1076,8 +1076,8 @@ def getLpsnAge() -> str:
     return date
     
 
-def getCmdWithRedactedEmail() -> str:
-    """ getCmdWithRedactedEmail:
+def redactEmailAddress() -> str:
+    """ redactEmailAddress:
             Accepts no inputs. Redacts the email address from the input command
             to ensure that the user's email remains anonymous in the resulting
             log files. Returns the command as a string with the email address
