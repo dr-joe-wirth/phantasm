@@ -211,7 +211,7 @@ if __name__ == "__main__":
             gbffL, locusTagsL, paramO_2 = parseArgs()
             
             # create paramO_1 from paramO_2
-            tmp = paramO_2.toDict()
+            tmp = paramO_2.toDict().copy()
             tmp['workdir'] = os.path.join(os.path.dirname(paramO_2.workdir), "initialAnalysis")
             paramO_1 = Parameters.fromDict(tmp)
             
