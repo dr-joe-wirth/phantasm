@@ -179,9 +179,7 @@ def finalAnalysesWrapper(allQryGbksL:list, outgroup:Taxonomy, \
                                                   paramO_2:Parameters) -> None:
     """ makes the second species tree and calculates OGRIs.
     """
-    from param import BOOTSTRAP_FINAL_TREE
-
-    if BOOTSTRAP_FINAL_TREE:
+    if paramO_2.numBootstraps > 0:
         makeSpeciesTree(allQryGbksL, paramO_2, outgroup, 'iqtree', False)
     else:
         makeSpeciesTree(allQryGbksL, paramO_2, outgroup, 'fasttree', False)
