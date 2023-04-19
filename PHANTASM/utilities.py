@@ -206,12 +206,11 @@ def parseArgs() -> tuple[list, list, Parameters]:
             logger.critical(ERR_MSG_4)
             raise ValueError(ERR_MSG_5)
         
-        # ensure that a valid map file has been provided
-        checkForValidHumanMapFile(mapFN)
-        
         # report any unused arguments
         for opt,arg in opts:
             if opt in LOCUS_FLAGS:
+                print(UNUSED_MSG + opt)
+            if opt in LEAF_FLAGS:
                 print(UNUSED_MSG + opt)
 
     # create a Parameters object using the extracted values:
@@ -230,6 +229,9 @@ def parseArgs() -> tuple[list, list, Parameters]:
     if job == JOB_4:
         paramO.genbankFilePath = os.path.join(genomeDir, "*")
         paramO.fileNameMapFN = os.path.abspath(mapFN)
+        
+        # ensure that the provided map file is valid
+        checkForValidHumanMapFile(mapFN)
     
     # make sure that the specified executables are accessible
     checkForValidExecutables(paramO)

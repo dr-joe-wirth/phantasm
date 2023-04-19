@@ -112,7 +112,6 @@ DETAILED_HELP_MSG = "# Getting detailed help (this message):\n\n" + \
                     GAP + "optional arguments:\n" + \
                     GAP*2 + "-O, --out <dir>            output directory                               [default: '" + os.path.join(".", "finalAnalysis") + "']\n" + \
                     GAP*2 + "-N, --num_threads <int>    number of processors to use                    [default: 1]\n" + \
-                    GAP*2 + "-L, --max_leaves <int>     maximum number of leaves in the species tree   [default: 50]\n" + \
                     GAP*2 + "-B, --bootstrap <int>      number of bootstraps to perform                [default: no bootstrapping]\n" + \
                     GAP*2 + "-F, --fewer_coregenes      limit the core genes to those with ≤5% gaps    [default: no limiting]\n\n" + \
                     GAP + "results (directory may vary if '-O' or '--out' used):\n" + \
