@@ -231,7 +231,7 @@ def parseArgs() -> tuple[list, list, Parameters]:
         paramO.fileNameMapFN = os.path.abspath(mapFN)
         
         # ensure that the provided map file is valid
-        checkForValidHumanMapFile(mapFN)
+        checkForValidHumanMapFile(paramO)
     
     # make sure that the specified executables are accessible
     checkForValidExecutables(paramO)
