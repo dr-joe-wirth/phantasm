@@ -126,12 +126,12 @@ DETAILED_HELP_MSG = "# Getting detailed help (this message):\n\n" + \
                     "# Ranking phylogenetic markers after running option 2 or 3\n\n" + \
                     GAP + PHANTASM_PY + " " + JOB_5 + " [-iON]\n\n" + \
                     GAP + "required arguments:\n" + \
-                    GAP*2 + "-i, --input <directory>    directory containing phantasm results\n\n" + \
+                    GAP*2 + "-i, --input <dir>          directory containing phantasm results\n\n" + \
                     GAP + "optional arguments:\n" + \
-                    GAP*2 + "-O, --out <file>           output file                                    [default: '" + os.path.join("<directory>", "putativePhylogeneticMarkers.txt") + "']\n" + \
-                    GAP*2 + "-N, --num_threads <int>    number of processors to use                    [default: 1]\n" + \
+                    GAP*2 + "-O, --out <file>           output file                                    [default: '" + os.path.join("<dir>", "putativePhylogeneticMarkers.txt") + "']\n" + \
+                    GAP*2 + "-N, --num_threads <int>    number of processors to use                    [default: 1]\n\n" + \
                     GAP + "results:\n" + \
-                    GAP*2 + "'<directory>/putativePhylogeneticMarkers.txt' (or at the specified file location)\n\n\n" + \
+                    GAP*2 + "'<dir>/putativePhylogeneticMarkers.txt' (or at the specified file location)\n\n\n" + \
                     "# Optional Features\n" + \
                     GAP + "excluding specific taxa from the final analysis:\n" + \
                     GAP*2 + "create a file in the working directory named 'excludedTaxids.txt'\n" + \
