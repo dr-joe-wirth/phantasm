@@ -65,7 +65,7 @@ def rankPhyloMarkers(paramO:Parameters) -> None:
     """
     makeGeneTreesOnly(paramO)
     rankPhylogeneticMarkers(paramO)
-    cleanup()
+    cleanup(paramO)
     
     
 ###############################################################################
