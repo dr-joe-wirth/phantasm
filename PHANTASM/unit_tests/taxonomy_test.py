@@ -1,5 +1,4 @@
 # Author: Joseph S. Wirth
-# Last edit: September 29, 2022
 
 import copy, logging, os, random, re, time, unittest
 from PHANTASM.taxonomy.taxonomyConstruction import constructTaxonomy

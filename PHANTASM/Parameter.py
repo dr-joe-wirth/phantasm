@@ -1,5 +1,4 @@
 # Author: Joseph S. Wirth
-# Last edit: September 27, 2022
 
 from __future__ import annotations
 import os
