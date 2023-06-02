@@ -19,15 +19,9 @@ def parseArgs() -> tuple[list, list, Parameters]:
                 3. a Parameters object
     """
     # import location of dependencies and other useful information
-    from phantasm import VERSION, PHANTASM_PY
+    from phantasm import VERSION, PHANTASM_PY, JOB_1, JOB_2, JOB_3, JOB_4, JOB_5
     from param import BLASTPLUS_DIR, MUSCLE_EXE, FASTTREE_EXE, IQTREE_EXE
     
-    # job names
-    JOB_1 = 'getPhyloMarker'
-    JOB_2 = 'refinePhylogeny'
-    JOB_3 = 'knownPhyloMarker'
-    JOB_4 = 'analyzeGenomes'
-
     # command line flags
     SHORT_OPTS = "i:e:t:m:O:N:L:B:F"
     LONG_OPTS = ["input=",
@@ -66,9 +60,11 @@ def parseArgs() -> tuple[list, list, Parameters]:
     UNUSED_MSG = "ignoring unused option: "
     ERR_MSG_1 = "invalid (or missing) email address"
     ERR_MSG_2 = "locus tag(s) (-t or --locus_tag) required for "
-    ERR_MSG_3 = "The number of genes is not a multiple of the number of input genomes."
-    ERR_MSG_4 = "The specified genome directory is not a directory."
+    ERR_MSG_3 = "the number of genes is not a multiple of the number of input genomes."
+    ERR_MSG_4 = "the specified genome directory is not a directory."
     ERR_MSG_5 = "cannot analyze fewer than " + str(MIN_NUM_GENOMES) + " genomes"
+    ERR_MSG_6 = "could not find specified directory: "
+    ERR_MSG_7 = "input is not a directory"
     
     # initialize the logger
     logger = logging.getLogger(__name__ + "." + parseArgs.__name__)
@@ -139,13 +135,13 @@ def parseArgs() -> tuple[list, list, Parameters]:
         else:
             print(INVALID_MSG + opt)
     
-    # email address is always required
-    if not validEmailAddress(email):
-        logger.critical(ERR_MSG_1)
-        raise ValueError(ERR_MSG_1)
-    
     # process getPhyloMarker
     if job == JOB_1:
+        # email address is required
+        if not validEmailAddress(email):
+            logger.critical(ERR_MSG_1)
+            raise ValueError(ERR_MSG_1)
+        
         # set the output directory
         outDir = DEFAULT_DIR_1
         
@@ -156,6 +152,11 @@ def parseArgs() -> tuple[list, list, Parameters]:
 
     # process refinePhylogeny
     elif job in JOB_2:
+        # email address is required
+        if not validEmailAddress(email):
+            logger.critical(ERR_MSG_1)
+            raise ValueError(ERR_MSG_1)
+        
         # set the output directory
         outDir = DEFAULT_DIR_2
         
@@ -171,6 +172,11 @@ def parseArgs() -> tuple[list, list, Parameters]:
     
     # process knownPhyloMarker
     elif job in JOB_3:
+        # email address is required
+        if not validEmailAddress(email):
+            logger.critical(ERR_MSG_1)
+            raise ValueError(ERR_MSG_1)
+        
         # set the output directory if one was not specified
         if outDir == "":
             outDir = DEFAULT_DIR_2
@@ -192,6 +198,11 @@ def parseArgs() -> tuple[list, list, Parameters]:
     
     # process analyzeGenomes
     elif job == JOB_4:
+        # email address is required
+        if not validEmailAddress(email):
+            logger.critical(ERR_MSG_1)
+            raise ValueError(ERR_MSG_1)
+        
         # set the output directory if one was not specified
         if outDir == "":
             outDir = DEFAULT_DIR_2
@@ -199,7 +210,7 @@ def parseArgs() -> tuple[list, list, Parameters]:
         # make sure genomeDir is a directory
         if not os.path.isdir(genomeDir):
             logger.critical(ERR_MSG_4)
-            raise ValueError(ERR_MSG_4)
+            raise NotADirectoryError(ERR_MSG_4)
         
         # make sure that enough genomes are present
         if len(genomesL) < MIN_NUM_GENOMES:
@@ -213,6 +224,26 @@ def parseArgs() -> tuple[list, list, Parameters]:
             if opt in LEAF_FLAGS:
                 print(UNUSED_MSG + opt)
 
+    # process rankPhyloMarkers
+    elif job == JOB_5:
+        # the working directory will be set to `genomeDir`; move to `outDir`
+        outDir = genomeDir
+        
+        # make sure output directory exists 
+        if not os.path.exists(outDir):
+            logger.critical(ERR_MSG_6 + outDir)
+            raise FileNotFoundError(ERR_MSG_6 + outDir)
+        
+        # make sure output directory is a directory
+        if not os.path.isdir(outDir):
+            logger.critical(ERR_MSG_7 + outDir)
+            raise NotADirectoryError(ERR_MSG_7 + outDir)
+        
+        # report any unused arguments
+        for opt,arg in opts:
+            if opt in (EMAIL_FLAGS + LOCUS_FLAGS + MAP_FLAGS + OUT_DIR_FLAGS + LEAF_FLAGS + BOOTS_FLAGS + REDUCE_FLAGS):
+                print(UNUSED_MSG + opt)
+    
     # create a Parameters object using the extracted values:
     paramO = Parameters(email,
                         outDir,

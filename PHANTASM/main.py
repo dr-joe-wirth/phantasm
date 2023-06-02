@@ -10,7 +10,7 @@ from PHANTASM.utilities import cleanup, getTaxidsFromFile, parseCsv
 from PHANTASM.taxonomy.taxonomyConstruction import Taxonomy, constructTaxonomy, _getLpsnData
 from PHANTASM.findMissingNeighbors import phyloMarkerBlastRunner, xenogiInterfacer_2, xenogiInterfacer_3
 from PHANTASM.overallGenomeRelatedIndices import overallGenomeRelatedIndices, makeAaiHeatmap, makeAniHeatmap
-from PHANTASM.coreGenes import rankPhylogeneticMarkers, xenogiInterfacer_1, parseGenbank, allVsAllBlast, copyExistingBlastFiles, calculateCoreGenes, makeSpeciesTree
+from PHANTASM.coreGenes import rankPhylogeneticMarkers, xenogiInterfacer_1, parseGenbank, allVsAllBlast, copyExistingBlastFiles, calculateCoreGenes, makeSpeciesTree, makeGeneTreesOnly
 
 
 def getPhyloMarker(allQueryGenbanksL:list, paramO_1:Parameters) -> None:
@@ -59,6 +59,16 @@ def analyzeSpecifiedGenomes(allGbksL:list, paramO:Parameters) -> None:
     outgroup = makeOutgroupObject(paramO)
     finalAnalysesWrapper(allGbksL, outgroup, paramO)
     cleanup(paramO)
+
+
+def rankPhyloMarkers(paramO:Parameters) -> None:
+    """ use phantasm to rank phylo markers in a folder where an analysis has already been completed
+    """
+    makeGeneTreesOnly(paramO)
+    rankPhylogeneticMarkers(paramO)
+    cleanup()
+    
+    
 ###############################################################################
 
 

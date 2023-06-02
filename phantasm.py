@@ -1,12 +1,12 @@
 # Author: Joseph S. Wirth
 
 
-from PHANTASM.main import getPhyloMarker, refinePhylogeny, knownPhyloMarker, analyzeSpecifiedGenomes
+from PHANTASM.main import getPhyloMarker, refinePhylogeny, knownPhyloMarker, analyzeSpecifiedGenomes, rankPhyloMarkers
 from PHANTASM.utilities import parseArgs, getLpsnAge, redactEmailAddress
 from PHANTASM.findMissingNeighbors import _locusTagToGeneNum
 from PHANTASM.Parameter import Parameters
 from param import PHANTASM_DIR
-import copy, glob, logging, os, sys
+import logging, os, sys
 
 # constants
 PHANTASM_PY = "python3 " + os.path.join(PHANTASM_DIR, "phantasm.py")
@@ -18,6 +18,7 @@ JOB_1 = 'getPhyloMarker'
 JOB_2 = 'refinePhylogeny'
 JOB_3 = 'knownPhyloMarker'
 JOB_4 = 'analyzeGenomes'
+JOB_5 = 'rankPhyloMarkers'
 SEP = ","
 GAP = " "*4
 
@@ -122,6 +123,14 @@ DETAILED_HELP_MSG = "# Getting detailed help (this message):\n\n" + \
                     GAP*2 + "'finalAnalysis/coreGenesSummary.txt\n" + \
                     GAP*2 + "'finalAnalysis/speciesTree.nwk'\n" + \
                     GAP*2 + "'finalAnalysis/speciesTree_outgroupPruned.nwk'\n\n\n" + \
+                    "# Ranking phylogenetic markers after running option 2 or 3\n\n" + \
+                    GAP + PHANTASM_PY + " " + JOB_5 + " [-iN]\n\n" + \
+                    GAP + "required arguments:\n" + \
+                    GAP*2 + "-i, --input <directory>    directory containing phantasm results\n\n" + \
+                    GAP + "optional arguments:\n" + \
+                    GAP*2 + "-N, --num_threads <int>    number of processors to use                    [default: 1]\n\n" + \
+                    GAP + "results:\n" + \
+                    GAP*2 + "'<directory>/putativePhylogeneticMarkers.txt'\n\n\n" + \
                     "# Optional Features\n" + \
                     GAP + "excluding specific taxa from the final analysis:\n" + \
                     GAP*2 + "create a file in the working directory named 'excludedTaxids.txt'\n" + \
@@ -148,7 +157,9 @@ SHORT_HELP_MSG = "Getting detailed help\n" + \
                   "Option 2: unkonwn reference genomes and known phylogenetic marker\n" + \
                   GAP + PHANTASM_PY + " " + JOB_3 + " -t <locus tag(s)> -i <input genome(s)> -e <email>\n\n\n" + \
                   "Option 3: known reference genomes\n" + \
-                  GAP + PHANTASM_PY + " " + JOB_4 + " -i <genome directory> -m <map file> -o <output directory> -e <email>\n"
+                  GAP + PHANTASM_PY + " " + JOB_4 + " -i <genome directory> -m <map file> -o <output directory> -e <email>\n\n\n" + \
+                  "Ranking phylogentic markers after running option 2 or 3:\n" + \
+                  GAP + PHANTASM_PY + " " + JOB_5 + " -i <phantasm results directory>\n"
 
 
 # begin main function
@@ -196,8 +207,6 @@ if __name__ == "__main__":
             logger.info('num cpus:        ' + str(paramO.numProcesses))
             logger.info('max leaves:      ' + str(paramO.maxNumTreeLeaves))
             logger.info('reduce num core: ' + str(paramO.reduceNumCoreGenes))
-            logger.info('bootstrap tree:  ' + str(paramO.numBootstraps > 0))
-            logger.info('num bootstraps:  ' + str(paramO.numBootstraps) + "\n")
 
             # execute job 1
             logger.info("start " + JOB_1 + "\n")
@@ -295,7 +304,6 @@ if __name__ == "__main__":
             logger.info(redactEmailAddress())
             logger.info(VERSION)
             logger.info('num cpus:        ' + str(paramO.numProcesses))
-            logger.info('max leaves:      ' + str(paramO.maxNumTreeLeaves))
             logger.info('reduce num core: ' + str(paramO.reduceNumCoreGenes))
             logger.info('bootstrap tree:  ' + str(paramO.numBootstraps > 0))
             logger.info('num bootstraps:  ' + str(paramO.numBootstraps) + "\n")
@@ -304,6 +312,29 @@ if __name__ == "__main__":
             logger.info("start " + JOB_4 + "\n")
             analyzeSpecifiedGenomes(gbffL, paramO)
             logger.info("end " + JOB_4 + "\n")
+
+        elif job == JOB_5:
+            gbffL, locusTagsL, paramO = parseArgs()
+            
+            if not os.path.exists(paramO.workdir):
+                raise FileNotFoundError("working directory does not exist")
+            
+            logging.basicConfig(filename=paramO.logFN, level=logging.INFO)
+            logger = logging.getLogger(__name__)
+            
+            # initialize logger
+            logging.basicConfig(filename=paramO.logFN, level=logging.INFO)
+            logger = logging.getLogger(__name__)
+            
+            # save details about the run
+            logger.info(redactEmailAddress())
+            logger.info(VERSION)
+            logger.info('num cpus: ' + str(paramO.numProcesses))
+            
+            # rank the phylogenetic markers
+            logger.info("start " + JOB_5 + "\n")
+            rankPhyloMarkers(paramO)
+            logger.info("end " + JOB_5 + "\n")
 
         # raise an error if an invalid job was specified
         else:

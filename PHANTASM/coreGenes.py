@@ -2,7 +2,7 @@
 # Last edit: September 28, 2022
 
 from __future__ import annotations
-import csv, glob, logging, os, re, scipy.stats, string, subprocess, sys
+import csv, glob, logging, multiprocessing, os, re, scipy.stats, string, subprocess, sys
 from PHANTASM.utilities import parseCsv, loadHumanMap
 from PHANTASM.Parameter import Parameters
 from Bio import Phylo, SeqIO
@@ -1036,6 +1036,55 @@ def __formatNamesForIqTree(taxonName:str) -> str:
             newName += '_'
     
     return newName
+
+
+def makeGeneTreesOnly(paramO:Parameters) -> None:
+    """ makeGeneTreesOnly:
+            Accepts a Parameters object as input. Makes a gene tree for each
+            alignment file present; does this in parallel using the number of
+            threads specified by the user. Does not return.
+    """
+    # constants
+    ALN_PREFIX = "align-"
+    ALN_SUFFIX = "-*.afa"
+    TREE_EXT = ".tre"
+    GREP_FIND = r"^\D+(\d+)\.afa$"
+    GREP_REPL = r"\1"
+    ERR_MSG = "alignment files do not exist, please run a different job first"
+    
+    logger = logging.getLogger(__name__ + "." + makeGeneTreesOnly.__name__)
+    
+    # extract the necessary data from paramO
+    fileStem = paramO.aabrhHardCoreGeneTreeFileStem
+    fastTree = paramO.fastTreePath
+    treeDir = paramO.makeSpeciesTreeWorkingDir
+    numThreads = paramO.numProcesses
+    
+    # get a list of all the alignment files
+    alignmentsL = glob.glob(os.path.join(treeDir, ALN_PREFIX + fileStem + ALN_SUFFIX))
+    
+    if alignmentsL == []:
+        logger.error(ERR_MSG)
+        raise RuntimeError(ERR_MSG)
+
+    # construct a list of commands to run
+    argsL = list()
+    for alnFN in alignmentsL:
+        digits = re.sub(GREP_FIND, GREP_REPL, os.path.basename(alnFN))
+        treeFN = os.path.join(os.path.dirname(alnFN), fileStem + digits + TREE_EXT)
+        treeFN = os.path.join(os.path.dirname(alnFN), treeFN)
+        
+        argsL.append((fastTree, treeFN, alnFN))
+
+    # define a helper function that can be used for multiprocessing
+    def makeOneGeneTree(fastTree:str, treeFN:str, alnFN:str) -> None:
+        subprocess.run([fastTree, "-quiet", "-out", treeFN, alnFN])
+
+    # make each gene tree using the available processors
+    pool = multiprocessing.Pool(processes=numThreads)
+    pool.starmap(makeOneGeneTree, argsL)
+    pool.close()
+    pool.join()
 
 
 def rankPhylogeneticMarkers(paramO:Parameters) -> None:
