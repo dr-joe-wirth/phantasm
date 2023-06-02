@@ -128,9 +128,10 @@ DETAILED_HELP_MSG = "# Getting detailed help (this message):\n\n" + \
                     GAP + "required arguments:\n" + \
                     GAP*2 + "-i, --input <directory>    directory containing phantasm results\n\n" + \
                     GAP + "optional arguments:\n" + \
-                    GAP*2 + "-N, --num_threads <int>    number of processors to use                    [default: 1]\n\n" + \
+                    GAP*2 + "-N, --num_threads <int>    number of processors to use                    [default: 1]\n" + \
+                    GAP*2 + "-O, --out <file>           output file                                    [default: '" + os.path.join("<directory>", "putativePhylogeneticMarkers.txt") + "']\n\n" + \
                     GAP + "results:\n" + \
-                    GAP*2 + "'<directory>/putativePhylogeneticMarkers.txt'\n\n\n" + \
+                    GAP*2 + "'<directory>/putativePhylogeneticMarkers.txt' (or at the specified file location)\n\n\n" + \
                     "# Optional Features\n" + \
                     GAP + "excluding specific taxa from the final analysis:\n" + \
                     GAP*2 + "create a file in the working directory named 'excludedTaxids.txt'\n" + \
@@ -315,12 +316,6 @@ if __name__ == "__main__":
 
         elif job == JOB_5:
             gbffL, locusTagsL, paramO = parseArgs()
-            
-            if not os.path.exists(paramO.workdir):
-                raise FileNotFoundError("working directory does not exist")
-            
-            logging.basicConfig(filename=paramO.logFN, level=logging.INFO)
-            logger = logging.getLogger(__name__)
             
             # initialize logger
             logging.basicConfig(filename=paramO.logFN, level=logging.INFO)

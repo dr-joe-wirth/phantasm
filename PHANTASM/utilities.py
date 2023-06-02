@@ -63,8 +63,9 @@ def parseArgs() -> tuple[list, list, Parameters]:
     ERR_MSG_3 = "the number of genes is not a multiple of the number of input genomes."
     ERR_MSG_4 = "the specified genome directory is not a directory."
     ERR_MSG_5 = "cannot analyze fewer than " + str(MIN_NUM_GENOMES) + " genomes"
-    ERR_MSG_6 = "could not find specified directory: "
-    ERR_MSG_7 = "input is not a directory"
+    ERR_MSG_6 = "output file exists"
+    ERR_MSG_7 = "could not find specified directory: "
+    ERR_MSG_8 = "input is not a directory"
     
     # initialize the logger
     logger = logging.getLogger(__name__ + "." + parseArgs.__name__)
@@ -226,22 +227,35 @@ def parseArgs() -> tuple[list, list, Parameters]:
 
     # process rankPhyloMarkers
     elif job == JOB_5:
+        # if set, the output file will be set to `outDir`; move to `outFN`
+        if outDir != "":
+            outFN = os.path.abspath(outDir)
+            
+            # make sure the file doesn't exist
+            if os.path.exists(outFN):
+                logger.critical(ERR_MSG_6)
+                raise FileExistsError(ERR_MSG_6)
+            
+        # set outFN to False to ensure that the file replacement below works
+        else:
+            outFN = False
+        
         # the working directory will be set to `genomeDir`; move to `outDir`
         outDir = genomeDir
         
         # make sure output directory exists 
         if not os.path.exists(outDir):
-            logger.critical(ERR_MSG_6 + outDir)
-            raise FileNotFoundError(ERR_MSG_6 + outDir)
+            logger.critical(ERR_MSG_7 + outDir)
+            raise FileNotFoundError(ERR_MSG_7 + outDir)
         
         # make sure output directory is a directory
         if not os.path.isdir(outDir):
-            logger.critical(ERR_MSG_7 + outDir)
-            raise NotADirectoryError(ERR_MSG_7 + outDir)
+            logger.critical(ERR_MSG_8 + outDir)
+            raise NotADirectoryError(ERR_MSG_8 + outDir)
         
         # report any unused arguments
         for opt,arg in opts:
-            if opt in (EMAIL_FLAGS + LOCUS_FLAGS + MAP_FLAGS + OUT_DIR_FLAGS + LEAF_FLAGS + BOOTS_FLAGS + REDUCE_FLAGS):
+            if opt in (EMAIL_FLAGS + LOCUS_FLAGS + MAP_FLAGS + LEAF_FLAGS + BOOTS_FLAGS + REDUCE_FLAGS):
                 print(UNUSED_MSG + opt)
     
     # create a Parameters object using the extracted values:
@@ -263,6 +277,10 @@ def parseArgs() -> tuple[list, list, Parameters]:
         
         # ensure that the provided map file is valid
         checkForValidHumanMapFile(paramO)
+    
+    # replace the output file in the paramO object
+    elif job == JOB_5 and outFN:
+        paramO.phyloMarkersFN = outFN
     
     # make sure that the specified executables are accessible
     checkForValidExecutables(paramO)
