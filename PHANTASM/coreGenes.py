@@ -1050,6 +1050,8 @@ def makeGeneTreesOnly(paramO:Parameters) -> None:
     TREE_EXT = ".tre"
     GREP_FIND = r"^\D+(\d+)\.afa$"
     GREP_REPL = r"\1"
+    PRINT_1 = "Making gene trees for each core gene ... "
+    DONE = "Done."
     ERR_MSG = "alignment files do not exist, please run a different job first"
     
     logger = logging.getLogger(__name__ + "." + makeGeneTreesOnly.__name__)
@@ -1076,15 +1078,24 @@ def makeGeneTreesOnly(paramO:Parameters) -> None:
         
         argsL.append((fastTree, treeFN, alnFN))
 
-    # define a helper function that can be used for multiprocessing
-    def makeOneGeneTree(fastTree:str, treeFN:str, alnFN:str) -> None:
-        subprocess.run([fastTree, "-quiet", "-out", treeFN, alnFN])
-
     # make each gene tree using the available processors
+    print(PRINT_1, end='', flush=True)
+    logger.info(PRINT_1)
     pool = multiprocessing.Pool(processes=numThreads)
-    pool.starmap(makeOneGeneTree, argsL)
+    pool.starmap(__makeOneGeneTree, argsL)
     pool.close()
     pool.join()
+    print(DONE)
+    logger.info(DONE + "\n")
+
+
+def __makeOneGeneTree(fastTree:str, treeFN:str, alnFN:str) -> None:
+    """ makeOneGeneTree:
+            Accepts the path to the FastTree executable, a filename to save the
+            newly created gene tree, and an alignment file to use for treeing
+            as inputs. Calls FastTree on the provided inputs. Does not return.
+    """
+    subprocess.run([fastTree, "-quiet", "-out", treeFN, alnFN])
 
 
 def rankPhylogeneticMarkers(paramO:Parameters) -> None:
