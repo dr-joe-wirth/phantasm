@@ -124,12 +124,12 @@ DETAILED_HELP_MSG = "# Getting detailed help (this message):\n\n" + \
                     GAP*2 + "'finalAnalysis/speciesTree.nwk'\n" + \
                     GAP*2 + "'finalAnalysis/speciesTree_outgroupPruned.nwk'\n\n\n" + \
                     "# Ranking phylogenetic markers after running option 2 or 3\n\n" + \
-                    GAP + PHANTASM_PY + " " + JOB_5 + " [-iN]\n\n" + \
+                    GAP + PHANTASM_PY + " " + JOB_5 + " [-iON]\n\n" + \
                     GAP + "required arguments:\n" + \
                     GAP*2 + "-i, --input <directory>    directory containing phantasm results\n\n" + \
                     GAP + "optional arguments:\n" + \
+                    GAP*2 + "-O, --out <file>           output file                                    [default: '" + os.path.join("<directory>", "putativePhylogeneticMarkers.txt") + "']\n" + \
                     GAP*2 + "-N, --num_threads <int>    number of processors to use                    [default: 1]\n" + \
-                    GAP*2 + "-O, --out <file>           output file                                    [default: '" + os.path.join("<directory>", "putativePhylogeneticMarkers.txt") + "']\n\n" + \
                     GAP + "results:\n" + \
                     GAP*2 + "'<directory>/putativePhylogeneticMarkers.txt' (or at the specified file location)\n\n\n" + \
                     "# Optional Features\n" + \
