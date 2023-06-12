@@ -1,4 +1,4 @@
-# PHANTASM: PHylogenomic ANalyses for the TAxonomy and Systematics of Microbes
+# PHANTASM: <ins>PH</ins>ylogenomic <ins>AN</ins>alyses for the <ins>TA</ins>xonomy and <ins>S</ins>ystematics of <ins>M</ins>icrobes
 ## Developed by Joseph S. Wirth
 
 ## Source code is available at https://github.com/dr-joe-wirth/phantasm
