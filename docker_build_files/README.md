@@ -40,6 +40,8 @@ doi: [10.1093/nar/gkad196](https://doi.org/10.1093/nar/gkad196)
 
     3.3. [Option 3: known reference genomes](#33-option-3-known-reference-genomes)
 
+    3.4. [Option 4: ranking possible phylogenetic markers in a known set of genomes](#34-option-4-ranking-possible-phylogenetic-markers-in-a-known-set-of-genomes)
+
 4. [Analyzing the results](#4-analyzing-the-results)
 
 5. [Detailed descriptions of the workflows](#5-detailed-descriptions-of-the-workflows)
@@ -52,9 +54,13 @@ doi: [10.1093/nar/gkad196](https://doi.org/10.1093/nar/gkad196)
 
     5.4. [Option 3: Analyzing a set of user-specified genomes](#54-option-3-analyzing-a-set-of-user-specified-genomes)
 
+    5.5. [Option 4: Ranking possible phylogenetic markers in a set of user-specified genomes](#55-option-4-ranking-possible-phylogenetic-markers-in-a-set-of-user-specified-genomes)
+
 6. [Common error messages](#6-common-error-messages)
 
     6.1. [Problems with 16S rRNA gene sequence annotation (or lack thereof) in your input genome(s)](#61-problems-with-16s-rrna-gene-sequence-annotation-or-lack-thereof-in-your-input-genomes)
+
+    6.2. [Warnings about LC variables when using Singularity](#62-warnings-about-lc_-variables-when-using-singularity)
 
 # 1. Mounting the Docker image
 ## 1.1. Running Docker as `root`
@@ -147,6 +153,8 @@ There are three ways of running PHANTASM. As show in the table below, the best o
     |         yes        |        irrelevant       |       option 3       |
     |____________________|_________________________|______________________|
 
+
+There is also a [fourth option](#34-option-4-ranking-possible-phylogenetic-markers-in-a-known-set-of-genomes) that can be used identify phylogenetic markers for a set of user-specified of genomes.
 
 ## 3.1. Option 1: unknown reference genomes and unknown phylogenetic marker(s)
 If you have an annotated genome sequence but you do not know a suitable phylogenetic marker and you do not know which reference genomes would be appropriate to use, then PHANTASM can be run in three steps:
@@ -290,6 +298,8 @@ Once this file has been created, run one of the following command to analyze the
 
 ##### Note: the specified output directory must not already exist.
 
+## 3.4. Option 4: ranking possible phylogenetic markers in a known set of genomes
+
 # 4. Analyzing the results
 All data can be found within the directory where you called `phantasm`. Unless the flag `-O` or `--out` was used, the results will be found in the folder `finalAnalysis`.
   * The following files are likely to be the most useful for phylogenomic and taxonomic analyses:
@@ -305,28 +315,17 @@ All data can be found within the directory where you called `phantasm`. Unless t
 # 5. Detailed descriptions of the workflows
 
 ## 5.1. Option 1: Identifying suitable phylogenetic markers for your input genome
-
-* Extracts the 16S rRNA gene sequences from the input genbank.
-
-* Uses the 16S rRNA gene sequences and BLASTn to search [NCBI's Targetted Loci database](https://www.ncbi.nlm.nih.gov/refseq/targetedloci/) in order to determine which taxonomic orders are related to the input genome(s).
-
-* Retreives data from NCBI's Taxonomy database to create a single taxonomy encompassing all the identified orders.
-
-* Reconciles the NCBI-based taxonomy with LPSN's taxonomic structure.
-
-* Imports data from NCBI's Assembly database for the species represented in the taxonomy.
-
-* Uses the BLASTn results and the taxonomic structure to determine which taxa could serve as the ingroup/outgroup.
-
-* Downloads assemblies for the ingroup and the outgroup the number to download is specified in `<path to phatasm>/param.py` in the `MAX_LEAVES` variable.
-
-* Calculates core genes for the set of gbff files.
-
-* Creates a species tree based on a concatenated alignment of the core genes.
-
-* Creates an individual gene tree for each core gene.
-
-* Uses the species tree and gene trees to calculate a score of how well correlated each individual core gene is to the species tree's topology. Saves this information in the file `initialAnalysis/putativePhylogeneticMarkers.txt`.
+  * Extracts the 16S rRNA gene sequences from the input genbank.
+  * Uses the 16S rRNA gene sequences and BLASTn to search [NCBI's Targetted Loci database](https://www.ncbi.nlm.nih.gov/refseq/targetedloci/) in order to determine which taxonomic orders are related to the input genome(s).
+  * Retreives data from NCBI's Taxonomy database to create a single taxonomy encompassing all the identified orders.
+  * Reconciles the NCBI-based taxonomy with LPSN's taxonomic structure.
+  * Imports data from NCBI's Assembly database for the species represented in the taxonomy.
+  * Uses the BLASTn results and the taxonomic structure to determine which taxa could serve as the ingroup/outgroup.
+  * Downloads assemblies for the ingroup and the outgroup the number to download is specified in `<path to phatasm>/param.py` in the `MAX_LEAVES` variable.
+  * Calculates core genes for the set of gbff files.
+  * Creates a species tree based on a concatenated alignment of the core genes.
+  * Creates an individual gene tree for each core gene.
+  * Uses the species tree and gene trees to calculate a score of how well correlated each individual core gene is to the species tree's topology. Saves this information in the file `initialAnalysis/putativePhylogeneticMarkers.txt`.
 
 ## 5.2. Option 1: Refining the phylogeny and performing phylogenomic analyses
   * Using the phylogenetic marker(s) specified by the user, finds the most closely-related taxa to the input genome.
@@ -358,6 +357,12 @@ All data can be found within the directory where you called `phantasm`. Unless t
   * Calculates the average amino acid identity (AAI) for the species in the tree (excluding the outgroup).
   * Calculates the average nucleotide identity (ANI) for the species in the tree (excluding the outgroup).
 
+## 5.5. Option 4: Ranking possible phylogenetic markers in a set of user-specified genomes
+  * Calculates core genes for the set of gbff files.
+  * Creates a species tree based on a concatenated alignment of the core genes.
+  * Creates an individual gene tree for each core gene.
+  * Uses the species tree and gene trees to calculate a score of how well correlated each individual core gene is to the species tree's topology. Saves this information in the file `putativePhylogeneticMarkers.txt`.
+
 # 6. Common error messages
 ## 6.1. Problems with 16S rRNA gene sequence annotation (or lack thereof) in your input genome(s)
 ### Possible error messages
@@ -369,3 +374,17 @@ All data can be found within the directory where you called `phantasm`. Unless t
 __Option 1.__ Create a file named `taxids.txt` as described in the [section 3.1](#optional-bypassing-the-requirement-for-annotated-16s-rrna-gene-sequences-in-your-input-genomes).
 
 __Option 2.__ Use a known phylogenetic marker as described in [section 3.2](#32-option-2-unknown-reference-genomes-and-known-phylogenetic-markers).
+
+## 6.2 Warnings about `LC_` variables when using Singularity
+### Warning message
+
+    During startup - Warning messages:
+    1: Setting LC_COLLATE failed, using "C"
+    2: Setting LC_TIME failed, using "C"
+    3: Setting LC_MESSAGES failed, using "C"
+    4: Setting LC_MONETARY failed, using "C"
+    5: Setting LC_PAPER failed, using "C"
+    6: Setting LC_MEASUREMENT failed, using "C"
+
+### Solution:
+This is expected behavior when using the Docker image with Singularity and can be safely ignored.
