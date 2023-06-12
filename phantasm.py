@@ -10,7 +10,7 @@ import logging, os, sys
 
 # constants
 PHANTASM_PY = "python3 " + os.path.join(PHANTASM_DIR, "phantasm.py")
-VERSION = "v1.0.4"
+VERSION = "v1.1.0"
 JOB_0A = '--help'
 JOB_0B = "-h"
 JOB_0C = ("-v", "--version")
@@ -26,7 +26,7 @@ GAP = " "*4
 ERR_MSG_1 = "One or more specified genes could not be extracted."
 ERR_MSG_2 = "The specified output directory already exists."
 ERR_MSG_3A = "Invalid task: "
-ERR_MSG_3B = "\n\ntype '" + PHANTASM_PY + " help' for information."
+ERR_MSG_3B = "\n\ntype '" + PHANTASM_PY + " -h' for information."
 
 # reference message
 REF_MSG = "\nIf you use this software in your research, please cite our paper:\n" + \
@@ -158,7 +158,7 @@ SHORT_HELP_MSG = "Getting detailed help\n" + \
                   "Option 2: unkonwn reference genomes and known phylogenetic marker\n" + \
                   GAP + PHANTASM_PY + " " + JOB_3 + " -t <locus tag(s)> -i <input genome(s)> -e <email>\n\n\n" + \
                   "Option 3: known reference genomes\n" + \
-                  GAP + PHANTASM_PY + " " + JOB_4 + " -i <genome directory> -m <map file> -o <output directory> -e <email>\n\n\n" + \
+                  GAP + PHANTASM_PY + " " + JOB_4 + " -i <genome directory> -m <map file> -e <email>\n\n\n" + \
                   "Ranking phylogentic markers after running option 2 or 3:\n" + \
                   GAP + PHANTASM_PY + " " + JOB_5 + " -i <phantasm results directory>\n"
 
