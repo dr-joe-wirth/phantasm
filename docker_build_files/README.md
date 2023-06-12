@@ -30,9 +30,7 @@ doi: [10.1093/nar/gkad196](https://doi.org/10.1093/nar/gkad196)
 
     2.1. [Getting help](#21-getting-help)
 
-    2.2. [Modifying PHANTASM's settings (optional)](#22-modifying-phantasms-settings-optional)
-
-    2.3. [Excluding specific taxa from phylogenomic analyses (optional)](#23-excluding-specific-taxa-from-phylogenomic-analyses-optional)
+    2.2. [Excluding specific taxa from phylogenomic analyses (optional)](#23-excluding-specific-taxa-from-phylogenomic-analyses-optional)
 
 3. [Running PHANTASM](#3-running-phantasm)
 
@@ -62,8 +60,8 @@ doi: [10.1093/nar/gkad196](https://doi.org/10.1093/nar/gkad196)
 ## 1.1. Running Docker as `root`
 Docker must be run as `root`. This should not be a problem if [Docker Desktop](https://www.docker.com/products/docker-desktop/) is installed on your computer. However, running with the command line may require the use of `sudo` (`su` to switch to `root`). To circumvent this issue, add yourself to the group `docker` as described [here](https://docs.docker.com/engine/install/linux-postinstall/):
 
-    $ sudo groupadd docker
-    $ sudo usermod -aG docker $USER
+    sudo groupadd docker
+    sudo usermod -aG docker $USER
 
 Performing these steps will allow Docker to run as `root` without requiring `sudo` or `su`. If you are unable to be a sudoer, you might consider using Singularity instead (see [section 1.4](#14-using-singularity-instead-of-docker))
 
@@ -76,137 +74,67 @@ Be sure to allocate at least 8gb of memory to docker.
 
 Be sure to allocate more processors to docker if you wish to take advantage of parallel processing
   * This is optional. PHANTASM can run successfully with only 1 CPU, but will run significantly faster with more.
-  * If you wish to use parallel processing, you will also need to modify the `param.py` file as described in [section 2.2](#22-modifying-phantasms-settings-optional).
+  * The number of processors can be modified with the `-N` or `--num_threads` flag.
 
 ## 1.3. Mounting the image as a container:
 Pull the docker image from docker hub
 
-    $ docker pull jwirth/phantasm:latest
+    docker pull jwirth/phantasm:latest
 
 Make a working directory containing an input gbff file or a directory containing multiple gbff files (note: all gbff files MUST be annotated!). For example:
 
-    $ mkdir ~/myworkdir
-    $ cp my_genome.gbff ~/myworkdir
-    $ ls ~/myworkdir
-    my_genome.gbff
+    mkdir ~/myworkdir
+    cp my_genome.gbff ~/myworkdir
 
-Mount the image as a container (named `myContainer` below) and designate your working directory as a volume within it (named `/mydata` below). You must provide the __ABSOLUTE PATH__ to your working directory.
+Run the container with working directory mounted as a volume within it (named `/data` below). You must provide the __ABSOLUTE PATH__ to your working directory. The mounted volume __MUST__ be named `/data`
 
-    $ docker run -it --name myContainer -v ~/myworkdir:/mydata jwirth/phantasm
-
-The following names __cannot__ be used for the volume (`/mydata` in the example above):
-  * `/bin`
-  * `/boot`
-  * `/dev`
-  * `/etc`
-  * `/exec`
-  * `/home`
-  * `/lib`
-  * `/lib64`
-  * `/media`
-  * `/mnt`
-  * `/opt`
-  * `/phantasm`
-  * `/proc`
-  * `/root`
-  * `/run`
-  * `/sbin`
-  * `/srv`
-  * `/sys`
-  * `/tmp`
-  * `/usr`
-  * `/var`
-  * `/xenoGI-3.1.1`
-
-If you have successfully mounted the image, then you should see something like this:
-
-    root@fe46a3c61f0b:/#
-
-You should also be able to see the contents of your mounted folder within the container. For example:
-
-    root@fe46a3c61f0b:/# ls /mydata
-    my_genome.gbff
+    $ cd ~/myworkdir
+    $ docker -v $(pwd):/data jwirth/phantasm:latest phantasm
 
 ## 1.4. Using Singularity instead of Docker
 If you are unable to use Docker (eg. your server admin prohibits Docker due to issues with root access), then you can use Singularity instead. Instructions for installing and using Singularity can be found on [their website](https://docs.sylabs.io/guides/latest/user-guide/). Once installed, pull the image with the following command:
 
     $ singularity pull docker://jwirth/phantasm:latest
 
-which will generate the file `phantasm_latest.sif`. Next you can create a container with a local folder (`~/myworkdir` in the example below) mounted as a volume (`/mydata` in the example below) with read-write (`rw`) privileges. You also need to make sure that the file structure is writeable. All of this can be accomplished using the following command:
+which will generate the file `phantasm_latest.sif`.
 
-    $ singularity run --writable-tmpfs --containall --bind ~/myworkdir:/mydata:rw phantasm_latest.sif
+When using Singularity, you will likely see the following warning message:
 
-If you have successfully created the container, then you should seem something like this:
+    During startup - Warning messages:
+    1: Setting LC_COLLATE failed, using "C"
+    2: Setting LC_TIME failed, using "C"
+    3: Setting LC_MESSAGES failed, using "C"
+    4: Setting LC_MONETARY failed, using "C"
+    5: Setting LC_PAPER failed, using "C"
+    6: Setting LC_MEASUREMENT failed, using "C"
 
-    Singularity> 
-
-You should also be able to see the contents of your mounted folder within the container. For example:
-
-    Singularity> ls /mydata
-    my_genome.gbff
-
-Singularity does not grant root access. Because the Docker image assumes the user will be `root`, an alias present `/root/.bashrc` will not be loaded for you. In order to bypass this issue, run the following command:
-
-    Singularity> alias phantasm="python3 /phantasm/phantasm.py"
-
-You should now be able to run PHANTASM inside the container as described below (with `root@fe46a3c61f0b:/#` replaced with `Sinuglarity>`).
+This is normal and can be safely ignored.
 
 # 2. Getting started with PHANTASM
 ## 2.1. Getting help:
 To find out which version of phantasm is running, use one of the following commands:
 
-    root@fe46a3c61f0b:/# phantasm -v
-    root@fe46a3c61f0b:/# phantasm version
+    docker run jwirth/phantasm:latest phantasm -v
+    docker run jwirth/phantasm:latest phantasm --version
 
-In order to get a detailed help message, use the following command:
+    singularity exec phantasm_latest.sif phantasm -v
+    singularity exec phantasm_latest.sif phantasm --version
 
-    root@fe46a3c61f0b:/# phantasm help
+In order to get a detailed help message, use one of the following commands:
 
-Alternatively, you can get a short help message with the following command:
+    docker run jwirth/phantasm:latest phantasm --help
 
-    root@fe46a3c61f0b:/# phantasm -h
+    singularity exec phantasm_latest.sif phantasm --help
 
-## 2.2. Modifying PHANTASM's settings (optional)
-Use the `nano` command to open the `param.py` file
+Alternatively, you can get a short help message with one of the following commands:
 
-    root@fe46a3c61f0b:/# nano /phantasm/param.py
+    docker run jwirth/phantasm:latest phantasm -h
 
-Change the values for `NUM_PROCESSORS`, `MAX_LEAVES`, `REDUCE_NUM_CORE_GENES`, `BOOTSTRAP_FINAL_TREE`, and/or `NUM_BOOTSTRAPS` in the file. For your convenience, the relevant contents of the file are shown below:
+    singularity exec phantasm_latest.sif phantasm --help
 
-    # specify the number of processors to use
-    NUM_PROCESSORS:int = 1
 
-    # specify the maximum number of taxa in a given analysis
-    # do not set this value below 10
-    MAX_LEAVES:int = 50
-
-    # specify if the number of core genes used to calculate the final tree should be reduced
-    #### `True` indicates yes
-    #### `False` indicates no
-    REDUCE_NUM_CORE_GENES:bool = False
-
-    # specify if the final tree should have bootstrap supports
-    #### WARNING: Bootstrapping trees will significantly increase run times
-    #### `True` indicates yes
-    #### `False` indicates no
-    BOOTSTRAP_FINAL_TREE:bool = False
-
-    # specify the number of bootstrap supports for the final species tree
-    #### this is only relevant if BOOTSTRAP_FINAL_TREE is True
-    NUM_BOOTSTRAPS:int = 100
-    . . .
-
-To close the file, press `CTRL + X`. You will be asked if you wish to save the file; press `Y`. Press `ENTER` to confirm that the saved changes will overwrite the existing `param.py` file.
-
-### Important caveats for modifying these values:
-  * Although you can set `NUM_PROCESSORS` to any positive integer value, PHANTASM will ultimately be limited by the number of processors allocated to Docker.
-  * `MAX_LEAVES` can be any positive integer, but very small values (<20) are not recommended. Keep in mind that run-times and RAM scale _exponentially_ with the number of leaves.
-  * If the runtime of your phylogenetic tree is a concern, then setting `REDUCE_NUM_CORE_GENES` may be useful. It omits any core genes where one or more taxa has >5% gaps in its alignment.
-  * Changing `BOOTSTRAP_FINAL_TREE` to `True` will increase the run time. This is due to the longer run times of IQTree as compared to FastTree.
-  * `NUM_BOOTSTRAPS` is only relevant if `BOOTSTRAP_FINAL_TREE` is set to `True`.
-
-## 2.3. Excluding specific taxa from phylogenomic analyses (optional)
-It is possible to exclude specific taxa from the refined phylogeny. To do so, create a file named `excludedTaxids.txt` containing exactly one NCBI Taxonomy id per line in the directory where you call PHANTASM. The excluded ids can represent any taxonomic rank (eg. species, genus, family, etc.). This option is only relevant when using option 1 or option 2 (see below). This file should be in the same directory in which PHANTASM is called (ie. `/mydata` in the example shown in [section 2.1](#21-getting-help)). This feature is largely experimental and should be used with caution.
+## 2.2. Excluding specific taxa from phylogenomic analyses (optional)
+It is possible to exclude specific taxa from the refined phylogeny. To do so, create a file named `excludedTaxids.txt` containing exactly one NCBI Taxonomy id per line in the directory where you call PHANTASM. The excluded ids can represent any taxonomic rank (eg. species, genus, family, etc.). This option is only relevant when using option 1 or option 2 (see below). This file should be in the same directory in which PHANTASM is called. This feature is largely experimental and should be used with caution.
 
 # 3. Running PHANTASM
 There are three ways of running PHANTASM. As show in the table below, the best option to use largely depends on the answer to two questions: 1) do you know a suitable set of genomes? and 2) do you know a suitable phylogenetic marker(s) for your genome(s) of interest?
@@ -221,7 +149,7 @@ There are three ways of running PHANTASM. As show in the table below, the best o
 
 
 ## 3.1. Option 1: unknown reference genomes and unknown phylogenetic marker(s)
-If you have an annotated genome sequence but you do not know a suitable phylogenetic marker and you do not know which reference genomes would be appropriate to use, then PHANTASM can be run in two steps:
+If you have an annotated genome sequence but you do not know a suitable phylogenetic marker and you do not know which reference genomes would be appropriate to use, then PHANTASM can be run in three steps:
 
 1. PHANTASM uses 16S rRNA gene sequences to estimate a taxonomic placement, then prioritizes taxonomic breadth in order to find genes that coevolve with the input genome(s) and its relatives.
 2. The user looks at the results of this analysis and selects a suitable phylogenetic marker(s).
@@ -233,25 +161,23 @@ By default, PHANTASM will attempt to extract the 16S rRNA gene sequence(s) from 
 
 Annotated 16S rRNA gene sequences are not always available. It is possible for users to bypass this requirement by providing a file with NCBI Taxonomy IDs for the taxa that the input genomes may be related to. The specified taxa can be any NCBI Taxonomy classification as long as it is of rank Family or below (ie. Species, Genus, and Family taxids are acceptable, but Order, Class, and Phylum are not).
 
-In order to bypass the 16S rRNA gene sequence requirement, you must provide these NCBI Taxonomy IDs as a file named `taxids.txt` in the directory where you are calling PHANTASM (eg. `/mydata` in the examples below). The file must contain exactly one NCBI Taxonomy ID per line. The taxids provided by the user cannot exceed the rank Family. This methodology allows you to specify a collection of NCBI Taxonomy IDs that are somewhat related to the input genome(s). You are free to obtain these IDs in whatever method you best see fit. Ultimately, PHANTASM will use a suitable phylogenetic marker to refine the set of reference genomes.
+In order to bypass the 16S rRNA gene sequence requirement, you must provide these NCBI Taxonomy IDs as a file named `taxids.txt` in the directory where you are calling PHANTASM. The file must contain exactly one NCBI Taxonomy ID per line. The taxids provided by the user cannot exceed the rank Family. This methodology allows you to specify a collection of NCBI Taxonomy IDs that are somewhat related to the input genome(s). You are free to obtain these IDs in whatever method you best see fit. Ultimately, PHANTASM will use a suitable phylogenetic marker to refine the set of reference genomes.
 
 Keep in mind that annotated 16S rRNA gene sequences are **not** required if a phylogenetic marker and/or suitable reference genomes are already known (see sections [3.2](#32-option-2-unknown-reference-genomes-and-known-phylogenetic-markers) and [3.3](#33-option-3-known-reference-genomes) for more information).
 
 
 ### Step 1: Identifying putative phylogenetic markers. . .
-Make sure you are currently within the directory containing the gbff file (called `mydata` in this example)
+Run one of the following commands. Be sure to replace `my_genome.gbff` and `email@address.org` with appropriate values. If using multiple genomes, replace `my_genome.gbff` with the name of the directory containing the genome files (this directory must be nested within the working directory).
 
-    root@fe46a3c61f0b:/# cd /mydata
+    docker run -v $(pwd):/data jwirth/phantasm:latest phantasm getPhyloMarker -i my_genome.gbff -e email@address.org
 
-You are now ready to identify phylogenetic markers. Be sure to replace `my_genome.gbff` and `email@address.org` with appropriate values. If using multiple genomes, replace `my_genome.gbff` with the name of the directory containing the genome files (this directory must be nested within the working directory).
+    singularity exec jwirth/phantasm:latest phantasm getPhyloMarker -i ./my_genome.gbff -e email@address.org
 
-    root@fe46a3c61f0b:/mydata# phantasm getPhyloMarker my_genome.gbff email@address.org
+### Optional flags that can be used with this step:
 
-If using PHANTASM on multiple input genomes, replace `<gbff filename>` with `<gbff directory>`. For example:
-
-    root@fe46a3c61f0b:/mydata# ls input_genomes
-    R_atlantica.gbff R_pomeroyi.gbff
-    root@fe46a3c61f0b:/mydata# phantasm getPhyloMarker input_genomes email@address.org
+    -N, --num_threads <int>    number of processors to use                    [default: 1]
+    -L, --max_leaves <int>     maximum number of leaves in the species tree   [default: 50]
+    -F, --fewer_coregenes      limit the core genes to those with ≤5% gaps    [default: no limiting]
 
 ##### Note: this step will take some time, especially when performing blastp.
 ‎
@@ -272,38 +198,22 @@ Here is an example of what the first few lines of `putativePhylogeneticMarkers.t
 ‎
 
 ### Step 3: Refining the initial phylogeny and perform phylogenomic analyses. . .
-First, make sure you are currently within the directory containing the gbff file (called `mydata` in this example)
+If you are using a locus tag(s), then run one of the following commands. Be sure to replace `my_genome.gbff`, `<locus tag>`, and `email@address.org` with appropriate values:
 
-    root@fe46a3c61f0b:/# cd /mydata
+    docker run -v $(pwd):/data jwirth/phantasm:latest phantasm refinePhylogeny -i my_genome.gbff -t <locus tag> -e email@address.org
 
-Next, run one of the following two commands depending on what information you recorded.
-  * If you are using a locus tag, then run the following command. Be sure to replace `<locus tag>`, `my_genome.gbff`, and `email@address.org` with appropriate values.
+    singularity exec jwirth/phantasm:latest phantasm refinePhylogeny -i my_genome.gbff -t <locus tag> -e email@address.org
 
-        root@fe46a3c61f0b:/mydata# phantasm refinePhylogeny --locus_tag <locus tag> my_genome.gbff email@address.org
+PHANTASM can handle multiple phylogenetic markers and/or multiple input genomes. If using multiple markers, they should be a comma-separated list **without spaces**. If using multiple input genomes, specify a directory containing genbank files; the same number of phylogenetic markers must be specified for each input genome.
 
-  * If you are using a gene number, then run the following command. Be sure to replace `<integer>`, `my_genome.gbff`, and `email@address.org` with appropriate values:
+### Optional flags that can be specified with this step
 
-        root@fe46a3c61f0b:/mydata# phantasm refinePhylogeny --gene_num <integer> my_genome.gbff email@address.org
+    -N, --num_threads <int>    number of processors to use                    [default: 1]
+    -L, --max_leaves <int>     maximum number of leaves in the species tree   [default: 50]
+    -B, --bootstrap <int>      number of bootstraps to perform                [default: no bootstrapping]
+    -F, --fewer_coregenes      limit the core genes to those with ≤5% gaps    [default: no limiting]
 
-PHANTASM can handle multiple phylogenetic markers and/or multiple input genomes. **The examples below use locus tags, but PHANTASM works analogously when specifying gene numbers.**
-
-  * example using one genome and one phylogenetic marker:
-
-        root@fe46a3c61f0b:/mydata# phantasm refinePhylogeny --locus_tag SPO_RS17765 R_pomeroyi.gbff email@address.org
-
-  * example using one genome and multiple (two) phylogenetic markers:
-
-        root@fe46a3c61f0b:/mydata# phantasm refinePhylogeny --locus_tag SPO3507,SPO0155 R_pomeroyi.gbff email@address.org
-
-  * example using multiple genomes and one (per genome) phylogenetic marker:
-
-        root@fe46a3c61f0b:/mydata# phantasm refinePhylogeny --locus_tag RUA4292_04770,SPO3507 input_genomes email@address.org
-
-  * example using multiple genomes and multiple (two per genome) phylogenetic markers:
-
-        root@fe46a3c61f0b:/mydata# phantasm refinePhylogeny --locus_tag RUA4292_04770,SPO3507,RUA4292_00884,SPO0155 input_genomes email@address.org
-
-##### Notes:
+#### Notes:
   * this step will take some time as there are many slow steps, in particular:
     * blastp
     * calculating AAI
@@ -316,36 +226,24 @@ PHANTASM can handle multiple phylogenetic markers and/or multiple input genomes.
     * list each gene as a comma-separated list (**no spaces allowed**)
     * can be used in conjunction with multiple genomes, but the you must specify a gene for each genome
 
-
 ## 3.2. Option 2: unknown reference genomes and known phylogenetic marker(s)
 If you have an annotated genome sequence and you know suitable phylogenetic markers, but you do not know which reference genomes would be appropriate to use, then you can run PHANTASM in a single step.
 
-First, make sure you are currently within the directory containing the gbff file (called `mydata` in this example)
+Run one of the following commands (be sure to replace `<locus tags>`, `my_genome.gbff`, and `email@address.org` with appropriate values):
 
-    root@fe46a3c61f0b:/# cd /mydata
+    docker run -v $(pwd):/data jwirth/phantasm:latest phantasm knownPhyloMarker -i my_genome.gbff -t <locus tags> -e email@address.org
 
-Next, run the following command (be sure to replace `<locus_tag>`, `my_genome.gbff`, and `email@address.org` with appropriate values):
+    singularity exec phantasm_latest.sif phantasm knownPhyloMarker -i my_genome.gbff -t <locus tags> -e email@address.org
 
-    root@fe46a3c61f0b:/mydata# phantasm knownPhyloMarker <locus_tag> my_genome.gbff email@address.org
+### Optional flags that can be specified with this step
 
-The locus tag(s) provided must be present within the input genome(s) and indicate the phylogenetic marker(s) that you wish to use. PHANTASM can handle multiple phylogenetic markers and/or multiple input genomes. If using multiple markers, they should be a comma-separated list **without spaces**. If using multiple input genomes, the same number of phylogenetic markers must be specified for each input genome.
+    -O, --out <dir>            output directory                               [default: './finalAnalysis']
+    -N, --num_threads <int>    number of processors to use                    [default: 1]
+    -L, --max_leaves <int>     maximum number of leaves in the species tree   [default: 50]
+    -B, --bootstrap <int>      number of bootstraps to perform                [default: no bootstrapping]
+    -F, --fewer_coregenes      limit the core genes to those with ≤5% gaps    [default: no limiting]
 
-### Examples:
-  * one genome and one phylogenetic marker:
-
-        root@fe46a3c61f0b:/mydata# phantasm knownPhyloMarker SPO_RS17765 my_genome.gbff email@address.org
-
-  * one genome and multiple (two) phylogenetic markers:
-
-        root@fe46a3c61f0b:/mydata# phantasm knownPhyloMarker SPO3507,SPO0155 my_genome.gbff email@address.org
-
-  * multiple genomes and one (per genome) phylogenetic marker:
-
-        root@fe46a3c61f0b:/mydata# phantasm knownPhyloMarker RUA4292_04770,SPO3507 input_genomes email@address.org
-  
-  * multiple genomes and multiple (two per genome) phylogenetic markers:
-
-        root@fe46a3c61f0b:/mydata# phantasm knownPhyloMarker RUA4292_04770,SPO3507,RUA4292_00884,SPO0155 input_genomes email@address.org
+The locus tag(s) provided must be present within the input genome(s) and indicate the phylogenetic marker(s) that you wish to use. PHANTASM can handle multiple phylogenetic markers and/or multiple input genomes. If using multiple markers, they should be a comma-separated list **without spaces**. If using multiple input genomes, specify a directory containing genbank files; the same number of phylogenetic markers must be specified for each input genome.
 
 ### Notes:
   * this step will take some time as there are many slow steps, in particular:
@@ -363,11 +261,7 @@ The locus tag(s) provided must be present within the input genome(s) and indicat
 ## 3.3. Option 3: known reference genomes
 It is also possible to run PHANTASM on a set of user-specified genomes. This can be accomplished with a single command.
 
-First, make sure you are currently within the directory containing the gbff file (called `mydata` in this example)
-
-    root@fe46a3c61f0b:/# cd /mydata
-
-Next, you must create a "human map file". This file tells PHANTASM what the human-readable names are (used in the trees and the alignments) for each genome file. **It should be formatted with exactly two columns separated by a single tab.** The first column is the filename of the genbank file (not including the path), and the second column is the human readable name. **Important note:** _the desired outgroup must be listed **last** in the human map file_.  For example:
+You must first create a "human map file". This file tells PHANTASM what the human-readable names are (used in the trees and the alignments) for each genome file. **It should be formatted with exactly two columns separated by a single tab.** The first column is the filename of the genbank file (not including the path), and the second column is the human readable name. **Important note:** _the desired outgroup must be listed **last** in the human map file_.  For example:
 
     GCF_009496005.1_ASM949600v1_genomic.gbff                                Tritonibacter_litoralis|SM1979|GCF_009496005
     GCF_007923355.1_ASM792335v1_genomic.gbff                                Phaeobacter_marinintestinus|UB-M7|GCF_007923355
@@ -381,18 +275,23 @@ Next, you must create a "human map file". This file tells PHANTASM what the huma
     my_assembly.gbk                                                         Ruegeria_sp
     outgroup_genome_seq.gbff                                                outgroup_name
 
-Once this file has been created, run the following command to analyze the provided genomes:
+Once this file has been created, run one of the following command to analyze the provided genomes. Be sure to replace `input_genome_dir`, `human_map.txt`, and `email@address.org` with appropriate values:
 
-    root@fe46a3c61f0b:/mydata# phantasm analyzeGenomes <input genomes directory> <human map file> <output directory> <email address>
+    docker run -v $(pwd):/data jwirth/phantasm:latest phantasm analyzeGenomes -i input_genome_dir -m human_map.txt -e email@address.org
+
+    singularity exec phantasm_latest.sif phantasm analyzeGenomes -i input_genome_dir -m human_map.txt -e email@address.org
+
+### Optional flags that can be specified with this step
+
+    -O, --out <dir>            output directory                               [default: './finalAnalysis']
+    -N, --num_threads <int>    number of processors to use                    [default: 1]
+    -B, --bootstrap <int>      number of bootstraps to perform                [default: no bootstrapping]
+    -F, --fewer_coregenes      limit the core genes to those with ≤5% gaps    [default: no limiting]
+
 ##### Note: the specified output directory must not already exist.
 
 # 4. Analyzing the results
-At this point, all results should have been generated and it is safe to close and remove the docker container (named `myContainer` in this example:
-
-          root@fe46a3c61f0b:/# exit
-          $ docker rm myContainer
-
-All data can be found within the volume that you mounted into the container (`~/myworkdir` in this example). Unless the command `analyzeGenomes` was used, the results will be found in the folder `finalAnalysis`. If `analyzeGenomes` was used, then the results will be found in the specified output directory.
+All data can be found within the directory where you called `phantasm`. Unless the flag `-O` or `--out` was used, the results will be found in the folder `finalAnalysis`.
   * The following files are likely to be the most useful for phylogenomic and taxonomic analyses:
     * `speciesTree.nwk`: this is the species tree, it is rooted on the outgroup, and the outgroup is present in the tree
     * `speciesTree_outgroupPruned.nwk`: this is the same species tree as above, but the outgroup has been pruned to allow better resolution of the relevant phylogenomic relationships
