@@ -5,9 +5,6 @@
 # start with ubuntu base
 FROM ubuntu:22.04
 
-# unminimize the image so that manpages exist
-RUN yes | unminimize
-
 # install nano, wget, git, python, curl, libcurl, mummer, and blast+
 RUN apt-get update
 RUN apt-get -y install nano
@@ -69,25 +66,35 @@ RUN tar xzf v3.1.1.tar.gz
 RUN rm v3.1.1.tar.gz
 
 # get phantasm v1.0.4
-RUN wget https://github.com/dr-joe-wirth/phantasm/archive/refs/tags/v1.0.4.tar.gz
-RUN tar xzf v1.0.4.tar.gz
-RUN rm v1.0.4.tar.gz
-RUN mv /phantasm-1.0.4 /phantasm
+# RUN wget https://github.com/dr-joe-wirth/phantasm/archive/refs/tags/v1.0.4.tar.gz
+# RUN tar xzf v1.0.4.tar.gz
+# RUN rm v1.0.4.tar.gz
+# RUN mv /phantasm-1.0.4 /phantasm
 
-# copy the param file and make remove restricted permissions
+RUN git clone -b devel https://github.com/dr-joe-wirth/phantasm.git
+
+# copy the param file
 COPY ./docker_param.py /phantasm/param.py
-
-# make an alias for easily calling phantasm
-RUN echo "alias phantasm='python3 /phantasm/phantasm.py'" >> ~/.bashrc
-
-# add executables directory (fastree, muscle, iqtree) to PATH
-RUN echo 'export PATH="$PATH:/exec"' >> ~/.bashrc
-RUN echo 'export PATH="$PATH:/exec/iqtree/bin"' >> ~/.bashrc
 
 # modify the variable PHANTASM_PY so that it references the alias
 WORKDIR /phantasm
 RUN cat phantasm.py | sed -E "s/^(PHANTASM_PY = ).+$/\1'phantasm'/g" > .temp
 RUN mv .temp phantasm.py
 
-# return back to the root of the container
-WORKDIR /
+# modify the phantasm.py executable so that it can be invoked directly from the command line
+RUN sed '1s/^/#!\/usr\/bin\/python3\n/' /phantasm/phantasm.py > .temp
+RUN mv .temp phantasm
+RUN chmod +x /phantasm/phantasm
+
+# add executables to the path
+ENV PATH="${PATH}:/phantasm:/exec:/exec/iqtree/bin:"
+
+# create the volume and set it as the working directory
+VOLUME ["/data"]
+WORKDIR /data
+
+# add an entry point so that phantasm can be called without entering the container
+ENTRYPOINT ["/bin/bash", "-c", "exec \"$@\"", "-"]
+
+
+####### DON'T BUILD UNTIL YOU REPLACE THE CLONE STEP WITH WGET!
