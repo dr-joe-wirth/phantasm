@@ -19,11 +19,11 @@ def parseArgs() -> tuple[list, list, Parameters]:
                 3. a Parameters object
     """
     # import location of dependencies and other useful information
-    from phantasm import VERSION, PHANTASM_PY, JOB_1, JOB_2, JOB_3, JOB_4, JOB_5
+    from phantasm import JOB_1, JOB_2, JOB_3, JOB_4, JOB_5
     from param import BLASTPLUS_DIR, MUSCLE_EXE, FASTTREE_EXE, IQTREE_EXE
     
     # command line flags
-    SHORT_OPTS = "i:e:t:m:O:N:L:B:F"
+    SHORT_OPTS = "i:e:t:m:O:N:L:B:Fh"
     LONG_OPTS = ["input=",
                  "email=",
                  "locus_tags=",
@@ -32,7 +32,8 @@ def parseArgs() -> tuple[list, list, Parameters]:
                  "num_threads=",
                  'max_leaves=',
                  'bootstrap=',
-                 'fewer_coregenes']
+                 'fewer_coregenes',
+                 'help']
     INPUT_FLAGS = ("-i","--input")
     EMAIL_FLAGS = ("-e","--email")
     LOCUS_FLAGS = ("-t", "--locus_tags")
@@ -42,6 +43,7 @@ def parseArgs() -> tuple[list, list, Parameters]:
     LEAF_FLAGS = ("-L", "--max_leaves")
     BOOTS_FLAGS = ("-B", "--bootstrap")
     REDUCE_FLAGS = ("-F", "--fewer_coregenes")
+    HELP_FLAGS = ("-h", "--help")
     
     # default values for some parameters
     DEFAULT_DIR_1 = os.path.join(os.getcwd(), "initialAnalysis")
@@ -286,6 +288,137 @@ def parseArgs() -> tuple[list, list, Parameters]:
     checkForValidExecutables(paramO)
 
     return genomesL, tagsL, paramO
+
+
+def getHelpMessage(task:str) -> str:
+    """ getHelpMessage
+            Accepts a task (job name) as an input. Returns the appropriate help
+            message for the given task.
+    """
+    # constants
+    from phantasm import PHANTASM_PY, JOB_1, JOB_2, JOB_3, JOB_4, JOB_5
+    JOB_0 = "help"
+    GAP = 4*" "
+
+    # messages
+    ERR_MSG = "invalid task specified: "
+    HELP_0 = "Usage: " + PHANTASM_PY + " TASK [OPTIONS]\n\n" + \
+             "Available tasks:\n" + \
+             GAP + f"{JOB_1:20}" + "identify phylogenetic markers (option 1, step 1)\n" + \
+             GAP + f"{JOB_2:20}" + "refine phylogeny and perform phylogenomic analyses (option 1, step 2)\n" + \
+             GAP + f"{JOB_3:20}" + "idenfify genomes from known phylogenetic marker and perform phylogenomic analyses (option 2)\n" + \
+             GAP + f"{JOB_4:20}" + "perform phylogenomic analyses on a user-specified set of genomes (option 3)\n" + \
+             GAP + f"{JOB_5:20}" + "identify core genes and rank phylogenetic markers\n" + \
+             GAP + f"{JOB_0[1]:20}" + "print this message\n"
+    HELP_1 = "# Identifying phylogenetic markers (option 1, step 1)\n\n" + \
+             GAP + PHANTASM_PY + " " + JOB_1 + " [-ieNLF]\n\n" + \
+             GAP + "required arguments:\n" + \
+             GAP*2 + "-i, --input <file>         gbff file or a directory containing gbff files\n" + \
+             GAP*2 + "-e, --email <email>        email address\n\n" + \
+             GAP + "optional arguments:\n" + \
+             GAP*2 + "-N, --num_threads <int>    number of processors to use                    [default: 1]\n" + \
+             GAP*2 + "-L, --max_leaves <int>     maximum number of leaves in the species tree   [default: 50]\n" + \
+             GAP*2 + "-F, --fewer_coregenes      limit the core genes to those with ≤5% gaps    [default: no limiting]\n" + \
+             GAP*2 + "-h, --help                 print this message\n\n" + \
+             GAP + "results:\n" + \
+             GAP*2 + "'initialAnalysis/putativePhylogeneticMarkers.txt'\n\n\n"
+    HELP_2 = "# Refining phylogeny and performing phylogenomic analyses (option 1, step 2)\n\n" + \
+             GAP + PHANTASM_PY + " " + JOB_2 + " [-ietNLBF]\n\n" + \
+             GAP + "required arguments:\n" + \
+             GAP*2 + "-i, --input <file>         gbff file or a directory containing gbff files\n" + \
+             GAP*2 + "-e, --email <email>        email address\n" + \
+             GAP*2 + "-t, --locus_tags <str>     a comma-separated list of locus tags to use a phylogenetic markers\n\n" + \
+             GAP + "optional arguments:\n" + \
+             GAP*2 + "-N, --num_threads <int>    number of processors to use                    [default: 1]\n" + \
+             GAP*2 + "-L, --max_leaves <int>     maximum number of leaves in the species tree   [default: 50]\n" + \
+             GAP*2 + "-B, --bootstrap <int>      number of bootstraps to perform                [default: no bootstrapping]\n" + \
+             GAP*2 + "-F, --fewer_coregenes      limit the core genes to those with ≤5% gaps    [default: no limiting]\n" + \
+             GAP*2 + "-h, --help                 print this message\n\n" + \
+             GAP + "results:\n" + \
+             GAP*2 + "'finalAnalysis/aai_matrix.txt'\n" + \
+             GAP*2 + "'finalAnalysis/aai_heatmap.pdf'\n" + \
+             GAP*2 + "'finalAnalysis/ani_matrix.txt'\n" + \
+             GAP*2 + "'finalAnalysis/ani_heatmap.pdf'\n" + \
+             GAP*2 + "'finalAnalysis/coreGenesSummary.txt\n" + \
+             GAP*2 + "'finalAnalysis/speciesTree.nwk'\n" + \
+             GAP*2 + "'finalAnalysis/speciesTree_outgroupPruned.nwk'\n\n\n"
+    HELP_3 = "# Identifying genomes using a known phylogenetic marker and performing phylogenomic analyses (option 2)\n\n" + \
+             GAP + PHANTASM_PY + " " + JOB_3 + " [-ietONLBF]\n\n" + \
+             GAP + "required arguments:\n" + \
+             GAP*2 + "-i, --input <file>         gbff file or a directory containing gbff files\n" + \
+             GAP*2 + "-e, --email <email>        email address\n" + \
+             GAP*2 + "-t, --locus_tags <str>     a comma-separated list of locus tags to use a phylogenetic markers\n\n" + \
+             GAP + "optional arguments:\n" + \
+             GAP*2 + "-O, --out <dir>            output directory                               [default: '" + os.path.join(".", "finalAnalysis") + "']\n" + \
+             GAP*2 + "-N, --num_threads <int>    number of processors to use                    [default: 1]\n" + \
+             GAP*2 + "-L, --max_leaves <int>     maximum number of leaves in the species tree   [default: 50]\n" + \
+             GAP*2 + "-B, --bootstrap <int>      number of bootstraps to perform                [default: no bootstrapping]\n" + \
+             GAP*2 + "-F, --fewer_coregenes      limit the core genes to those with ≤5% gaps    [default: no limiting]\n" + \
+             GAP*2 + "-h, --help                 print this message\n\n" + \
+             GAP + "results (directory may vary if '-O' or '--out' used):\n" + \
+             GAP*2 + "'finalAnalysis/aai_matrix.txt'\n" + \
+             GAP*2 + "'finalAnalysis/aai_heatmap.pdf'\n" + \
+             GAP*2 + "'finalAnalysis/ani_matrix.txt'\n" + \
+             GAP*2 + "'finalAnalysis/ani_heatmap.pdf'\n" + \
+             GAP*2 + "'finalAnalysis/coreGenesSummary.txt\n" + \
+             GAP*2 + "'finalAnalysis/speciesTree.nwk'\n" + \
+             GAP*2 + "'finalAnalysis/speciesTree_outgroupPruned.nwk'\n\n\n"
+    HELP_4 = "# Performing phylogenomic analyses on a user-specified set of genomes (option 3)\n\n" + \
+             GAP + PHANTASM_PY + " " + JOB_4 + " [-iemONLBF]\n\n" + \
+             GAP + "required arguments:\n" + \
+             GAP*2 + "-i, --input <file>         gbff file or a directory containing gbff files\n" + \
+             GAP*2 + "-e, --email <email>        email address\n" + \
+             GAP*2 + "-m, --map_file <file>      a file with two tab-separated columns (no headers): filename, taxon name\n" + \
+             GAP*2 + "-h, --help                 print this message\n\n" + \
+             GAP + "optional arguments:\n" + \
+             GAP*2 + "-O, --out <dir>            output directory                               [default: '" + os.path.join(".", "finalAnalysis") + "']\n" + \
+             GAP*2 + "-N, --num_threads <int>    number of processors to use                    [default: 1]\n" + \
+             GAP*2 + "-B, --bootstrap <int>      number of bootstraps to perform                [default: no bootstrapping]\n" + \
+             GAP*2 + "-F, --fewer_coregenes      limit the core genes to those with ≤5% gaps    [default: no limiting]\n\n" + \
+             GAP + "results (directory may vary if '-O' or '--out' used):\n" + \
+             GAP*2 + "'finalAnalysis/aai_matrix.txt'\n" + \
+             GAP*2 + "'finalAnalysis/aai_heatmap.pdf'\n" + \
+             GAP*2 + "'finalAnalysis/ani_matrix.txt'\n" + \
+             GAP*2 + "'finalAnalysis/ani_heatmap.pdf'\n" + \
+             GAP*2 + "'finalAnalysis/coreGenesSummary.txt\n" + \
+             GAP*2 + "'finalAnalysis/speciesTree.nwk'\n" + \
+             GAP*2 + "'finalAnalysis/speciesTree_outgroupPruned.nwk'\n\n\n"
+    HELP_5 = "# Ranking phylogenetic markers after running option 2 or 3\n\n" + \
+             GAP + PHANTASM_PY + " " + JOB_5 + " [-iON]\n\n" + \
+             GAP + "required arguments:\n" + \
+             GAP*2 + "-i, --input <dir>          directory containing phantasm results\n\n" + \
+             GAP + "optional arguments:\n" + \
+             GAP*2 + "-O, --out <file>           output file                        [default: '" + os.path.join("<dir>", "putativePhylogeneticMarkers.txt") + "']\n" + \
+             GAP*2 + "-N, --num_threads <int>    number of processors to use        [default: 1]\n" + \
+             GAP*2 + "-h, --help                 print this message\n\n" + \
+             GAP + "results:\n" + \
+             GAP*2 + "'<dir>/putativePhylogeneticMarkers.txt' (or at the specified file location)\n\n\n"
+    OPTN_0 = "# Optional Features\n"
+    OPTN_1 = GAP + "excluding specific taxa:\n" + \
+             GAP*2 + "create a file in the working directory named 'excludedTaxids.txt'\n" + \
+             GAP*2 + "the file should contain exactly one NCBI Taxonomy ID to be excluded per line\n" + \
+             GAP*2 + "WARNING: this feature is experimental and should be used with caution.\n\n"
+    OPTN_2 = GAP + "bypassing the requirement for 16S rRNA gene sequences\n" + \
+             GAP*2 + "create a file in the working directory named 'taxids.txt'\n" + \
+             GAP*2 + "the file should contain exactly one NCBI Taxonomy ID per line\n" + \
+             GAP*3 + " * the taxids should be somewhat related to the input genome(s)\n" + \
+             GAP*3 + " * the taxids should not exceed the taxonomic rank of Family\n"
+    
+    # return the appropriate help message
+    if task == JOB_0:
+        return HELP_0
+    elif task == JOB_1:
+        return HELP_1 + OPTN_0 + OPTN_1 + OPTN_2
+    elif task == JOB_2:
+        return HELP_2 + OPTN_0 + OPTN_1
+    elif task == JOB_3:
+        return HELP_3 + OPTN_0 + OPTN_1
+    elif task == JOB_4:
+        return HELP_4
+    elif task == JOB_5:
+        return HELP_5
+    else:
+        raise(ERR_MSG + task)
 
 
 def getTaxidsFromFile(taxidsFN:str) -> list[str]:
