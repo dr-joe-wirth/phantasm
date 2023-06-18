@@ -44,8 +44,8 @@ class Parameters:
     __aniHeatmapFN = 'ani_heatmap.pdf'
     __aniWorkDir = 'aniWorkdir'
     __aniBlastFilePath = os.path.join(__aniWorkDir, 'blast', '*.blastn')
-    __excludedTaxidsFN = 'excludedTaxids.txt'
-    __taxidsFN = 'taxids.txt'
+    __excludedTaxidsFN = ''
+    __taxidsFN = ''
     __logFN = 'phantasm.log'
 
     # these objects will never change
@@ -108,8 +108,8 @@ class Parameters:
         self.aniHeatmapFN = os.path.join(self.workdir, Parameters.__aniHeatmapFN)
         self.aniWorkDir = os.path.join(self.workdir, Parameters.__aniWorkDir)
         self.aniBlastFilePath = os.path.join(self.workdir, Parameters.__aniBlastFilePath)
-        self.excludedTaxidsFN = os.path.join(os.path.dirname(self.workdir), Parameters.__excludedTaxidsFN)
-        self.taxidsFN = os.path.join(os.path.dirname(self.workdir), Parameters.__taxidsFN)
+        self.excludedTaxidsFN = Parameters.__excludedTaxidsFN
+        self.taxidsFN = Parameters.__taxidsFN
         self.logFN = os.path.join(os.path.dirname(self.workdir), Parameters.__logFN)
 
         # import remaining variables from static class members
