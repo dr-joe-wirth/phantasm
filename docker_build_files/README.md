@@ -30,7 +30,7 @@ doi: [10.1093/nar/gkad196](https://doi.org/10.1093/nar/gkad196)
 
     2.1. [Getting help](#21-getting-help)
 
-    2.2. [Excluding specific taxa from phylogenomic analyses (optional)](#23-excluding-specific-taxa-from-phylogenomic-analyses-optional)
+    2.2. [Excluding specific taxa from phylogenomic analyses (optional)](#22-excluding-specific-taxa-from-phylogenomic-analyses-optional)
 
 3. [Running PHANTASM](#3-running-phantasm)
 
@@ -140,7 +140,7 @@ Alternatively, you can get a short help message with one of the following comman
 
 
 ## 2.2. Excluding specific taxa from phylogenomic analyses (optional)
-It is possible to exclude specific taxa from the refined phylogeny. To do so, create a file named `excludedTaxids.txt` containing exactly one NCBI Taxonomy id per line in the directory where you call PHANTASM. The excluded ids can represent any taxonomic rank (eg. species, genus, family, etc.). This option is only relevant when using option 1 or option 2 (see below). This file should be in the same directory in which PHANTASM is called. This feature is largely experimental and should be used with caution.
+It is possible to exclude specific taxa from the refined phylogeny using the flag `-E` or `--exclude_taxa`. To do so, create a file containing exactly one NCBI Taxonomy id per line in the directory where you call PHANTASM. The excluded ids can represent any taxonomic rank (eg. species, genus, family, etc.). This feature is only relevant when using [option 1](#31-option-1-unknown-reference-genomes-and-unknown-phylogenetic-markers) or [option 2](#32-option-2-unknown-reference-genomes-and-known-phylogenetic-markers). This feature is largely experimental and should be used with caution.
 
 # 3. Running PHANTASM
 There are three ways of running PHANTASM. As show in the table below, the best option to use largely depends on the answer to two questions: 1) do you know a suitable set of genomes? and 2) do you know a suitable phylogenetic marker(s) for your genome(s) of interest?
@@ -154,7 +154,7 @@ There are three ways of running PHANTASM. As show in the table below, the best o
     |____________________|_________________________|______________________|
 
 
-There is also a [fourth option](#34-option-4-ranking-possible-phylogenetic-markers-in-a-known-set-of-genomes) that can be used identify phylogenetic markers for a set of user-specified of genomes.
+There is also a [fourth option](#34-option-4-ranking-possible-phylogenetic-markers-in-a-known-set-of-genomes) that can be used identify phylogenetic markers for a set of user-specified of genomes. This option can only be used after running [option 2](#32-option-2-unknown-reference-genomes-and-known-phylogenetic-markers) or [option 3](#33-option-3-known-reference-genomes).
 
 ## 3.1. Option 1: unknown reference genomes and unknown phylogenetic marker(s)
 If you have an annotated genome sequence but you do not know a suitable phylogenetic marker and you do not know which reference genomes would be appropriate to use, then PHANTASM can be run in three steps:
@@ -169,12 +169,12 @@ By default, PHANTASM will attempt to extract the 16S rRNA gene sequence(s) from 
 
 Annotated 16S rRNA gene sequences are not always available. It is possible for users to bypass this requirement by providing a file with NCBI Taxonomy IDs for the taxa that the input genomes may be related to. The specified taxa can be any NCBI Taxonomy classification as long as it is of rank Family or below (ie. Species, Genus, and Family taxids are acceptable, but Order, Class, and Phylum are not).
 
-In order to bypass the 16S rRNA gene sequence requirement, you must provide these NCBI Taxonomy IDs as a file named `taxids.txt` in the directory where you are calling PHANTASM. The file must contain exactly one NCBI Taxonomy ID per line. The taxids provided by the user cannot exceed the rank Family. This methodology allows you to specify a collection of NCBI Taxonomy IDs that are somewhat related to the input genome(s). You are free to obtain these IDs in whatever method you best see fit. Ultimately, PHANTASM will use a suitable phylogenetic marker to refine the set of reference genomes.
+In order to bypass the 16S rRNA gene sequence requirement, you must provide these NCBI Taxonomy IDs as a file using the `-S` or `--skip_16S` flags. The file must contain exactly one NCBI Taxonomy ID per line. The taxids provided by the user cannot exceed the rank Family. This methodology allows you to specify a collection of NCBI Taxonomy IDs that are somewhat related to the input genome(s). You are free to obtain these IDs in whatever method you best see fit. Ultimately, PHANTASM will use a suitable phylogenetic marker to refine the set of reference genomes.
 
 Keep in mind that annotated 16S rRNA gene sequences are **not** required if a phylogenetic marker and/or suitable reference genomes are already known (see sections [3.2](#32-option-2-unknown-reference-genomes-and-known-phylogenetic-markers) and [3.3](#33-option-3-known-reference-genomes) for more information).
 
 
-### Step 1: Identifying putative phylogenetic markers. . .
+### Step 1: Identifying putative phylogenetic markers
 Run one of the following commands. Be sure to replace `my_genome.gbff` and `email@address.org` with appropriate values. If using multiple genomes, replace `my_genome.gbff` with the name of the directory containing the genome files (this directory must be nested within the working directory).
 
     docker run -v $(pwd):/data jwirth/phantasm:latest phantasm getPhyloMarker -i my_genome.gbff -e email@address.org
@@ -183,9 +183,13 @@ Run one of the following commands. Be sure to replace `my_genome.gbff` and `emai
 
 ### Optional flags that can be used with this step:
 
-    -N, --num_threads <int>    number of processors to use                    [default: 1]
-    -L, --max_leaves <int>     maximum number of leaves in the species tree   [default: 50]
-    -F, --fewer_coregenes      limit the core genes to those with ≤5% gaps    [default: no limiting]
+    -N, --num_threads <int>      number of processors to use                    [default: 1]
+    -L, --max_leaves <int>       maximum number of leaves in the species tree   [default: 50]
+    -F, --fewer_coregenes        limit the core genes to those with ≤5% gaps    [default: no limiting]
+    -S, --ski6_16S <file>        specify related taxids instead of relying on 16S homology
+    -E, --exclude_taxa <file>    specify taxids to exclude
+    -h, --help                   print a help message
+
 
 ##### Note: this step will take some time, especially when performing blastp.
 ‎
@@ -205,7 +209,7 @@ Here is an example of what the first few lines of `putativePhylogeneticMarkers.t
     . . .
 ‎
 
-### Step 3: Refining the initial phylogeny and perform phylogenomic analyses. . .
+### Step 3: Refining the initial phylogeny and perform phylogenomic analyses
 If you are using a locus tag(s), then run one of the following commands. Be sure to replace `my_genome.gbff`, `<locus tag>`, and `email@address.org` with appropriate values:
 
     docker run -v $(pwd):/data jwirth/phantasm:latest phantasm refinePhylogeny -i my_genome.gbff -t <locus tag> -e email@address.org
@@ -216,10 +220,12 @@ PHANTASM can handle multiple phylogenetic markers and/or multiple input genomes.
 
 ### Optional flags that can be specified with this step
 
-    -N, --num_threads <int>    number of processors to use                    [default: 1]
-    -L, --max_leaves <int>     maximum number of leaves in the species tree   [default: 50]
-    -B, --bootstrap <int>      number of bootstraps to perform                [default: no bootstrapping]
-    -F, --fewer_coregenes      limit the core genes to those with ≤5% gaps    [default: no limiting]
+    -N, --num_threads <int>      number of processors to use                    [default: 1]
+    -L, --max_leaves <int>       maximum number of leaves in the species tree   [default: 50]
+    -B, --bootstrap <int>        number of bootstraps to perform                [default: no bootstrapping]
+    -F, --fewer_coregenes        limit the core genes to those with ≤5% gaps    [default: no limiting]
+    -E, --exclude_taxa <file>    specify taxids to exclude
+    -h, --help                   print a help message
 
 #### Notes:
   * this step will take some time as there are many slow steps, in particular:
@@ -245,11 +251,13 @@ Run one of the following commands (be sure to replace `<locus tags>`, `my_genome
 
 ### Optional flags that can be specified with this step
 
-    -O, --out <dir>            output directory                               [default: './finalAnalysis']
-    -N, --num_threads <int>    number of processors to use                    [default: 1]
-    -L, --max_leaves <int>     maximum number of leaves in the species tree   [default: 50]
-    -B, --bootstrap <int>      number of bootstraps to perform                [default: no bootstrapping]
-    -F, --fewer_coregenes      limit the core genes to those with ≤5% gaps    [default: no limiting]
+    -O, --out <dir>              output directory                               [default: './finalAnalysis']
+    -N, --num_threads <int>      number of processors to use                    [default: 1]
+    -L, --max_leaves <int>       maximum number of leaves in the species tree   [default: 50]
+    -B, --bootstrap <int>        number of bootstraps to perform                [default: no bootstrapping]
+    -F, --fewer_coregenes        limit the core genes to those with ≤5% gaps    [default: no limiting]
+    -E, --exclude_taxa <file>    specify taxids to exclude
+    -h, --help                   print a help message
 
 The locus tag(s) provided must be present within the input genome(s) and indicate the phylogenetic marker(s) that you wish to use. PHANTASM can handle multiple phylogenetic markers and/or multiple input genomes. If using multiple markers, they should be a comma-separated list **without spaces**. If using multiple input genomes, specify a directory containing genbank files; the same number of phylogenetic markers must be specified for each input genome.
 
@@ -295,10 +303,26 @@ Once this file has been created, run one of the following command to analyze the
     -N, --num_threads <int>    number of processors to use                    [default: 1]
     -B, --bootstrap <int>      number of bootstraps to perform                [default: no bootstrapping]
     -F, --fewer_coregenes      limit the core genes to those with ≤5% gaps    [default: no limiting]
+    -h, --help                 print a help message
 
 ##### Note: the specified output directory must not already exist.
 
 ## 3.4. Option 4: ranking possible phylogenetic markers in a known set of genomes
+This option is used to rank phylogenetic markers **after** running [option 2](#32-option-2-unknown-reference-genomes-and-known-phylogenetic-markers) or [option 3](#33-option-3-known-reference-genomes).
+
+Run one of the following commands. Be sure to replace `./phantasm_results` with an appropriate value:
+
+    docker run -v $(pwd):/data jwirth/phantasm:latest phantasm rankPhyloMarkers -i ./phantasm_results
+
+    singularity exec phantasm_latest.sif phantasm rankPhyloMarkers -i ./phantasm_results
+
+### Optional flags that can be specified with this step
+
+    -O, --out <file>           output file                    [default: 'phantasm_results/putativePhylogeneticMarkers.txt']
+    -N, --num_threads <int>    number of processors to use    [default: 1]
+    -h, --help                 print a help message
+
+[See above](#step-2-selecting-phylogenetic-markers) for details on interpretting the data in `putativePhylogeneticMarkers.txt`.
 
 # 4. Analyzing the results
 All data can be found within the directory where you called `phantasm`. Unless the flag `-O` or `--out` was used, the results will be found in the folder `finalAnalysis`.
