@@ -553,7 +553,7 @@ def __finalizeRelativesSelection(queriesD:dict, taxO:Taxonomy, lpsnD:dict, \
     generaUsed:list
     relativesL, generaSortedL, generaUsed = __relativesFromQueriesD(queriesD, taxO, lpsnD)
 
-    # eclude any specified taxids
+    # exclude any specified taxids
     __excludeTaxa(excludedTaxidsFN, taxO, relativesL)
 
     # it is possible that too many relatives were selected in the previous step
