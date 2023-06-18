@@ -46,7 +46,7 @@ def parseArgs() -> tuple[list, list, Parameters]:
     BOOTS_FLAGS = ("-B", "--bootstrap")
     REDUCE_FLAGS = ("-F", "--fewer_coregenes")
     SKIP_16S_FLAGS = ("-S", "--skip_16S")
-    EXCLUDE_FLAGS = ("-E", "--exclude_taxids")
+    EXCLUDE_FLAGS = ("-E", "--exclude_taxa")
     
     # default values for some parameters
     DEFAULT_DIR_1 = os.path.join(os.getcwd(), "initialAnalysis")
@@ -334,29 +334,29 @@ def getHelpMessage(task:str) -> str:
              GAP + f"{JOB_0B:20}" + "print the version\n\n"
     HELP_1 = "Usage: " + PHANTASM_PY + " " + JOB_1 + " [-ieNLF]\n\n" + \
              "Required arguments:\n" + \
-             GAP + "-i, --input <file>             gbff file or a directory containing gbff files\n" + \
-             GAP + "-e, --email <email>            email address\n\n" + \
+             GAP + "-i, --input <file>           gbff file or a directory containing gbff files\n" + \
+             GAP + "-e, --email <email>          email address\n\n" + \
              "Optional arguments:\n" + \
-             GAP + "-N, --num_threads <int>        number of processors to use                    [default: 1]\n" + \
-             GAP + "-L, --max_leaves <int>         maximum number of leaves in the species tree   [default: 50]\n" + \
-             GAP + "-F, --fewer_coregenes          limit the core genes to those with ≤5% gaps    [default: no limiting]\n" + \
-             GAP + "-S, --ski6_16S <file>          specify related taxids instead of relying on 16S homology\n" + \
-             GAP + "-E, --exclude_taxids <file>    specify taxids to exclude\n" + \
-             GAP + "-h, --help                     print this message\n\n" + \
+             GAP + "-N, --num_threads <int>      number of processors to use                    [default: 1]\n" + \
+             GAP + "-L, --max_leaves <int>       maximum number of leaves in the species tree   [default: 50]\n" + \
+             GAP + "-F, --fewer_coregenes        limit the core genes to those with ≤5% gaps    [default: no limiting]\n" + \
+             GAP + "-S, --ski6_16S <file>        specify related taxids instead of relying on 16S homology\n" + \
+             GAP + "-E, --exclude_taxa <file>    specify taxids to exclude\n" + \
+             GAP + "-h, --help                   print this message\n\n" + \
              "Results:\n" + \
              GAP + "'initialAnalysis/putativePhylogeneticMarkers.txt'\n\n"
     HELP_2 = "Usage: " + PHANTASM_PY + " " + JOB_2 + " [-ietNLBF]\n\n" + \
              "Required arguments:\n" + \
-             GAP + "-i, --input <file>             gbff file or a directory containing gbff files\n" + \
-             GAP + "-e, --email <email>            email address\n" + \
-             GAP + "-t, --locus_tags <str>         a comma-separated list of locus tags to use a phylogenetic markers\n\n" + \
+             GAP + "-i, --input <file>           gbff file or a directory containing gbff files\n" + \
+             GAP + "-e, --email <email>          email address\n" + \
+             GAP + "-t, --locus_tags <str>       a comma-separated list of locus tags to use a phylogenetic markers\n\n" + \
              "Optional arguments:\n" + \
-             GAP + "-N, --num_threads <int>        number of processors to use                    [default: 1]\n" + \
-             GAP + "-L, --max_leaves <int>         maximum number of leaves in the species tree   [default: 50]\n" + \
-             GAP + "-B, --bootstrap <int>          number of bootstraps to perform                [default: no bootstrapping]\n" + \
-             GAP + "-F, --fewer_coregenes          limit the core genes to those with ≤5% gaps    [default: no limiting]\n" + \
-             GAP + "-E, --exclude_taxids <file>    specify taxids to exclude\n" + \
-             GAP + "-h, --help                     print this message\n\n" + \
+             GAP + "-N, --num_threads <int>      number of processors to use                    [default: 1]\n" + \
+             GAP + "-L, --max_leaves <int>       maximum number of leaves in the species tree   [default: 50]\n" + \
+             GAP + "-B, --bootstrap <int>        number of bootstraps to perform                [default: no bootstrapping]\n" + \
+             GAP + "-F, --fewer_coregenes        limit the core genes to those with ≤5% gaps    [default: no limiting]\n" + \
+             GAP + "-E, --exclude_taxa <file>    specify taxids to exclude\n" + \
+             GAP + "-h, --help                   print this message\n\n" + \
              "Results:\n" + \
              GAP + "'finalAnalysis/aai_matrix.txt'\n" + \
              GAP + "'finalAnalysis/aai_heatmap.pdf'\n" + \
@@ -367,17 +367,17 @@ def getHelpMessage(task:str) -> str:
              GAP + "'finalAnalysis/speciesTree_outgroupPruned.nwk'\n\n"
     HELP_3 = "Usage: " + PHANTASM_PY + " " + JOB_3 + " [-ietONLBF]\n\n" + \
              "Required arguments:\n" + \
-             GAP + "-i, --input <file>             gbff file or a directory containing gbff files\n" + \
-             GAP + "-e, --email <email>            email address\n" + \
-             GAP + "-t, --locus_tags <str>         a comma-separated list of locus tags to use a phylogenetic markers\n\n" + \
+             GAP + "-i, --input <file>           gbff file or a directory containing gbff files\n" + \
+             GAP + "-e, --email <email>          email address\n" + \
+             GAP + "-t, --locus_tags <str>       a comma-separated list of locus tags to use a phylogenetic markers\n\n" + \
              "Optional arguments:\n" + \
-             GAP + "-O, --out <dir>                output directory                               [default: '" + os.path.join(".", "finalAnalysis") + "']\n" + \
-             GAP + "-N, --num_threads <int>        number of processors to use                    [default: 1]\n" + \
-             GAP + "-L, --max_leaves <int>         maximum number of leaves in the species tree   [default: 50]\n" + \
-             GAP + "-B, --bootstrap <int>          number of bootstraps to perform                [default: no bootstrapping]\n" + \
-             GAP + "-F, --fewer_coregenes          limit the core genes to those with ≤5% gaps    [default: no limiting]\n" + \
-             GAP + "-E, --exclude_taxids <file>    specify taxids to exclude\n" + \
-             GAP + "-h, --help                     print this message\n\n" + \
+             GAP + "-O, --out <dir>              output directory                               [default: '" + os.path.join(".", "finalAnalysis") + "']\n" + \
+             GAP + "-N, --num_threads <int>      number of processors to use                    [default: 1]\n" + \
+             GAP + "-L, --max_leaves <int>       maximum number of leaves in the species tree   [default: 50]\n" + \
+             GAP + "-B, --bootstrap <int>        number of bootstraps to perform                [default: no bootstrapping]\n" + \
+             GAP + "-F, --fewer_coregenes        limit the core genes to those with ≤5% gaps    [default: no limiting]\n" + \
+             GAP + "-E, --exclude_taxa <file>    specify taxids to exclude\n" + \
+             GAP + "-h, --help                   print this message\n\n" + \
              "Results (directory may vary if '-O' or '--out' used):\n" + \
              GAP + "'finalAnalysis/aai_matrix.txt'\n" + \
              GAP + "'finalAnalysis/aai_heatmap.pdf'\n" + \
@@ -409,8 +409,8 @@ def getHelpMessage(task:str) -> str:
              "Required arguments:\n" + \
              GAP + "-i, --input <dir>          directory containing phantasm results\n\n" + \
              "Optional arguments:\n" + \
-             GAP + "-O, --out <file>           output file                        [default: '" + os.path.join("<dir>", "putativePhylogeneticMarkers.txt") + "']\n" + \
-             GAP + "-N, --num_threads <int>    number of processors to use        [default: 1]\n" + \
+             GAP + "-O, --out <file>           output file                    [default: '" + os.path.join("<dir>", "putativePhylogeneticMarkers.txt") + "']\n" + \
+             GAP + "-N, --num_threads <int>    number of processors to use    [default: 1]\n" + \
              GAP + "-h, --help                 print this message\n\n" + \
              "Results:\n" + \
              GAP + "'<dir>/putativePhylogeneticMarkers.txt' (or at the specified file location)\n\n"
