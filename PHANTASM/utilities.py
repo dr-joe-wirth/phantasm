@@ -331,7 +331,8 @@ def getHelpMessage(task:str) -> str:
              GAP + f"{JOB_4:20}" + "perform phylogenomic analyses on a user-specified set of genomes (option 3)\n" + \
              GAP + f"{JOB_5:20}" + "identify core genes and rank phylogenetic markers\n" + \
              GAP + f"{JOB_0A:20}" + "print this message\n" + \
-             GAP + f"{JOB_0B:20}" + "print the version\n\n"
+             GAP + f"{JOB_0B:20}" + "print the version\n\n" + \
+             "Run '" + PHANTASM_PY + " TASK --help' for more information on a task.\n\n"
     HELP_1 = "Usage: " + PHANTASM_PY + " " + JOB_1 + " [-ieNLF]\n\n" + \
              "Required arguments:\n" + \
              GAP + "-i, --input <file>           gbff file or a directory containing gbff files\n" + \
@@ -414,7 +415,7 @@ def getHelpMessage(task:str) -> str:
              GAP + "-h, --help                 print this message\n\n" + \
              "Results:\n" + \
              GAP + "'<dir>/putativePhylogeneticMarkers.txt' (or at the specified file location)\n\n"
-    ADDITIONAL_HELP = "see https://github.com/dr-joe-wirth/phantasm for more information\n"
+    ADDITIONAL_HELP = "see https://github.com/dr-joe-wirth/phantasm for additional documentation.\n"
     
     # return the appropriate help message
     if task == JOB_0A:
