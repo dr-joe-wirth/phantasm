@@ -93,6 +93,3 @@ WORKDIR /data
 
 # add an entry point so that phantasm can be called without entering the container
 ENTRYPOINT ["/bin/bash", "-c", "exec \"$@\"", "-"]
-
-
-####### DON'T BUILD UNTIL YOU REPLACE THE CLONE STEP WITH WGET!
