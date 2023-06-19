@@ -391,13 +391,13 @@ def getHelpMessage(task:str) -> str:
              "Required arguments:\n" + \
              GAP + "-i, --input <file>         gbff file or a directory containing gbff files\n" + \
              GAP + "-e, --email <email>        email address\n" + \
-             GAP + "-m, --map_file <file>      a file with two tab-separated columns (no headers): filename, taxon name\n" + \
-             GAP + "-h, --help                 print this message\n\n" + \
+             GAP + "-m, --map_file <file>      a file with two tab-separated columns (no headers): filename, taxon name\n\n" + \
              "Optional arguments:\n" + \
              GAP + "-O, --out <dir>            output directory                               [default: '" + os.path.join(".", "finalAnalysis") + "']\n" + \
              GAP + "-N, --num_threads <int>    number of processors to use                    [default: 1]\n" + \
              GAP + "-B, --bootstrap <int>      number of bootstraps to perform                [default: no bootstrapping]\n" + \
-             GAP + "-F, --fewer_coregenes      limit the core genes to those with ≤5% gaps    [default: no limiting]\n\n" + \
+             GAP + "-F, --fewer_coregenes      limit the core genes to those with ≤5% gaps    [default: no limiting]\n" + \
+             GAP + "-h, --help                 print this message\n\n" + \
              "Results (directory may vary if '-O' or '--out' used):\n" + \
              GAP + "'finalAnalysis/aai_matrix.txt'\n" + \
              GAP + "'finalAnalysis/aai_heatmap.pdf'\n" + \
