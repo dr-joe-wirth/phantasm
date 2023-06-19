@@ -1113,7 +1113,7 @@ def rankPhylogeneticMarkers(paramO:Parameters) -> None:
     EOL = "\n"
     HEADER_STRING = "cophenetic_corr_coef" + DELIM + "locus_tag" + DELIM + \
                     "protein_len" + DELIM + "gene_name" + DELIM + \
-                    "annotation" + DELIM + "gene_number" + EOL
+                    "annotation" + EOL
 
     logger = logging.getLogger(__name__ + "." + rankPhylogeneticMarkers.__name__)
 
