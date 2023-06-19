@@ -1234,13 +1234,9 @@ def __geneNumToSummaryStr(geneNumL:list, genesO:xenoGI.genomes.genes) -> str:
     geneName = ""
     annotation = ""
     proteinLen = ""
-    geneNumStr = ""
 
     # for each gene number 
     for geneNum in geneNumL:
-        # add the gene number to the gene num string
-        geneNumStr += str(geneNum) + SEP_CHAR
-
         # get a tuple of all the gene information
         geneInfo = genesO.numToGeneInfo(int(geneNum))
 
@@ -1261,11 +1257,10 @@ def __geneNumToSummaryStr(geneNumL:list, genesO:xenoGI.genomes.genes) -> str:
     geneName = geneName[:-len(SEP_CHAR)]
     annotation = annotation[:-len(ANN_SEP_CHAR)]
     proteinLen = proteinLen[:-len(PRO_SEP_CHAR)]
-    geneNumStr = geneNumStr[:-len(SEP_CHAR)]
 
     # construct the string and return it
     return locusTag + DELIM + proteinLen + DELIM + geneName + DELIM + \
-                                          annotation + DELIM + geneNumStr + EOL
+                                                               annotation + EOL
 
 
 def __cophenetic(speciesDistMat:dict, geneDistMat:dict) -> float:
