@@ -120,23 +120,15 @@ This is normal and can be safely ignored.
 ## 2.1. Getting help:
 To find out which version of phantasm is running, use one of the following commands:
 
-    docker run jwirth/phantasm:latest phantasm -v
-    docker run jwirth/phantasm:latest phantasm --version
+    docker run jwirth/phantasm:latest phantasm version
 
-    singularity exec phantasm_latest.sif phantasm -v
-    singularity exec phantasm_latest.sif phantasm --version
+    singularity exec phantasm_latest.sif phantasm version
 
-In order to get a detailed help message, use one of the following commands:
+In order to get a help message, use one of the following commands:
 
-    docker run jwirth/phantasm:latest phantasm --help
+    docker run jwirth/phantasm:latest phantasm help
 
-    singularity exec phantasm_latest.sif phantasm --help
-
-Alternatively, you can get a short help message with one of the following commands:
-
-    docker run jwirth/phantasm:latest phantasm -h
-
-    singularity exec phantasm_latest.sif phantasm --help
+    singularity exec phantasm_latest.sif phantasm help
 
 
 ## 2.2. Excluding specific taxa from phylogenomic analyses (optional)
