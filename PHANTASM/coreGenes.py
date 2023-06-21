@@ -1019,7 +1019,7 @@ def __formatNamesForIqTree(taxonName:str) -> str:
             for the specified taxon name. Returns the modified name.
     """
     # constants
-    ALLOWED_CHARS = string.ascii_letters + string.digits + "_-"
+    ALLOWED_CHARS = string.ascii_letters + string.digits + "_-."
 
     # initialize the new name
     newName = ""
