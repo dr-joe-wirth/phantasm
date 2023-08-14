@@ -1,6 +1,6 @@
 # Author: Joseph S. Wirth
 
-import csv, ftplib, getopt, glob, gzip, logging, math, os, re, shutil, string, sys, time
+import ftplib, getopt, glob, gzip, logging, math, os, re, shutil, string, sys, time
 from http.client import HTTPResponse
 from Bio import Entrez, SeqIO
 from Bio.SeqRecord import SeqRecord
@@ -1017,9 +1017,22 @@ def parseCsv(csvFN:str, delim:str=',') -> list:
             that list to a list of rows (list of lists). Returns the parsed da-
             ta.
     """
-    handle = open(csvFN, 'r')
-    parsed = list(csv.reader(handle, delimiter=delim))
-    handle.close()
+    # constants
+    EOL = "\n"
+    
+    # initialize output
+    parsed = list()
+    
+    # go through each line in the file
+    with open(csvFN, 'r') as fh:
+        for line in fh:
+            # chomp newline characters
+            if line[-1] == EOL:
+                line = line[:-1]
+            
+            # only save lines with data
+            if line != '':
+                parsed.append(line.split(delim))
 
     return parsed
 
