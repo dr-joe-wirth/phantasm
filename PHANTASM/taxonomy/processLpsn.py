@@ -213,7 +213,7 @@ def __importGenusSpeciesData(genSpeParsed:list, genFamParsed:list, \
                 addAnyway = False
     
     # add type species names to the genus dictionary
-    __addTypeToGenera(generaD, allFullRecords)
+    __addTypeToGenera(generaD, allFullRecords, speciesD)
 
     # add the parents to the genus and species dictionaries
     __addParentsToGenera(generaD, genFamParsed, headers=headers)
@@ -244,7 +244,7 @@ def __importGenusSpeciesData(genSpeParsed:list, genFamParsed:list, \
     return generaD, genSynD, speciesD, speSynD
 
 
-def __addTypeToGenera(genRecs:dict, allRecs:dict) -> None:
+def __addTypeToGenera(genRecs:dict, allRecs:dict, speRecs:dict) -> None:
     """ addTypeToGenera:
             Accepts the genus dictionary and a dictionary containing all the
             records for all of the genera and species as inputs. Identifies the
@@ -252,16 +252,24 @@ def __addTypeToGenera(genRecs:dict, allRecs:dict) -> None:
             of the genus dictionary. Does not return.
     """
     # for each genus
-    for key in genRecs.keys():
+    for genus in genRecs.keys():
         # get the record num of the nomenclatural type
-        typeRecNo = genRecs[key]['nom_type']
+        typeRecNo = genRecs[genus]['nom_type']
 
         # extract the record for the type species
-        typeRec = allRecs[typeRecNo]
+        try:
+            typeRec = allRecs[typeRecNo]
+        
+        # if that isn't possible, then just pick the first species available
+        except:
+            for species in speRecs.keys():
+                if genus in species:
+                    typeRec = allRecs[speRecs[species]['lpsn_no']]
+                    break
 
         # use the record to make the binomial name and add it to the genus dict
         typeName = typeRec['genus'] + ' ' + typeRec['species']
-        genRecs[key]['type'] = typeName
+        genRecs[genus]['type'] = typeName
 
 
 def __addParentsToGenera(genusD:dict, genFamParsed:list, headers:bool=True) \
