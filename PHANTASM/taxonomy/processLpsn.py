@@ -318,17 +318,16 @@ def __addParentsToGenera(genusD:dict, genFamParsed:list, headers:bool=True) \
             genusD[genus] = entry
     
     # make sure that all genera have a parent!
-    missingParents = list()
+    missingParents = set()
     for genus in genusD.keys():
         if 'parent' not in genusD[genus].keys():
-            missingParents.append(genus)
+            missingParents.add(genus)
     
     # alert user if their data sets are not fully linked.
     if len(missingParents) > 0:
-        print(missingParents)
         parStr = ''
-        for i in range(len(missingParents)):
-            parStr += "'" + missingParents[i] + "', "
+        for missing in missingParents:
+            parStr += "'" + missing + "', "
         parStr = parStr[:-2]
 
         raise BaseException(ERROR_MSG + parStr)
