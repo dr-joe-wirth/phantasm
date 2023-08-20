@@ -754,11 +754,30 @@ def __removeTaxaWithoutChildren(parentRankD:dict, parentSynD:dict, \
 
 
 def __fixHigherRankTypeMaterial(genusD:dict, genSynD:dict, familyD:dict, famSynD:dict, orderD:dict, ordSynD:dict, classD:dict, clsSynD:dict, phylumD:dict) -> None:
+    """fixes inconsistencies in the higher taxa's type material field; eg. orders with a type genus instead of a type family
+
+    Args:
+        genusD (dict): the genus dictionary
+        genSynD (dict): the genus synonyms dictionary
+        familyD (dict): the family dictionary
+        famSynD (dict): the family synonyms dictionary
+        orderD (dict): the order dictionary
+        ordSynD (dict): the order synonyms dictionary
+        classD (dict): the class dictionary
+        clsSynD (dict): the class synonyms dictionary
+        phylumD (dict): the phylum dictionary
+    """
     # start by replacing any synonyms in the type material
     __replaceSynonymsInTypeMaterial(familyD, 'family', genSynD, famSynD, ordSynD, clsSynD)
     __replaceSynonymsInTypeMaterial(orderD,  'order',  genSynD, famSynD, ordSynD, clsSynD)
     __replaceSynonymsInTypeMaterial(classD,  'class',  genSynD, famSynD, ordSynD, clsSynD)
     __replaceSynonymsInTypeMaterial(phylumD, 'phylum', genSynD, famSynD, ordSynD, clsSynD)
+    
+    # set type to None for those taxa whose type materials are missing from the child dictionary
+    __removeMissingTypes(genusD, familyD)
+    __removeMissingTypes(familyD, orderD)
+    __removeMissingTypes(orderD, classD)
+    __removeMissingTypes(classD, phylumD)
 
     # check orders first
     for ord in orderD.keys():
@@ -820,3 +839,20 @@ def __replaceSynonymsInTypeMaterial(rankD:dict, rank:str, genSynD:dict, famSynD:
         # check for class synonyms
         elif typeName in clsSynD.keys() and RANK_TO_NUM[rank] > RANK_TO_NUM['class']:
             rankD[k]['type'] = clsSynD[typeName]
+
+
+def __removeMissingTypes(childD:dict[str], parentD:dict[str]) -> None:
+    """removes type taxa in the parent dictionary that are absent in the child dictionary
+
+    Args:
+        childD (dict[str]): the child dictionary
+        parentD (dict[str]): the parent dictionary
+    """
+    # constant
+    TYPE = 'type'
+    
+    # process each parent
+    for parent in parentD.keys():
+        # set the type to None if it isn't already and the type is missing from the children
+        if parentD[parent][TYPE] is not None and parentD[parent][TYPE] not in childD.keys():
+            parentD[parent][TYPE] = None
