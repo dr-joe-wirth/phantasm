@@ -1,6 +1,6 @@
 # Author: Joseph S. Wirth
 
-import glob, logging, os, re, sys
+import glob, logging, math, os, re, sys
 from PHANTASM.Parameter import Parameters
 from PHANTASM.taxonomy.Taxonomy import Taxonomy
 from PHANTASM.taxonomy.taxonomyConstruction import constructTaxonomy
@@ -920,6 +920,8 @@ def __linkAssembliesWithBlastpResults(blastFN:str) -> dict:
             iated blastp data for the query-assembly pair.
     """
     # constants
+    MAX_WORDS = 10000
+    SEP = " OR "
     PROT_DB = 'protein'
     NUCL_DB = 'nuccore'
     ASSM_DB = 'assembly'
@@ -932,8 +934,18 @@ def __linkAssembliesWithBlastpResults(blastFN:str) -> dict:
     hitsD:dict = parsedBlast[0]
     searchStr:str = parsedBlast[1]
 
-    # use the search string to get the protein ids
-    protIds = ncbiIdsFromSearchTerm(searchStr, PROT_DB)
+    # split the string into a list of searchable keywords
+    wordsL = searchStr.split(SEP)
+    protIds = list()
+    
+    # determine how many "sets of ten thousand words" are in the list; loop through each
+    for num in range(math.ceil(len(wordsL) / MAX_WORDS)):
+        # make search strings with no more than 10,000 words
+        searchStr = SEP.join(wordsL[num*MAX_WORDS:(num+1)*MAX_WORDS])
+        
+        # retrieve the result and store in the list
+        result = ncbiIdsFromSearchTerm(searchStr, PROT_DB)
+        protIds.extend(result)
 
     # get a summary of the protein ids (used to link assemblies later)
     protSummaries = ncbiSummaryFromIdList(protIds, PROT_DB)
