@@ -4139,12 +4139,11 @@ class Taxonomy:
             candidates = list()
             for idx in range(len(newCandidates)):
                 # the new list contains copies of the taxa; get the originals
-                realTax = self.getDescendantByTaxId(
-                                    newCandidates[idx][TAX].taxid)
+                realTax = self.getRoot().getDescendantByTaxId(newCandidates[idx][TAX].taxid)
 
                 # build the new candidate entry
-                entry = realTax.__makeIngroupCandidateEntry(
-                            newCandidates[idx][SURPLUS], newCandidates[idx][DONE])
+                entry = realTax.__makeIngroupCandidateEntry(newCandidates[idx][SURPLUS], 
+                                                            newCandidates[idx][DONE])
 
                 # add it to the list
                 candidates.append(entry)
