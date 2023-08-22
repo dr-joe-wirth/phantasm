@@ -2,7 +2,7 @@
 
 
 from PHANTASM.main import getPhyloMarker, refinePhylogeny, knownPhyloMarker, analyzeSpecifiedGenomes, rankPhyloMarkers
-from PHANTASM.utilities import parseArgs, getLpsnAge, redactEmailAddress, getHelpMessage
+from PHANTASM.utilities import parseArgs, getLpsnAge, redactEmailAddress
 from PHANTASM.findMissingNeighbors import _locusTagToGeneNum
 from PHANTASM.Parameter import Parameters
 from param import PHANTASM_DIR
@@ -18,7 +18,7 @@ JOB_2 = 'refinePhylogeny'
 JOB_3 = 'knownPhyloMarker'
 JOB_4 = 'analyzeGenomes'
 JOB_5 = 'rankPhyloMarkers'
-ALL_JOBS = (JOB_0A, JOB_0B, JOB_1, JOB_2, JOB_3, JOB_4, JOB_5)
+
 SEP = ","
 GAP = " "*4
 
@@ -29,53 +29,24 @@ REF_MSG = "\nIf you use this software in your research, please cite our paper:\n
           GAP*2 + "Joseph S. Wirth and Eliot C. Bush, 2023\n" + \
           GAP*2 + "https://doi.org/10.1093/nar/gkad196\n"
 
-# version message
-VERSION_MSG = "PHANTASM " + VERSION + "\n"
-
-# no arguments message
-NO_ARGS_MSG = "\ntype '" + PHANTASM_PY + " help' for help\n"
-
 # LPSN age message
 AGE_MSG = "PHANTASM relies on data manually acquired from the LPSN.\n" + \
           GAP + "These data were last retrieved on "
 
 # error messages
-ERR_MSG_1A = "Invalid task: "
-ERR_MSG_1B = "\n" + NO_ARGS_MSG
-ERR_MSG_2 = "One or more specified genes could not be extracted."
-ERR_MSG_3 = "The specified output directory already exists."
+ERR_MSG_1 = "One or more specified genes could not be extracted."
+ERR_MSG_2 = "The specified output directory already exists."
 
 # begin main function
 if __name__ == "__main__":
     # print the reference message first
     print(REF_MSG)
 
-    # print a message if no arguments are provided
-    if len(sys.argv) == 1:
-        print(VERSION_MSG + NO_ARGS_MSG)
-    
-    else:
-        # extract the job name
-        job = sys.argv[1]
+    genomesL, tagsL, paramO, job, helpRequested = parseArgs()
 
-        # make sure a valid job was specified
-        if job not in ALL_JOBS:
-            raise ValueError(ERR_MSG_1A + job + ERR_MSG_1B)
-
-        # print the help message for the `help` job
-        elif job == JOB_0A:
-            print(getHelpMessage(job))
-
-        # print the version if requested
-        elif job == JOB_0B:
-            print(VERSION_MSG)
-
-        # print the help message for the specified job
-        elif "-h" in sys.argv or "--help" in sys.argv:
-            print(getHelpMessage(job))
-
+    if not helpRequested:
         # if JOB_1 specified
-        elif job == JOB_1:
+        if job == JOB_1:
             # parse the parameters
             gbffL, locusTagsL, paramO = parseArgs()
 
@@ -120,7 +91,7 @@ if __name__ == "__main__":
             
             # make sure the number of gene numbers matches the number of genes
             if len(locusTagsL) != len(geneNumsL):
-                raise ValueError(ERR_MSG_2)
+                raise ValueError(ERR_MSG_1)
 
             # print the LPSN age data
             age = getLpsnAge()
@@ -183,7 +154,7 @@ if __name__ == "__main__":
                 os.mkdir(paramO.workdir)
         
             else:
-                raise FileExistsError(ERR_MSG_3)
+                raise FileExistsError(ERR_MSG_2)
 
             # initialize logger
             logging.basicConfig(filename=paramO.logFN, level=logging.INFO)

@@ -19,23 +19,13 @@ def parseArgs() -> tuple[list, list, Parameters]:
                 3. a Parameters object
     """
     # import location of dependencies and other useful information
-    from phantasm import JOB_1, JOB_2, JOB_3, JOB_4, JOB_5
+    from phantasm import JOB_0A, JOB_0B, JOB_1, JOB_2, JOB_3, JOB_4, JOB_5, PHANTASM_PY
     from param import BLASTPLUS_DIR, MUSCLE_EXE, FASTTREE_EXE, IQTREE_EXE
     
+    # contants
+    ALL_JOBS = (JOB_0A, JOB_0B, JOB_1, JOB_2, JOB_3, JOB_4, JOB_5)
+    
     # command line flags
-    SHORT_OPTS = "i:e:t:m:O:N:L:B:FS:E:h"
-    LONG_OPTS = ["input=",
-                 "email=",
-                 "locus_tags=",
-                 "map_file=",
-                 "out=",
-                 "num_threads=",
-                 'max_leaves=',
-                 'bootstrap=',
-                 'fewer_coregenes',
-                 'skip_16S=',
-                 'exclude_taxids=',
-                 'help']
     INPUT_FLAGS = ("-i","--input")
     EMAIL_FLAGS = ("-e","--email")
     LOCUS_FLAGS = ("-t", "--locus_tags")
@@ -47,6 +37,31 @@ def parseArgs() -> tuple[list, list, Parameters]:
     REDUCE_FLAGS = ("-F", "--fewer_coregenes")
     SKIP_16S_FLAGS = ("-S", "--skip_16S")
     EXCLUDE_FLAGS = ("-E", "--exclude_taxa")
+    HELP_FLAGS = ("-h", "--help")
+    SHORT_OPTS = INPUT_FLAGS[0][-1] + ":" + \
+                 EMAIL_FLAGS[0][-1] + ":" + \
+                 LOCUS_FLAGS[0][-1] + ":" + \
+                 MAP_FLAGS[0][-1] + ":" + \
+                 OUT_DIR_FLAGS[0][-1] + ":" + \
+                 CORES_FLAGS[0][-1] + ":" + \
+                 LEAF_FLAGS[0][-1] + ":" + \
+                 BOOTS_FLAGS[0][-1] + ":" + \
+                 REDUCE_FLAGS[0][-1] + \
+                 SKIP_16S_FLAGS[0][-1] + ":" + \
+                 EXCLUDE_FLAGS[0][-1] + ":" + \
+                 HELP_FLAGS[0][-1]
+    LONG_OPTS = [INPUT_FLAGS[1][2:] + "=",
+                 EMAIL_FLAGS[1][2:] + "=",
+                 LOCUS_FLAGS[1][2:] + "=",
+                 MAP_FLAGS[1][2:] + "=",
+                 OUT_DIR_FLAGS[1][2:] + "=",
+                 CORES_FLAGS[1][2:] + "=",
+                 LEAF_FLAGS[1][2:] + "=",
+                 BOOTS_FLAGS[1][2:] + "=",
+                 REDUCE_FLAGS[1][2:],
+                 SKIP_16S_FLAGS[1][2:] + "=",
+                 EXCLUDE_FLAGS[1][2:] + "=",
+                 HELP_FLAGS[1][2:]]
     
     # default values for some parameters
     DEFAULT_DIR_1 = os.path.join(os.getcwd(), "initialAnalysis")
@@ -63,6 +78,8 @@ def parseArgs() -> tuple[list, list, Parameters]:
     # messages
     INVALID_MSG = "ignoring invalid option: "
     UNUSED_MSG = "ignoring unused option: "
+    ERR_MSG_0A = "Invalid task: "
+    ERR_MSG_0B = "\n    type '" + PHANTASM_PY + " " + JOB_0A + "' for help"
     ERR_MSG_1 = "invalid (or missing) email address"
     ERR_MSG_2 = "locus tag(s) (-t or --locus_tag) required for "
     ERR_MSG_3 = "the number of genes is not a multiple of the number of input genomes."
@@ -72,14 +89,133 @@ def parseArgs() -> tuple[list, list, Parameters]:
     ERR_MSG_7 = "could not find specified directory: "
     ERR_MSG_8 = "input is not a directory"
     
+    # helper function for printing help
+    def getHelpMessage(task:str) -> None:
+        # constants
+        from phantasm import VERSION
+        GAP = 4*" "
+        EOL = "\n"
+        SEP = ', '
+        DEF_1 = '[default: '
+        DEF_2 = ']'
+
+        # messages
+        HELP_0A = "Usage: " + PHANTASM_PY + " TASK [OPTIONS]" + EOL*2 + \
+                  "Available tasks:" + EOL + \
+                  GAP + f"{JOB_1:20}" + "identify phylogenetic markers (option 1, step 1)" + EOL + \
+                  GAP + f"{JOB_2:20}" + "refine phylogeny and perform phylogenomic analyses (option 1, step 2)" + EOL + \
+                  GAP + f"{JOB_3:20}" + "idenfify genomes from known phylogenetic marker and perform phylogenomic analyses (option 2)" + EOL + \
+                  GAP + f"{JOB_4:20}" + "perform phylogenomic analyses on a user-specified set of genomes (option 3)" + EOL + \
+                  GAP + f"{JOB_5:20}" + "identify core genes and rank phylogenetic markers" + EOL + \
+                  GAP + f"{JOB_0A:20}" + "print this message" + EOL + \
+                  GAP + f"{JOB_0B:20}" + "print the version" + EOL*2 + \
+                  "Run '" + PHANTASM_PY + " TASK --help' for more information on a task." + EOL*2
+        HELP_0B = "PHANTASM " + VERSION + EOL
+        HELP_1 = "Usage: " + PHANTASM_PY + " " + JOB_1 + " [-" + INPUT_FLAGS[0][-1] + EMAIL_FLAGS[0][-1] + CORES_FLAGS[0][-1] + LEAF_FLAGS[0][-1] + REDUCE_FLAGS[0][-1] + EXCLUDE_FLAGS[0][-1] + HELP_FLAGS[0][-1] + "]" + EOL*2 + \
+                "Required arguments:" + EOL + \
+                GAP + f"{INPUT_FLAGS[0] + SEP + INPUT_FLAGS[1] + ' <file>':<29}{'gbff file or a directory containing gbff files'}" + EOL + \
+                GAP + f"{EMAIL_FLAGS[0] + SEP + EMAIL_FLAGS[1] + ' <email>':<29}{'email address'}" + EOL*2 + \
+                "Optional arguments:" + EOL + \
+                GAP + f"{CORES_FLAGS[0] + SEP + CORES_FLAGS[1] + ' <int>':<29}{'number of processors to use':<47}{DEF_1 + str(DEFAULT_THREADS) + DEF_2}" + EOL + \
+                GAP + f"{LEAF_FLAGS[0] + SEP + LEAF_FLAGS[1] + ' <int>':<29}{'maximum number of leaves in the species tree':<47}{DEF_1 + str(DEFAULT_LEAVES) + DEF_2}" + EOL + \
+                GAP + f"{REDUCE_FLAGS[0] + SEP + REDUCE_FLAGS[1]:<29}{'limit the core genes to those with ≤5% gaps':<47}{DEF_1 + 'no limiting' + DEF_2}" + EOL + \
+                GAP + f"{SKIP_16S_FLAGS[0] + SEP + SKIP_16S_FLAGS[1] + ' <file>':<29}{'specify related taxids instead of relying on 16S homology'}" + EOL + \
+                GAP + f"{EXCLUDE_FLAGS[0] + SEP + EXCLUDE_FLAGS[1] + ' <file>':<29}{'specify taxids to exclude'}" + EOL + \
+                GAP + f"{HELP_FLAGS[0] + SEP + HELP_FLAGS[1]:<29}{'print this message'}" + EOL*2 + \
+                "Results:" + EOL + \
+                GAP + "'initialAnalysis/putativePhylogeneticMarkers.txt'" + EOL*2
+        HELP_2 = "Usage: " + PHANTASM_PY + " " + JOB_2 + " [-" + INPUT_FLAGS[0][-1] + EMAIL_FLAGS[0][-1] + LOCUS_FLAGS[0][-1] + CORES_FLAGS[0][-1] + LEAF_FLAGS[0][-1] + BOOTS_FLAGS[0][-1] + REDUCE_FLAGS[0][-1] + EXCLUDE_FLAGS[0][-1] + HELP_FLAGS[0][-1] + "]" + EOL*2 + \
+                "Required arguments:" + EOL + \
+                GAP + f"{INPUT_FLAGS[0] + SEP + INPUT_FLAGS[1] + ' <file>':<29}{'gbff file or a directory containing gbff files'}" + EOL + \
+                GAP + f"{EMAIL_FLAGS[0] + SEP + EMAIL_FLAGS[1] + ' <email>':<29}{'email address'}" + EOL + \
+                GAP + f"{LOCUS_FLAGS[0] + SEP + LOCUS_FLAGS[1] + ' <str>':<29}{'a comma-separated list of locus tags to use a phylogenetic markers'}" + EOL*2 + \
+                "Optional arguments:" + EOL + \
+                GAP + f"{CORES_FLAGS[0] + SEP + CORES_FLAGS[1] + ' <int>':<29}{'number of processors to use':<47}{DEF_1 + str(DEFAULT_THREADS) + DEF_2}" + EOL + \
+                GAP + f"{LEAF_FLAGS[0] + SEP + LEAF_FLAGS[1] + ' <int>':<29}{'maximum number of leaves in the species tree':<47}{DEF_1 + str(DEFAULT_LEAVES) + DEF_2}" + EOL + \
+                GAP + f"{BOOTS_FLAGS[0] + SEP + BOOTS_FLAGS[1] + ' <int>':<29}{'number of bootstraps to perform':<47}{DEF_1 + 'no bootstrapping' + DEF_2}" + EOL + \
+                GAP + f"{REDUCE_FLAGS[0] + SEP + REDUCE_FLAGS[1]:<29}{'limit the core genes to those with ≤5% gaps':<47}{DEF_1 + 'no limiting' + DEF_2}" + EOL + \
+                GAP + f"{EXCLUDE_FLAGS[0] + SEP + EXCLUDE_FLAGS[1] + ' <file>':<29}{'specify taxids to exclude'}" + EOL + \
+                GAP + f"{HELP_FLAGS[0] + SEP + HELP_FLAGS[1]:<29}{'print this message'}" + EOL*2 + \
+                "Results:" + EOL + \
+                GAP + "'finalAnalysis/aai_matrix.txt'" + EOL + \
+                GAP + "'finalAnalysis/aai_heatmap.pdf'" + EOL + \
+                GAP + "'finalAnalysis/ani_matrix.txt'" + EOL + \
+                GAP + "'finalAnalysis/ani_heatmap.pdf'" + EOL + \
+                GAP + "'finalAnalysis/coreGenesSummary.txt" + EOL + \
+                GAP + "'finalAnalysis/speciesTree.nwk'" + EOL + \
+                GAP + "'finalAnalysis/speciesTree_outgroupPruned.nwk'" + EOL*2
+        HELP_3 = "Usage: " + PHANTASM_PY + " " + JOB_3 + " [-" + INPUT_FLAGS[0][-1] + EMAIL_FLAGS[0][-1] + LOCUS_FLAGS[0][-1] + OUT_DIR_FLAGS[0][-1] + CORES_FLAGS[0][-1] + LEAF_FLAGS[0][-1] + BOOTS_FLAGS[0][-1] + REDUCE_FLAGS[0][-1] + EXCLUDE_FLAGS[0][-1] + HELP_FLAGS[0][-1] + "]" + EOL*2 + \
+                "Required arguments:" + EOL + \
+                GAP + f"{INPUT_FLAGS[0] + SEP + INPUT_FLAGS[1] + ' <file>':<29}{'gbff file or a directory containing gbff files'}" + EOL + \
+                GAP + f"{EMAIL_FLAGS[0] + SEP + EMAIL_FLAGS[1] + ' <email>':<29}{'email address'}" + EOL + \
+                GAP + f"{LOCUS_FLAGS[0] + SEP + LOCUS_FLAGS[1] + ' <str>':<29}{'a comma-separated list of locus tags to use a phylogenetic markers'}" + EOL*2 + \
+                "Optional arguments:\n" + \
+                GAP + f"{OUT_DIR_FLAGS[0] + SEP + OUT_DIR_FLAGS[1] + ' <dir>':<29}{'output directory':<47}{DEF_1 + os.path.join('.', 'finalAnalysis') + DEF_2}" + EOL + \
+                GAP + f"{CORES_FLAGS[0] + SEP + CORES_FLAGS[1] + ' <int>':<29}{'number of processors to use':<47}{DEF_1 + str(DEFAULT_THREADS) + DEF_2}" + EOL + \
+                GAP + f"{LEAF_FLAGS[0] + SEP + LEAF_FLAGS[1] + ' <int>':<29}{'maximum number of leaves in the species tree':<47}{DEF_1 + str(DEFAULT_LEAVES) + DEF_2}" + EOL + \
+                GAP + f"{BOOTS_FLAGS[0] + SEP + BOOTS_FLAGS[1] + ' <int>':<29}{'number of bootstraps to perform':<47}{DEF_1 + 'no bootstrapping' + DEF_2}" + EOL + \
+                GAP + f"{REDUCE_FLAGS[0] + SEP + REDUCE_FLAGS[1]:<29}{'limit the core genes to those with ≤5% gaps':<47}{DEF_1 + 'no limiting' + DEF_2}" + EOL + \
+                GAP + f"{EXCLUDE_FLAGS[0] + SEP + EXCLUDE_FLAGS[1] + ' <file>':<29}{'specify taxids to exclude'}" + EOL + \
+                GAP + f"{HELP_FLAGS[0] + SEP + HELP_FLAGS[1]:<29}{'print this message'}" + EOL*2 + \
+                "Results (directory may vary if '" + OUT_DIR_FLAGS[0] + "' or '" + OUT_DIR_FLAGS[1] + "' used):" + EOL + \
+                GAP + "'finalAnalysis/aai_matrix.txt'" + EOL + \
+                GAP + "'finalAnalysis/aai_heatmap.pdf'" + EOL + \
+                GAP + "'finalAnalysis/ani_matrix.txt'" + EOL + \
+                GAP + "'finalAnalysis/ani_heatmap.pdf'" + EOL + \
+                GAP + "'finalAnalysis/coreGenesSummary.txt'" + EOL + \
+                GAP + "'finalAnalysis/speciesTree.nwk'" + EOL + \
+                GAP + "'finalAnalysis/speciesTree_outgroupPruned.nwk'" + EOL*2
+        HELP_4 = "Usage: " + PHANTASM_PY + " " + JOB_4 + " [-" + INPUT_FLAGS[0][-1] + EMAIL_FLAGS[0][-1] + MAP_FLAGS[0][-1] + OUT_DIR_FLAGS[0][-1] + CORES_FLAGS[0][-1] + LEAF_FLAGS[0][-1] + BOOTS_FLAGS[0][-1] + REDUCE_FLAGS[0][-1] + HELP_FLAGS[0][-1] + "]" + EOL*2 + \
+                "Required arguments:" + EOL + \
+                GAP + f"{INPUT_FLAGS[0] + SEP + INPUT_FLAGS[1] + ' <file>':<27}{'gbff file or a directory containing gbff files'}" + EOL + \
+                GAP + f"{EMAIL_FLAGS[0] + SEP + EMAIL_FLAGS[1] + ' <email>':<27}{'email address'}" + EOL + \
+                GAP + f"{MAP_FLAGS[0] + SEP + MAP_FLAGS[1] + ' <file>':<27}{'a file with two tab-separated columns (no headers): filename, taxon name'}" + EOL*2 + \
+                "Optional arguments:" + EOL + \
+                GAP + f"{OUT_DIR_FLAGS[0] + SEP + OUT_DIR_FLAGS[1] + ' <dir>':<27}{'output directory':<47}{DEF_1 + os.path.join('.', 'finalAnalysis') + DEF_2}" + EOL + \
+                GAP + f"{CORES_FLAGS[0] + SEP + CORES_FLAGS[1] + ' <int>':<27}{'number of processors to use':<47}{DEF_1 + str(DEFAULT_THREADS) + DEF_2}" + EOL + \
+                GAP + f"{BOOTS_FLAGS[0] + SEP + BOOTS_FLAGS[1] + ' <int>':<27}{'number of bootstraps to perform':<47}{DEF_1 + 'no bootstrapping' + DEF_2}" + EOL + \
+                GAP + f"{REDUCE_FLAGS[0] + SEP + REDUCE_FLAGS[1]:<27}{'limit the core genes to those with ≤5% gaps':<47}{DEF_1 + 'no limiting' + DEF_2}" + EOL + \
+                GAP + f"{HELP_FLAGS[0] + SEP + HELP_FLAGS[1]:<27}{'print this message'}" + EOL*2 + \
+                "Results (directory may vary if '" + OUT_DIR_FLAGS[0] + "' or '" + OUT_DIR_FLAGS[1] + "' used):" + EOL + \
+                GAP + "'finalAnalysis/aai_matrix.txt'" + EOL + \
+                GAP + "'finalAnalysis/aai_heatmap.pdf'" + EOL + \
+                GAP + "'finalAnalysis/ani_matrix.txt'" + EOL + \
+                GAP + "'finalAnalysis/ani_heatmap.pdf'" + EOL + \
+                GAP + "'finalAnalysis/coreGenesSummary.txt'" + EOL + \
+                GAP + "'finalAnalysis/speciesTree.nwk'" + EOL + \
+                GAP + "'finalAnalysis/speciesTree_outgroupPruned.nwk'" + EOL*2
+        HELP_5 = "Usage: " + PHANTASM_PY + " " + JOB_5 + " [-" + INPUT_FLAGS[0][-1] + OUT_DIR_FLAGS[0][-1] + CORES_FLAGS[0][-1] + HELP_FLAGS[0][-1] + "]" + EOL*2 + \
+                "Required arguments:" + EOL + \
+                GAP + f"{INPUT_FLAGS[0] + SEP + INPUT_FLAGS[1] + ' <dir>':<27}{'directory containing phantasm results'}" + EOL*2 + \
+                "Optional arguments:" + EOL + \
+                GAP + f"{OUT_DIR_FLAGS[0] + SEP + OUT_DIR_FLAGS[1] + ' <dir>':<27}{'output directory':<31}{DEF_1 + os.path.join('.', 'finalAnalysis') + DEF_2}" + EOL + \
+                GAP + f"{CORES_FLAGS[0] + SEP + CORES_FLAGS[1] + ' <int>':<27}{'number of processors to use':<31}{DEF_1 + str(DEFAULT_THREADS) + DEF_2}" + EOL + \
+                GAP + f"{HELP_FLAGS[0] + SEP + HELP_FLAGS[1]:<27}{'print this message'}" + EOL*2 + \
+                "Results:" + EOL + \
+                GAP + "'<dir>/putativePhylogeneticMarkers.txt' (or at the specified file location)" + EOL*2
+        INVALID_TASK = "invalid task" + EOL
+        ADDITIONAL_HELP = "see https://github.com/dr-joe-wirth/phantasm for additional documentation." + EOL
+        
+        # return the appropriate help message
+        if task == JOB_0A:
+            print(HELP_0A + ADDITIONAL_HELP)
+        elif task == JOB_0B:
+            print(HELP_0B + ADDITIONAL_HELP)
+        elif task == JOB_1:
+            print(HELP_1 + ADDITIONAL_HELP)
+        elif task == JOB_2:
+            print(HELP_2 + ADDITIONAL_HELP)
+        elif task == JOB_3:
+            print(HELP_3 + ADDITIONAL_HELP)
+        elif task == JOB_4:
+            print(HELP_4 + ADDITIONAL_HELP)
+        elif task == JOB_5:
+            print(HELP_5 + ADDITIONAL_HELP)
+        else:
+            print(INVALID_TASK + ADDITIONAL_HELP)
+    
     # initialize the logger
     logger = logging.getLogger(__name__ + "." + parseArgs.__name__)
-    
-    # extract the job name
-    job = sys.argv[1]
-    
-    # parse the additional arguments (start 2 to skip the job name)
-    opts,args = getopt.getopt(sys.argv[2:], SHORT_OPTS, LONG_OPTS)
     
     # set default values for a few variables
     threads = DEFAULT_THREADS
@@ -87,349 +223,270 @@ def parseArgs() -> tuple[list, list, Parameters]:
     leaves = DEFAULT_LEAVES
     reduce = DEFAULT_REDUCE
     
-    # set initial empty values for a few other variables
-    genomesL = []
-    genomeDir = None
-    email = ""
-    tagsL = []
-    mapFN = ""
-    outDir = ""
-    taxidsFN = None
-    excludeFN = None
+    # ensure all output variables exist
+    genomesL = None
+    tagsL = None
+    paramO = None
+    helpRequested = False
+    job = None
     
-    # extract the arguments from the command
-    for opt,arg in opts:
-        # input genomes
-        if opt in INPUT_FLAGS:
-            if os.path.isdir(arg):
-                genomeDir = arg
-                genomesL = glob.glob(os.path.join(genomeDir, "*"))
-            else:
-                genomesL = [arg]
+    if len(sys.argv) == 1:
+        helpRequested = True
+        getHelpMessage(JOB_0A)
+    
+    elif sys.argv[1] == JOB_0A:
+        helpRequested = True
+        getHelpMessage(JOB_0A)
+    
+    elif sys.argv[1] == JOB_0B:
+        helpRequested = True
+        getHelpMessage(JOB_0B)
+    
+    elif HELP_FLAGS[0] in sys.argv or HELP_FLAGS[1] in sys.argv:
+        helpRequested = True
+        getHelpMessage(sys.argv[1])
+    
+    elif sys.argv[1] not in ALL_JOBS:
+        raise ValueError(ERR_MSG_0A + sys.argv[1] + ERR_MSG_0B)
+    
+    else:
+        job = sys.argv[1]
+
+        if len(sys.argv) == 2:
+            helpRequested = True
+            getHelpMessage(job)
         
-        # email address
-        elif opt in EMAIL_FLAGS:
-            email = arg
-        
-        # locus tags
-        elif opt in LOCUS_FLAGS:
-            tagsL = arg.split(TAG_SEP)
-        
-        # human map file
-        elif opt in MAP_FLAGS:
-            mapFN = os.path.abspath(arg)
-        
-        # out directory
-        elif opt in OUT_DIR_FLAGS:
-            outDir = os.path.abspath(arg)
-        
-        # processors
-        elif opt in CORES_FLAGS:
-            threads = int(arg)
-        
-        # max number of leaves
-        elif opt in LEAF_FLAGS:
-            leaves = int(arg)
-        
-        # num bootstraps
-        elif opt in BOOTS_FLAGS:
-            boots = int(arg)
-        
-        # reduce core genes
-        elif opt in REDUCE_FLAGS:
-            reduce = True
-        
-        # skip 16S
-        elif opt in SKIP_16S_FLAGS:
-            taxidsFN = os.path.abspath(arg)
-        
-        # excluded taxids
-        elif opt in EXCLUDE_FLAGS:
-            excludeFN = os.path.abspath(arg)
-        
-        # ignore any other flags
         else:
-            print(INVALID_MSG + opt)
-    
-    # process getPhyloMarker
-    if job == JOB_1:
-        # email address is required
-        if not validEmailAddress(email):
-            logger.critical(ERR_MSG_1)
-            raise ValueError(ERR_MSG_1)
-        
-        # set the output directory
-        outDir = DEFAULT_DIR_1
-        
-        # report any unused arguments
-        for opt,arg in opts:
-            if opt in (OUT_DIR_FLAGS + LOCUS_FLAGS + MAP_FLAGS + BOOTS_FLAGS):
-                print(UNUSED_MSG + opt)
-
-    # process refinePhylogeny
-    elif job in JOB_2:
-        # email address is required
-        if not validEmailAddress(email):
-            logger.critical(ERR_MSG_1)
-            raise ValueError(ERR_MSG_1)
-        
-        # set the output directory
-        outDir = DEFAULT_DIR_2
-        
-        # ensure that locus tags have been provided
-        if tagsL == []:
-            logger.critical(ERR_MSG_2)
-            raise RuntimeError(ERR_MSG_2 + job)
-        
-        # report any unused arguments
-        for opt,arg in opts:
-            if opt in (OUT_DIR_FLAGS + MAP_FLAGS + SKIP_16S_FLAGS):
-                print(UNUSED_MSG  + opt)
-    
-    # process knownPhyloMarker
-    elif job in JOB_3:
-        # email address is required
-        if not validEmailAddress(email):
-            logger.critical(ERR_MSG_1)
-            raise ValueError(ERR_MSG_1)
-        
-        # set the output directory if one was not specified
-        if outDir == "":
-            outDir = DEFAULT_DIR_2
-        
-        # ensure that locus tags have been provided
-        if tagsL == []:
-            logger.critical(ERR_MSG_2)
-            raise RuntimeError(ERR_MSG_2 + job)
-        
-        # raise error if num locus tags is not a multiple of num genomes
-        if len(tagsL) % len(genomesL) != 0:
-            logger.critical(ERR_MSG_3)
-            raise ValueError(ERR_MSG_3)
-        
-        # report any unused arguments
-        for opt,arg in opts:
-            if opt in (MAP_FLAGS + SKIP_16S_FLAGS):
-                print(UNUSED_MSG + opt)
-    
-    # process analyzeGenomes
-    elif job == JOB_4:
-        # email address is required
-        if not validEmailAddress(email):
-            logger.critical(ERR_MSG_1)
-            raise ValueError(ERR_MSG_1)
-        
-        # set the output directory if one was not specified
-        if outDir == "":
-            outDir = DEFAULT_DIR_2
-        
-        # make sure genomeDir is a directory
-        if not os.path.isdir(genomeDir):
-            logger.critical(ERR_MSG_4)
-            raise NotADirectoryError(ERR_MSG_4)
-        
-        # make sure that enough genomes are present
-        if len(genomesL) < MIN_NUM_GENOMES:
-            logger.critical(ERR_MSG_4)
-            raise ValueError(ERR_MSG_5)
-        
-        # report any unused arguments
-        for opt,arg in opts:
-            if opt in (LOCUS_FLAGS + LEAF_FLAGS + SKIP_16S_FLAGS + EXCLUDE_FLAGS):
-                print(UNUSED_MSG + opt)
-
-    # process rankPhyloMarkers
-    elif job == JOB_5:
-        # if set, the output file will be set to `outDir`; move to `outFN`
-        if outDir != "":
-            outFN = os.path.abspath(outDir)
+            # parse the additional arguments (start 2 to skip the job name)
+            opts,args = getopt.getopt(sys.argv[2:], SHORT_OPTS, LONG_OPTS)
             
-            # make sure the file doesn't exist
-            if os.path.exists(outFN):
-                logger.critical(ERR_MSG_6)
-                raise FileExistsError(ERR_MSG_6)
+            # set initial empty values for a few other variables
+            genomesL = []
+            genomeDir = None
+            email = ""
+            tagsL = []
+            mapFN = ""
+            outDir = ""
+            taxidsFN = None
+            excludeFN = None
             
-        # set outFN to False to ensure that the file replacement below works
-        else:
-            outFN = False
-        
-        # the working directory will be set to `genomeDir`; move to `outDir`
-        outDir = genomeDir
-        
-        # make sure output directory exists 
-        if not os.path.exists(outDir):
-            logger.critical(ERR_MSG_7 + outDir)
-            raise FileNotFoundError(ERR_MSG_7 + outDir)
-        
-        # make sure output directory is a directory
-        if not os.path.isdir(outDir):
-            logger.critical(ERR_MSG_8 + outDir)
-            raise NotADirectoryError(ERR_MSG_8 + outDir)
-        
-        # report any unused arguments
-        for opt,arg in opts:
-            if opt in (EMAIL_FLAGS + LOCUS_FLAGS + MAP_FLAGS + LEAF_FLAGS + BOOTS_FLAGS + REDUCE_FLAGS + EXCLUDE_FLAGS + SKIP_16S_FLAGS):
-                print(UNUSED_MSG + opt)
-    
-    # create a Parameters object using the extracted values:
-    paramO = Parameters(email,
-                        outDir,
-                        BLASTPLUS_DIR,
-                        MUSCLE_EXE,
-                        FASTTREE_EXE,
-                        IQTREE_EXE,
-                        threads,
-                        leaves,
-                        boots,
-                        reduce)
-    
-    # add the skip16S taxids file if requested
-    if job == JOB_1 and taxidsFN is not None:
-        if not os.path.isfile(taxidsFN):
-            raise FileNotFoundError(taxidsFN)
-        paramO.taxidsFN = taxidsFN
+            # extract the arguments from the command
+            for opt,arg in opts:
+                # input genomes
+                if opt in INPUT_FLAGS:
+                    if os.path.isdir(arg):
+                        genomeDir = arg
+                        genomesL = glob.glob(os.path.join(genomeDir, "*"))
+                    else:
+                        genomesL = [arg]
+                
+                # email address
+                elif opt in EMAIL_FLAGS:
+                    email = arg
+                
+                # locus tags
+                elif opt in LOCUS_FLAGS:
+                    tagsL = arg.split(TAG_SEP)
+                
+                # human map file
+                elif opt in MAP_FLAGS:
+                    mapFN = os.path.abspath(arg)
+                
+                # out directory
+                elif opt in OUT_DIR_FLAGS:
+                    outDir = os.path.abspath(arg)
+                
+                # processors
+                elif opt in CORES_FLAGS:
+                    threads = int(arg)
+                
+                # max number of leaves
+                elif opt in LEAF_FLAGS:
+                    leaves = int(arg)
+                
+                # num bootstraps
+                elif opt in BOOTS_FLAGS:
+                    boots = int(arg)
+                
+                # reduce core genes
+                elif opt in REDUCE_FLAGS:
+                    reduce = True
+                
+                # skip 16S
+                elif opt in SKIP_16S_FLAGS:
+                    taxidsFN = os.path.abspath(arg)
+                
+                # excluded taxids
+                elif opt in EXCLUDE_FLAGS:
+                    excludeFN = os.path.abspath(arg)
+                
+                # ignore any other flags
+                else:
+                    print(INVALID_MSG + opt)
+            
+            # process getPhyloMarker
+            if job == JOB_1:
+                # email address is required
+                if not validEmailAddress(email):
+                    logger.critical(ERR_MSG_1)
+                    raise ValueError(ERR_MSG_1)
+                
+                # set the output directory
+                outDir = DEFAULT_DIR_1
+                
+                # report any unused arguments
+                for opt,arg in opts:
+                    if opt in (OUT_DIR_FLAGS + LOCUS_FLAGS + MAP_FLAGS + BOOTS_FLAGS):
+                        print(UNUSED_MSG + opt)
 
-    # add the excluded taxids file if requested
-    if job in (JOB_1, JOB_2, JOB_3) and excludeFN is not None:
-        if not os.path.isfile(excludeFN):
-            raise FileNotFoundError(excludeFN)
-        paramO.excludedTaxidsFN = excludeFN
-    
-    # replace the genomes directory and map file if analyzing genomes
-    if job == JOB_4:
-        paramO.genbankFilePath = os.path.join(genomeDir, "*")
-        paramO.fileNameMapFN = os.path.abspath(mapFN)
-        
-        # ensure that the provided map file is valid
-        checkForValidHumanMapFile(paramO)
-    
-    # replace the output file in the paramO object
-    elif job == JOB_5 and outFN:
-        paramO.phyloMarkersFN = outFN
-    
-    # make sure that the specified executables are accessible
-    checkForValidExecutables(paramO)
+            # process refinePhylogeny
+            elif job in JOB_2:
+                # email address is required
+                if not validEmailAddress(email):
+                    logger.critical(ERR_MSG_1)
+                    raise ValueError(ERR_MSG_1)
+                
+                # set the output directory
+                outDir = DEFAULT_DIR_2
+                
+                # ensure that locus tags have been provided
+                if tagsL == []:
+                    logger.critical(ERR_MSG_2)
+                    raise RuntimeError(ERR_MSG_2 + job)
+                
+                # report any unused arguments
+                for opt,arg in opts:
+                    if opt in (OUT_DIR_FLAGS + MAP_FLAGS + SKIP_16S_FLAGS):
+                        print(UNUSED_MSG  + opt)
+            
+            # process knownPhyloMarker
+            elif job in JOB_3:
+                # email address is required
+                if not validEmailAddress(email):
+                    logger.critical(ERR_MSG_1)
+                    raise ValueError(ERR_MSG_1)
+                
+                # set the output directory if one was not specified
+                if outDir == "":
+                    outDir = DEFAULT_DIR_2
+                
+                # ensure that locus tags have been provided
+                if tagsL == []:
+                    logger.critical(ERR_MSG_2)
+                    raise RuntimeError(ERR_MSG_2 + job)
+                
+                # raise error if num locus tags is not a multiple of num genomes
+                if len(tagsL) % len(genomesL) != 0:
+                    logger.critical(ERR_MSG_3)
+                    raise ValueError(ERR_MSG_3)
+                
+                # report any unused arguments
+                for opt,arg in opts:
+                    if opt in (MAP_FLAGS + SKIP_16S_FLAGS):
+                        print(UNUSED_MSG + opt)
+            
+            # process analyzeGenomes
+            elif job == JOB_4:
+                # email address is required
+                if not validEmailAddress(email):
+                    logger.critical(ERR_MSG_1)
+                    raise ValueError(ERR_MSG_1)
+                
+                # set the output directory if one was not specified
+                if outDir == "":
+                    outDir = DEFAULT_DIR_2
+                
+                # make sure genomeDir is a directory
+                if not os.path.isdir(genomeDir):
+                    logger.critical(ERR_MSG_4)
+                    raise NotADirectoryError(ERR_MSG_4)
+                
+                # make sure that enough genomes are present
+                if len(genomesL) < MIN_NUM_GENOMES:
+                    logger.critical(ERR_MSG_4)
+                    raise ValueError(ERR_MSG_5)
+                
+                # report any unused arguments
+                for opt,arg in opts:
+                    if opt in (LOCUS_FLAGS + LEAF_FLAGS + SKIP_16S_FLAGS + EXCLUDE_FLAGS):
+                        print(UNUSED_MSG + opt)
 
-    return genomesL, tagsL, paramO
+            # process rankPhyloMarkers
+            elif job == JOB_5:
+                # if set, the output file will be set to `outDir`; move to `outFN`
+                if outDir != "":
+                    outFN = os.path.abspath(outDir)
+                    
+                    # make sure the file doesn't exist
+                    if os.path.exists(outFN):
+                        logger.critical(ERR_MSG_6)
+                        raise FileExistsError(ERR_MSG_6)
+                    
+                # set outFN to False to ensure that the file replacement below works
+                else:
+                    outFN = False
+                
+                # the working directory will be set to `genomeDir`; move to `outDir`
+                outDir = genomeDir
+                
+                # make sure output directory exists 
+                if not os.path.exists(outDir):
+                    logger.critical(ERR_MSG_7 + outDir)
+                    raise FileNotFoundError(ERR_MSG_7 + outDir)
+                
+                # make sure output directory is a directory
+                if not os.path.isdir(outDir):
+                    logger.critical(ERR_MSG_8 + outDir)
+                    raise NotADirectoryError(ERR_MSG_8 + outDir)
+                
+                # report any unused arguments
+                for opt,arg in opts:
+                    if opt in (EMAIL_FLAGS + LOCUS_FLAGS + MAP_FLAGS + LEAF_FLAGS + BOOTS_FLAGS + REDUCE_FLAGS + EXCLUDE_FLAGS + SKIP_16S_FLAGS):
+                        print(UNUSED_MSG + opt)
+            
+            # create a Parameters object using the extracted values:
+            paramO = Parameters(email,
+                                outDir,
+                                BLASTPLUS_DIR,
+                                MUSCLE_EXE,
+                                FASTTREE_EXE,
+                                IQTREE_EXE,
+                                threads,
+                                leaves,
+                                boots,
+                                reduce)
+            
+            # add the skip16S taxids file if requested
+            if job == JOB_1 and taxidsFN is not None:
+                if not os.path.isfile(taxidsFN):
+                    raise FileNotFoundError(taxidsFN)
+                paramO.taxidsFN = taxidsFN
+
+            # add the excluded taxids file if requested
+            if job in (JOB_1, JOB_2, JOB_3) and excludeFN is not None:
+                if not os.path.isfile(excludeFN):
+                    raise FileNotFoundError(excludeFN)
+                paramO.excludedTaxidsFN = excludeFN
+            
+            # replace the genomes directory and map file if analyzing genomes
+            if job == JOB_4:
+                paramO.genbankFilePath = os.path.join(genomeDir, "*")
+                paramO.fileNameMapFN = os.path.abspath(mapFN)
+                
+                # ensure that the provided map file is valid
+                checkForValidHumanMapFile(paramO)
+            
+            # replace the output file in the paramO object
+            elif job == JOB_5 and outFN:
+                paramO.phyloMarkersFN = outFN
+            
+            # make sure that the specified executables are accessible
+            checkForValidExecutables(paramO)
+
+    return genomesL, tagsL, paramO, job, helpRequested
 
 
-def getHelpMessage(task:str) -> str:
-    """ getHelpMessage
-            Accepts a task (job name) as an input. Returns the appropriate help
-            message for the given task.
-    """
-    # constants
-    from phantasm import PHANTASM_PY, JOB_0A, JOB_0B, JOB_1, JOB_2, JOB_3, JOB_4, JOB_5
-    GAP = 4*" "
 
-    # messages
-    HELP_0 = "Usage: " + PHANTASM_PY + " TASK [OPTIONS]\n\n" + \
-             "Available tasks:\n" + \
-             GAP + f"{JOB_1:20}" + "identify phylogenetic markers (option 1, step 1)\n" + \
-             GAP + f"{JOB_2:20}" + "refine phylogeny and perform phylogenomic analyses (option 1, step 2)\n" + \
-             GAP + f"{JOB_3:20}" + "idenfify genomes from known phylogenetic marker and perform phylogenomic analyses (option 2)\n" + \
-             GAP + f"{JOB_4:20}" + "perform phylogenomic analyses on a user-specified set of genomes (option 3)\n" + \
-             GAP + f"{JOB_5:20}" + "identify core genes and rank phylogenetic markers\n" + \
-             GAP + f"{JOB_0A:20}" + "print this message\n" + \
-             GAP + f"{JOB_0B:20}" + "print the version\n\n" + \
-             "Run '" + PHANTASM_PY + " TASK --help' for more information on a task.\n\n"
-    HELP_1 = "Usage: " + PHANTASM_PY + " " + JOB_1 + " [-ieNLF]\n\n" + \
-             "Required arguments:\n" + \
-             GAP + "-i, --input <file>           gbff file or a directory containing gbff files\n" + \
-             GAP + "-e, --email <email>          email address\n\n" + \
-             "Optional arguments:\n" + \
-             GAP + "-N, --num_threads <int>      number of processors to use                    [default: 1]\n" + \
-             GAP + "-L, --max_leaves <int>       maximum number of leaves in the species tree   [default: 50]\n" + \
-             GAP + "-F, --fewer_coregenes        limit the core genes to those with ≤5% gaps    [default: no limiting]\n" + \
-             GAP + "-S, --ski6_16S <file>        specify related taxids instead of relying on 16S homology\n" + \
-             GAP + "-E, --exclude_taxa <file>    specify taxids to exclude\n" + \
-             GAP + "-h, --help                   print this message\n\n" + \
-             "Results:\n" + \
-             GAP + "'initialAnalysis/putativePhylogeneticMarkers.txt'\n\n"
-    HELP_2 = "Usage: " + PHANTASM_PY + " " + JOB_2 + " [-ietNLBF]\n\n" + \
-             "Required arguments:\n" + \
-             GAP + "-i, --input <file>           gbff file or a directory containing gbff files\n" + \
-             GAP + "-e, --email <email>          email address\n" + \
-             GAP + "-t, --locus_tags <str>       a comma-separated list of locus tags to use a phylogenetic markers\n\n" + \
-             "Optional arguments:\n" + \
-             GAP + "-N, --num_threads <int>      number of processors to use                    [default: 1]\n" + \
-             GAP + "-L, --max_leaves <int>       maximum number of leaves in the species tree   [default: 50]\n" + \
-             GAP + "-B, --bootstrap <int>        number of bootstraps to perform                [default: no bootstrapping]\n" + \
-             GAP + "-F, --fewer_coregenes        limit the core genes to those with ≤5% gaps    [default: no limiting]\n" + \
-             GAP + "-E, --exclude_taxa <file>    specify taxids to exclude\n" + \
-             GAP + "-h, --help                   print this message\n\n" + \
-             "Results:\n" + \
-             GAP + "'finalAnalysis/aai_matrix.txt'\n" + \
-             GAP + "'finalAnalysis/aai_heatmap.pdf'\n" + \
-             GAP + "'finalAnalysis/ani_matrix.txt'\n" + \
-             GAP + "'finalAnalysis/ani_heatmap.pdf'\n" + \
-             GAP + "'finalAnalysis/coreGenesSummary.txt\n" + \
-             GAP + "'finalAnalysis/speciesTree.nwk'\n" + \
-             GAP + "'finalAnalysis/speciesTree_outgroupPruned.nwk'\n\n"
-    HELP_3 = "Usage: " + PHANTASM_PY + " " + JOB_3 + " [-ietONLBF]\n\n" + \
-             "Required arguments:\n" + \
-             GAP + "-i, --input <file>           gbff file or a directory containing gbff files\n" + \
-             GAP + "-e, --email <email>          email address\n" + \
-             GAP + "-t, --locus_tags <str>       a comma-separated list of locus tags to use a phylogenetic markers\n\n" + \
-             "Optional arguments:\n" + \
-             GAP + "-O, --out <dir>              output directory                               [default: '" + os.path.join(".", "finalAnalysis") + "']\n" + \
-             GAP + "-N, --num_threads <int>      number of processors to use                    [default: 1]\n" + \
-             GAP + "-L, --max_leaves <int>       maximum number of leaves in the species tree   [default: 50]\n" + \
-             GAP + "-B, --bootstrap <int>        number of bootstraps to perform                [default: no bootstrapping]\n" + \
-             GAP + "-F, --fewer_coregenes        limit the core genes to those with ≤5% gaps    [default: no limiting]\n" + \
-             GAP + "-E, --exclude_taxa <file>    specify taxids to exclude\n" + \
-             GAP + "-h, --help                   print this message\n\n" + \
-             "Results (directory may vary if '-O' or '--out' used):\n" + \
-             GAP + "'finalAnalysis/aai_matrix.txt'\n" + \
-             GAP + "'finalAnalysis/aai_heatmap.pdf'\n" + \
-             GAP + "'finalAnalysis/ani_matrix.txt'\n" + \
-             GAP + "'finalAnalysis/ani_heatmap.pdf'\n" + \
-             GAP + "'finalAnalysis/coreGenesSummary.txt\n" + \
-             GAP + "'finalAnalysis/speciesTree.nwk'\n" + \
-             GAP + "'finalAnalysis/speciesTree_outgroupPruned.nwk'\n\n"
-    HELP_4 = "Usage: " + PHANTASM_PY + " " + JOB_4 + " [-iemONLBF]\n\n" + \
-             "Required arguments:\n" + \
-             GAP + "-i, --input <file>         gbff file or a directory containing gbff files\n" + \
-             GAP + "-e, --email <email>        email address\n" + \
-             GAP + "-m, --map_file <file>      a file with two tab-separated columns (no headers): filename, taxon name\n\n" + \
-             "Optional arguments:\n" + \
-             GAP + "-O, --out <dir>            output directory                               [default: '" + os.path.join(".", "finalAnalysis") + "']\n" + \
-             GAP + "-N, --num_threads <int>    number of processors to use                    [default: 1]\n" + \
-             GAP + "-B, --bootstrap <int>      number of bootstraps to perform                [default: no bootstrapping]\n" + \
-             GAP + "-F, --fewer_coregenes      limit the core genes to those with ≤5% gaps    [default: no limiting]\n" + \
-             GAP + "-h, --help                 print this message\n\n" + \
-             "Results (directory may vary if '-O' or '--out' used):\n" + \
-             GAP + "'finalAnalysis/aai_matrix.txt'\n" + \
-             GAP + "'finalAnalysis/aai_heatmap.pdf'\n" + \
-             GAP + "'finalAnalysis/ani_matrix.txt'\n" + \
-             GAP + "'finalAnalysis/ani_heatmap.pdf'\n" + \
-             GAP + "'finalAnalysis/coreGenesSummary.txt\n" + \
-             GAP + "'finalAnalysis/speciesTree.nwk'\n" + \
-             GAP + "'finalAnalysis/speciesTree_outgroupPruned.nwk'\n\n"
-    HELP_5 = "Usage: " + PHANTASM_PY + " " + JOB_5 + " [-iON]\n\n" + \
-             "Required arguments:\n" + \
-             GAP + "-i, --input <dir>          directory containing phantasm results\n\n" + \
-             "Optional arguments:\n" + \
-             GAP + "-O, --out <file>           output file                    [default: '" + os.path.join("<dir>", "putativePhylogeneticMarkers.txt") + "']\n" + \
-             GAP + "-N, --num_threads <int>    number of processors to use    [default: 1]\n" + \
-             GAP + "-h, --help                 print this message\n\n" + \
-             "Results:\n" + \
-             GAP + "'<dir>/putativePhylogeneticMarkers.txt' (or at the specified file location)\n\n"
-    ADDITIONAL_HELP = "see https://github.com/dr-joe-wirth/phantasm for additional documentation.\n"
-    
-    # return the appropriate help message
-    if task == JOB_0A:
-        return HELP_0 + ADDITIONAL_HELP
-    elif task == JOB_1:
-        return HELP_1 + ADDITIONAL_HELP
-    elif task == JOB_2:
-        return HELP_2 + ADDITIONAL_HELP
-    elif task == JOB_3:
-        return HELP_3 + ADDITIONAL_HELP
-    elif task == JOB_4:
-        return HELP_4 + ADDITIONAL_HELP
-    elif task == JOB_5:
-        return HELP_5 + ADDITIONAL_HELP
 
 
 def getTaxidsFromFile(taxidsFN:str) -> list[str]:
