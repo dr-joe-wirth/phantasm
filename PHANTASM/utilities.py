@@ -165,10 +165,9 @@ def parseArgs() -> tuple[list, list, Parameters]:
                 GAP + "'finalAnalysis/coreGenesSummary.txt'" + EOL + \
                 GAP + "'finalAnalysis/speciesTree.nwk'" + EOL + \
                 GAP + "'finalAnalysis/speciesTree_outgroupPruned.nwk'" + EOL*2
-        HELP_4 = "Usage: " + PHANTASM_PY + " " + JOB_4 + " [-" + INPUT_FLAGS[0][-1] + EMAIL_FLAGS[0][-1] + MAP_FLAGS[0][-1] + OUT_DIR_FLAGS[0][-1] + CORES_FLAGS[0][-1] + LEAF_FLAGS[0][-1] + BOOTS_FLAGS[0][-1] + REDUCE_FLAGS[0][-1] + HELP_FLAGS[0][-1] + "]" + EOL*2 + \
+        HELP_4 = "Usage: " + PHANTASM_PY + " " + JOB_4 + " [-" + INPUT_FLAGS[0][-1] + MAP_FLAGS[0][-1] + OUT_DIR_FLAGS[0][-1] + CORES_FLAGS[0][-1] + LEAF_FLAGS[0][-1] + BOOTS_FLAGS[0][-1] + REDUCE_FLAGS[0][-1] + HELP_FLAGS[0][-1] + "]" + EOL*2 + \
                 "Required arguments:" + EOL + \
                 GAP + f"{INPUT_FLAGS[0] + SEP + INPUT_FLAGS[1] + ' <file>':<27}{'gbff file or a directory containing gbff files'}" + EOL + \
-                GAP + f"{EMAIL_FLAGS[0] + SEP + EMAIL_FLAGS[1] + ' <email>':<27}{'email address'}" + EOL + \
                 GAP + f"{MAP_FLAGS[0] + SEP + MAP_FLAGS[1] + ' <file>':<27}{'a file with two tab-separated columns (no headers): filename, taxon name'}" + EOL*2 + \
                 "Optional arguments:" + EOL + \
                 GAP + f"{OUT_DIR_FLAGS[0] + SEP + OUT_DIR_FLAGS[1] + ' <dir>':<27}{'output directory':<47}{DEF_1 + os.path.join('.', 'finalAnalysis') + DEF_2}" + EOL + \
@@ -386,12 +385,7 @@ def parseArgs() -> tuple[list, list, Parameters]:
                         print(UNUSED_MSG + opt)
             
             # process analyzeGenomes
-            elif job == JOB_4:
-                # email address is required
-                if not validEmailAddress(email):
-                    logger.critical(ERR_MSG_1)
-                    raise ValueError(ERR_MSG_1)
-                
+            elif job == JOB_4:                
                 # set the output directory if one was not specified
                 if outDir == "":
                     outDir = DEFAULT_DIR_2
@@ -484,9 +478,6 @@ def parseArgs() -> tuple[list, list, Parameters]:
             checkForValidExecutables(paramO)
 
     return genomesL, tagsL, paramO, job, helpRequested
-
-
-
 
 
 def getTaxidsFromFile(taxidsFN:str) -> list[str]:

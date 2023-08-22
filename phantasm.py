@@ -150,7 +150,6 @@ if __name__ == "__main__":
             logger = logging.getLogger(__name__)
             
             # save details about the run
-            logger.info(redactEmailAddress())
             logger.info(VERSION)
             logger.info('num cpus:        ' + str(paramO.numProcesses))
             logger.info('reduce num core: ' + str(paramO.reduceNumCoreGenes))
