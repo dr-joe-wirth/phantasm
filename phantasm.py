@@ -6,7 +6,7 @@ from PHANTASM.utilities import parseArgs, getLpsnAge, redactEmailAddress
 from PHANTASM.findMissingNeighbors import _locusTagToGeneNum
 from PHANTASM.Parameter import Parameters
 from param import PHANTASM_DIR
-import logging, os, sys
+import logging, os
 
 # constants
 PHANTASM_PY = "python3 " + os.path.join(PHANTASM_DIR, "phantasm.py")
@@ -47,9 +47,6 @@ if __name__ == "__main__":
     if not helpRequested:
         # if JOB_1 specified
         if job == JOB_1:
-            # parse the parameters
-            gbffL, locusTagsL, paramO = parseArgs()
-
             # print the LPSN age data
             age = getLpsnAge()
             print(AGE_MSG + age + "\n\n")
@@ -68,15 +65,13 @@ if __name__ == "__main__":
 
             # execute job 1
             logger.info("start " + JOB_1 + "\n")
-            getPhyloMarker(gbffL, paramO)
+            getPhyloMarker(genomesL, paramO)
             logger.info("end " + JOB_1 + "\n")            
         
         # if JOB_2 requested
         elif job == JOB_2:
-            # parse the parameters
-            gbffL, locusTagsL, paramO_2 = parseArgs()
-            
             # create paramO_1 from paramO_2
+            paramO_2 = paramO
             tmp = paramO_2.toDict().copy()
             tmp['workdir'] = os.path.join(os.path.dirname(paramO_2.workdir), "initialAnalysis")
             paramO_1 = Parameters.fromDict(tmp)
@@ -85,12 +80,12 @@ if __name__ == "__main__":
             geneNumsL = list()
             
             # convert the locus tags to gene numbers
-            for tag in locusTagsL:
+            for tag in tagsL:
                 geneNum = _locusTagToGeneNum(tag, paramO_1.geneInfoFN)
                 geneNumsL.append(geneNum)
             
             # make sure the number of gene numbers matches the number of genes
-            if len(locusTagsL) != len(geneNumsL):
+            if len(tagsL) != len(geneNumsL):
                 raise ValueError(ERR_MSG_1)
 
             # print the LPSN age data
@@ -113,14 +108,11 @@ if __name__ == "__main__":
 
             # execute JOB_2
             logger.info("start " + JOB_2 + "\n")
-            refinePhylogeny(geneNumsL, gbffL, paramO_1, paramO_2)
+            refinePhylogeny(geneNumsL, genomesL, paramO_1, paramO_2)
             logger.info('end ' + JOB_2 + "\n")
         
         # if JOB_3 requested
         elif job == JOB_3:
-            # parse the parameters
-            gbffL, locusTagsL, paramO = parseArgs()
-            
             # print the LPSN age data
             age = getLpsnAge()
             print(AGE_MSG + age + "\n\n")
@@ -141,14 +133,11 @@ if __name__ == "__main__":
             
             # execute JOB_3
             logger.info("start " + JOB_3 + "\n")
-            knownPhyloMarker(gbffL, locusTagsL, paramO)
+            knownPhyloMarker(genomesL, tagsL, paramO)
             logger.info('end ' + JOB_3 + "\n")
 
         # if JOB_4 requested
         elif job == JOB_4:
-            # parse the parameters
-            gbffL, locusTagsL, paramO = parseArgs()
-
             # make the output directory; error if it already exists
             if not os.path.exists(paramO.workdir):
                 os.mkdir(paramO.workdir)
@@ -170,12 +159,10 @@ if __name__ == "__main__":
             
             # analyze the specified genomes
             logger.info("start " + JOB_4 + "\n")
-            analyzeSpecifiedGenomes(gbffL, paramO)
+            analyzeSpecifiedGenomes(genomesL, paramO)
             logger.info("end " + JOB_4 + "\n")
 
         elif job == JOB_5:
-            gbffL, locusTagsL, paramO = parseArgs()
-            
             # initialize logger
             logging.basicConfig(filename=paramO.logFN, level=logging.INFO)
             logger = logging.getLogger(__name__)
