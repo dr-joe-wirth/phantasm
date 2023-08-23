@@ -947,8 +947,7 @@ class Taxonomy:
 
 
     ### BUILDING AND MODIFYING OBJECTS
-    def _initializeDescendants(self, ncbiTaxaParsed:dict=None, \
-                              maxDepth='species') -> None:
+    def _initializeDescendants(self, ncbiTaxaParsed:dict=None, maxDepth='species') -> None:
         """ initializeDescendants:
                 Accepts a dictionary containing the parsed NCBI taxonomy data 
                 and a TaxRank indicating the maximum recursive depth as input. 
@@ -1126,8 +1125,7 @@ class Taxonomy:
         return ncbiIdsFromSearchTerm(search, DATABASE)
 
 
-    def __addDescendant(self, childTxid:str, childName:str, childRank:TaxRank) \
-                        -> None:
+    def __addDescendant(self, childTxid:str, childName:str, childRank:TaxRank) -> None:
         """ addDescendant:
                 Accepts a taxid, name, and taxonomic rank for the descendant 
                 taxon, as well as the taxonomic rank indicating the maximum 
@@ -1544,8 +1542,7 @@ class Taxonomy:
 
 
     ### QUERYING OBJECTS
-    def getDescendantByTaxId(self, taxid, resolveSynonym:bool=False) \
-                             -> Taxonomy:
+    def getDescendantByTaxId(self, taxid, resolveSynonym:bool=False) -> Taxonomy:
         """ getDescendantByTaxId:
                 Accepts an NCBI taxonomy id as input. Recursively searches the
                 current Taxonomy object for a Taxonomy object whose taxonomy id
@@ -1621,7 +1618,7 @@ class Taxonomy:
         return False
 
 
-    def getLineage(self) -> list:
+    def getLineage(self) -> list[Taxonomy]:
         """ getLineage:
                 Accepts no inputs. Recursively retrieves and returns the taxo-
                 nomic lineage for the current object and its parents.
@@ -3582,8 +3579,19 @@ class Taxonomy:
         TEMP_TAXID = '0'
         OR = ' OR '
         
-        # get the root
+        # get the parent and the root
         root = self.getRoot()
+        parent = self.parent
+                
+        # attempt to get an outgroup from the parent first; only move to root if necessary
+        if parent is not None:
+            while parent.rank < root.rank:
+                outgroup = parent.__pickOutgroupRecursiveHelper()
+                if outgroup is not None:
+                    return outgroup
+                
+                # continue navigating upwards until reaching the root
+                parent = parent.parent
 
         # attempt to pick an outgroup from an existing species
         outgroup = root.__pickOutgroupRecursiveHelper()
@@ -3599,7 +3607,7 @@ class Taxonomy:
         # must assume that unrepresented phyla will be suitable for an outgroup
         if root.rank == Taxonomy.DOMAIN:
             # save handles to the current children of the root
-            children = root.getChildren(list)
+            children:list[Taxonomy] = root.getChildren(list)
 
             # remove the children from the root object
             root.descendantsD = dict()
@@ -3612,7 +3620,7 @@ class Taxonomy:
             root.__setAsExternal()
 
             # get a set of the siblings
-            allSiblings:set = root.getChildren(set)
+            allSiblings:set[Taxonomy] = root.getChildren(set)
 
             # get a set of the taxids in allSiblings
             allSiblingTaxids = {sib.taxid for sib in allSiblings}
