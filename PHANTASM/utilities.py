@@ -26,7 +26,7 @@ def parseArgs() -> tuple[list, list, Parameters]:
     ALL_JOBS = (JOB_0A, JOB_0B, JOB_1, JOB_2, JOB_3, JOB_4, JOB_5)
     
     # command line flags
-    INPUT_FLAGS = ("-i","--input")
+    INPUT_FLAGS = ("-i","--in")
     EMAIL_FLAGS = ("-e","--email")
     LOCUS_FLAGS = ("-t", "--locus_tags")
     MAP_FLAGS = ("-m", "--map_file")
