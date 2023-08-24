@@ -130,6 +130,12 @@ In order to get a help message, use one of the following commands:
 
     singularity exec phantasm_latest.sif phantasm help
 
+Additional help on any given task (see [section 3](#3-running-phantasm) for available tasks) can be obtained with one of the following commands:
+
+    docker run jwirth/phantasm:latest phantasm <task> --help
+
+    singularity exec phantasm_latest.sif phantasm <task> --help
+
 
 ## 2.2. Excluding specific taxa from phylogenomic analyses (optional)
 It is possible to exclude specific taxa from the refined phylogeny using the flag `-E` or `--exclude_taxa`. To do so, create a file containing exactly one NCBI Taxonomy id per line in the directory where you call PHANTASM. The excluded ids can represent any taxonomic rank (eg. species, genus, family, etc.). This feature is only relevant when using [option 1](#31-option-1-unknown-reference-genomes-and-unknown-phylogenetic-markers) or [option 2](#32-option-2-unknown-reference-genomes-and-known-phylogenetic-markers). This feature is largely experimental and should be used with caution.
@@ -171,7 +177,7 @@ Run one of the following commands. Be sure to replace `my_genome.gbff` and `emai
 
     docker run -v $(pwd):/data jwirth/phantasm:latest phantasm getPhyloMarker -i my_genome.gbff -e email@address.org
 
-    singularity exec jwirth/phantasm:latest phantasm getPhyloMarker -i ./my_genome.gbff -e email@address.org
+    singularity exec phantasm_latest.sif phantasm getPhyloMarker -i ./my_genome.gbff -e email@address.org
 
 ### Optional flags that can be used with this step:
 
@@ -206,7 +212,7 @@ If you are using a locus tag(s), then run one of the following commands. Be sure
 
     docker run -v $(pwd):/data jwirth/phantasm:latest phantasm refinePhylogeny -i my_genome.gbff -t <locus tag> -e email@address.org
 
-    singularity exec jwirth/phantasm:latest phantasm refinePhylogeny -i my_genome.gbff -t <locus tag> -e email@address.org
+    singularity exec phantasm_latest.sif phantasm refinePhylogeny -i my_genome.gbff -t <locus tag> -e email@address.org
 
 PHANTASM can handle multiple phylogenetic markers and/or multiple input genomes. If using multiple markers, they should be a comma-separated list **without spaces**. If using multiple input genomes, specify a directory containing genbank files; the same number of phylogenetic markers must be specified for each input genome.
 
