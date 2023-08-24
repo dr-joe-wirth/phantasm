@@ -187,7 +187,7 @@ def parseArgs() -> tuple[list, list, Parameters]:
                 "Required arguments:" + EOL + \
                 GAP + f"{INPUT_FLAGS[0] + SEP + INPUT_FLAGS[1] + ' <dir>':<27}{'directory containing phantasm results'}" + EOL*2 + \
                 "Optional arguments:" + EOL + \
-                GAP + f"{OUT_DIR_FLAGS[0] + SEP + OUT_DIR_FLAGS[1] + ' <dir>':<27}{'output directory':<31}{DEF_1 + os.path.join('.', 'finalAnalysis') + DEF_2}" + EOL + \
+                GAP + f"{OUT_DIR_FLAGS[0] + SEP + OUT_DIR_FLAGS[1] + ' <file>':<27}{'output file':<31}{DEF_1 + os.path.join('<dir>', 'putativePhylogeneticMarkers.txt') + DEF_2}" + EOL + \
                 GAP + f"{CORES_FLAGS[0] + SEP + CORES_FLAGS[1] + ' <int>':<27}{'number of processors to use':<31}{DEF_1 + str(DEFAULT_THREADS) + DEF_2}" + EOL + \
                 GAP + f"{HELP_FLAGS[0] + SEP + HELP_FLAGS[1]:<27}{'print this message'}" + EOL*2 + \
                 "Results:" + EOL + \
