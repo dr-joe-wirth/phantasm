@@ -100,8 +100,7 @@ A [detailed tutorial](https://github.com/dr-joe-wirth/phantasm/blob/master/docke
 
     alias phantasm='python3 <absolute path to phantasm>/phantasm.py'
 
-A short help message can be obtained with the command `python3 <path to phantasm>/phantasm.py -h`. A detailed help message can be obtained with the command `python3 <path to phantasm>/phantasm.py --help`. The version of PHANTASM can be obtained with the command `python3 <path to phantasm>/phantasm.py -v` or `python3 <path to phantasm>/phantasm.py -v` or `python2 <path to phantasm>/phantasm.py --version`. For help on analyzing the results, please see the [detailed tutorial](https://github.com/dr-joe-wirth/phantasm/blob/master/docker_build_files/README.md#4-analyzing-the-results).
-
+A help message can be obtained with the command `python3 <path to phantasm>/phantasm.py help`. Help messages for a given task can be obtained with the command `python3 <path to phantasm>/phantasm.py <TASK> --help`. The version of PHANTASM can be obtained with the command `python3 <path to phantasm>/phantasm.py version`. For help on analyzing the results, please see the [detailed tutorial](https://github.com/dr-joe-wirth/phantasm/blob/master/docker_build_files/README.md#4-analyzing-the-results).
 
 ## 3. Dependencies
 See [section 1.2](#12-native-installation) for installation details.
