@@ -10,7 +10,7 @@ import logging, os
 
 # constants
 PHANTASM_PY = "python3 " + os.path.join(PHANTASM_DIR, "phantasm.py")
-VERSION = "v1.1.0"
+VERSION = "v1.1.1"
 JOB_0A = "help"
 JOB_0B = "version"
 JOB_1 = 'getPhyloMarker'
