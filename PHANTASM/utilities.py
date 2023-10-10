@@ -1,6 +1,6 @@
 # Author: Joseph S. Wirth
 
-import csv, ftplib, getopt, glob, gzip, logging, math, os, re, shutil, string, sys, time
+import csv, ftplib, getopt, glob, gzip, logging, math, os, re, semver, shutil, subprocess, string, sys, time
 from http.client import HTTPResponse
 from Bio import Entrez, SeqIO
 from Bio.SeqRecord import SeqRecord
@@ -19,11 +19,11 @@ def parseArgs() -> tuple[list, list, Parameters]:
                 3. a Parameters object
     """
     # import location of dependencies and other useful information
-    from phantasm import JOB_0A, JOB_0B, JOB_1, JOB_2, JOB_3, JOB_4, JOB_5, PHANTASM_PY
+    from phantasm import JOB_0A, JOB_0B, JOB_0C, JOB_1, JOB_2, JOB_3, JOB_4, JOB_5, PHANTASM_PY
     from param import BLASTPLUS_DIR, MUSCLE_EXE, FASTTREE_EXE, IQTREE_EXE
     
     # contants
-    ALL_JOBS = (JOB_0A, JOB_0B, JOB_1, JOB_2, JOB_3, JOB_4, JOB_5)
+    ALL_JOBS = (JOB_0A, JOB_0B, JOB_0C, JOB_1, JOB_2, JOB_3, JOB_4, JOB_5)
     
     # command line flags
     INPUT_FLAGS = ("-i","--in")
@@ -108,7 +108,8 @@ def parseArgs() -> tuple[list, list, Parameters]:
                   GAP + f"{JOB_4:20}" + "perform phylogenomic analyses on a user-specified set of genomes (option 3)" + EOL + \
                   GAP + f"{JOB_5:20}" + "identify core genes and rank phylogenetic markers" + EOL + \
                   GAP + f"{JOB_0A:20}" + "print this message" + EOL + \
-                  GAP + f"{JOB_0B:20}" + "print the version" + EOL*2 + \
+                  GAP + f"{JOB_0B:20}" + "print the version" + EOL + \
+                  GAP + f"{JOB_0C:20}" + "check for valid executables" + EOL*2 + \
                   "Run '" + PHANTASM_PY + " TASK --help' for more information on a task." + EOL*2
         HELP_0B = "PHANTASM " + VERSION + EOL
         HELP_1 = "Usage: " + PHANTASM_PY + " " + JOB_1 + " [-" + INPUT_FLAGS[0][-1] + EMAIL_FLAGS[0][-1] + CORES_FLAGS[0][-1] + LEAF_FLAGS[0][-1] + REDUCE_FLAGS[0][-1] + EXCLUDE_FLAGS[0][-1] + HELP_FLAGS[0][-1] + "]" + EOL*2 + \
@@ -240,6 +241,20 @@ def parseArgs() -> tuple[list, list, Parameters]:
     elif sys.argv[1] == JOB_0B:
         helpRequested = True
         getHelpMessage(JOB_0B)
+    
+    elif sys.argv[1] == JOB_0C:
+        helpRequested = True
+        paramO = Parameters('',
+                            '',
+                            BLASTPLUS_DIR,
+                            MUSCLE_EXE,
+                            FASTTREE_EXE,
+                            IQTREE_EXE,
+                            1,
+                            1,
+                            False,
+                            False)
+        checkForValidExecutables(paramO)
     
     elif HELP_FLAGS[0] in sys.argv or HELP_FLAGS[1] in sys.argv:
         helpRequested = True
@@ -1213,10 +1228,17 @@ def checkForValidExecutables(paramO:Parameters) -> None:
             return.
     """
     # constants
+    GREP_FIND_1 = r"^.{0,}[vV]([\d\.]+).{0,}$" # extracts the version from muscle <5
+    GREP_FIND_2 = r"^muscle ([\d\.]+).+$" # extracts the version from muscle 5
+    GREP_REPL = r"\1"
+    MUSCLE_VER = semver.Version.parse("5", optional_minor_and_patch=True)
+    
+    # messages
     ERR_MSG_1 = "invalid blast+ directory specified: '"
     ERR_MSG_2 = "MUSCLE is not executable: '"
-    ERR_MSG_3 = "FastTree is not executable: '"
-    ERR_MSG_4 = "IQTree is not executable: '"
+    ERR_MSG_3 = "Incompatible MUSCLE version (must be >=5): '"
+    ERR_MSG_4 = "FastTree is not executable: '"
+    ERR_MSG_5 = "IQTree is not executable: '"
     MSG_END = "'"
     
     # initialize logger
@@ -1231,20 +1253,41 @@ def checkForValidExecutables(paramO:Parameters) -> None:
             logger.error(ERR_MSG_1 + paramO.blastExecutDirPath + MSG_END)
             raise ValueError(ERR_MSG_1 + paramO.blastExecutDirPath + MSG_END)
 
-    # check muscle
+    # check muscle executable
     if not os.access(paramO.musclePath, os.X_OK):
         logger.error(ERR_MSG_2 + paramO.musclePath + MSG_END)
         raise ValueError(ERR_MSG_2 + paramO.musclePath + MSG_END)
+    
+    # run command to get muscle version
+    muscleProcess = subprocess.run([paramO.musclePath, "-version"], capture_output=True, text=True)
+    
+    # extract version from muscle <5
+    try:
+        muscleVersion = semver.Version.parse(re.sub(GREP_FIND_1, GREP_REPL, muscleProcess.stdout))
+        
+    # extract version from muscle 5
+    except:
+        muscleVersion = re.sub(GREP_FIND_2, GREP_REPL, muscleProcess.stdout, flags=re.DOTALL)
+        
+        # drop trailing periods before converting to version object
+        if muscleVersion[-1] == ".":
+            muscleVersion = muscleVersion[:-1]
+        muscleVersion = semver.Version.parse(muscleVersion, optional_minor_and_patch=True)
+    
+    # make sure the muscle version is high enough
+    if not muscleVersion >= MUSCLE_VER:
+        logger.error(ERR_MSG_3 + str(muscleVersion) + MSG_END)
+        raise ValueError(ERR_MSG_3 + str(muscleVersion) + MSG_END)
 
     # check fasttree
     if not os.access(paramO.fastTreePath, os.X_OK):
         logger.error(ERR_MSG_2 + paramO.musclePath + MSG_END)
-        raise ValueError(ERR_MSG_3 + paramO.fastTreePath + MSG_END)
+        raise ValueError(ERR_MSG_4 + paramO.fastTreePath + MSG_END)
 
     # check iqtree
     if not os.access(paramO.iqTreePath, os.X_OK):
         logger.error(ERR_MSG_2 + paramO.musclePath + MSG_END)
-        raise ValueError(ERR_MSG_4 + paramO.iqTreePath + MSG_END)
+        raise ValueError(ERR_MSG_5 + paramO.iqTreePath + MSG_END)
 
 
 def checkForValidHumanMapFile(paramO:Parameters) -> None:
