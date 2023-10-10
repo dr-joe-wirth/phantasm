@@ -1,5 +1,6 @@
 # Author: Joseph S. Wirth
-
+__version__ = "1.1.1"
+__author__ = "Joseph S. Wirth"
 
 from PHANTASM.main import getPhyloMarker, refinePhylogeny, knownPhyloMarker, analyzeSpecifiedGenomes, rankPhyloMarkers
 from PHANTASM.utilities import parseArgs, getLpsnAge, redactEmailAddress
@@ -10,9 +11,10 @@ import logging, os
 
 # constants
 PHANTASM_PY = "python3 " + os.path.join(PHANTASM_DIR, "phantasm.py")
-VERSION = "v1.1.1"
+VERSION = "v" + __version__
 JOB_0A = "help"
 JOB_0B = "version"
+JOB_0C = "check"
 JOB_1 = 'getPhyloMarker'
 JOB_2 = 'refinePhylogeny'
 JOB_3 = 'knownPhyloMarker'
