@@ -1231,6 +1231,7 @@ def checkForValidExecutables(paramO:Parameters) -> None:
     GREP_FIND_1 = r"^.{0,}[vV]([\d\.]+).{0,}$" # extracts the version from muscle <5
     GREP_FIND_2 = r"^muscle ([\d\.]+).+$" # extracts the version from muscle 5
     GREP_REPL = r"\1"
+    BLAST_EXES = ["makeblastdb", "blastn", "blastp"]
     MUSCLE_VER = semver.Version.parse("5", optional_minor_and_patch=True)
     
     # messages
@@ -1244,8 +1245,8 @@ def checkForValidExecutables(paramO:Parameters) -> None:
     # initialize logger
     logger = logging.getLogger(__name__ + "." + checkForValidExecutables.__name__)
 
-    # get a list of the blast+ executables
-    blastExeL = glob.glob(os.path.join(paramO.blastExecutDirPath, "*"))
+    # get a list of the blast+ executables necessary to run PHANTASM
+    blastExeL = [os.path.join(paramO.blastExecutDirPath, x) for x in BLAST_EXES]
 
     # check each blast+ executable
     for exe in blastExeL:
