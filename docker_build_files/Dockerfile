@@ -60,10 +60,10 @@ RUN tar xzf iqtree-1.6.12-Linux.tar.gz
 RUN rm iqtree-1.6.12-Linux.tar.gz
 RUN mv iqtree-1.6.12-Linux /exec/iqtree
 
-# get xenoGI v3.1.1
-RUN wget https://github.com/dr-joe-wirth/xenoGI/archive/refs/tags/v3.1.1.tar.gz
-RUN tar xzf v3.1.1.tar.gz
-RUN rm v3.1.1.tar.gz
+# get xenoGI v3.1.2
+RUN wget https://github.com/dr-joe-wirth/xenoGI/archive/refs/tags/v3.1.2.tar.gz
+RUN tar xzf v3.1.2.tar.gz
+RUN rm v3.1.2.tar.gz
 
 # get phantasm v1.1.1
 RUN wget https://github.com/dr-joe-wirth/phantasm/archive/refs/tags/v1.1.1.tar.gz
