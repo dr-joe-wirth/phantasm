@@ -113,7 +113,7 @@ See [section 1.2](#12-native-installation) for installation details.
   * [mummer](https://github.com/mummer4/mummer)
 
 ### 3.2 Python modules (python3.9 or above)
-  * [xenoGI v3.1.1](https://github.com/dr-joe-wirth/xenoGI/releases)
+  * [xenoGI v3.1.2](https://github.com/dr-joe-wirth/xenoGI/releases/tag/v3.1.2)
   * scipy
   * Bio
   * textdistance
