@@ -75,7 +75,7 @@ The following python packages need to be installed: `numpy`, `scipy`, `Bio`, `te
     pip3 install rpy2
     pip3 install pyani
 
-PHANTASM requires [FastTree](https://www.microbesonline.org/fasttree/) (or FastTreeMP), [muscle v5.1]([MUSCLE v5.1](https://github.com/rcedgar/muscle/releases/tag/5.1.0)), and [iqtree v1.6.12](http://www.iqtree.org/#download) to be installed. It also needs the source code for [xenoGI v3.1.1](https://github.com/dr-joe-wirth/xenoGI/releases/tag/v3.1.1).
+PHANTASM requires [FastTree](https://www.microbesonline.org/fasttree/) (or FastTreeMP), [muscle v5.1]([MUSCLE v5.1](https://github.com/rcedgar/muscle/releases/tag/5.1.0)), and [iqtree v1.6.12](http://www.iqtree.org/#download) to be installed. It also needs the source code for [xenoGI v3.1.2](https://github.com/dr-joe-wirth/xenoGI/releases/tag/v3.1.2).
 
 Finally, clone the PHANTASM repository or download a release.
 
