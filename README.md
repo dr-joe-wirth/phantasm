@@ -94,6 +94,10 @@ In order for PHANTASM to function properly, you will need to modify the file `pa
 
 There are also optional values in `param.py` that can be modified in order to customize how PHANTASM runs. See the [docker tutorial](https://github.com/dr-joe-wirth/phantasm/blob/master/docker_build_files/README.md#22-modifying-phantasms-settings-optional) for more information.
 
+To check that dependencies are properly installed, run the following command:
+
+    python3 <path to phantasm>/phantasm.py check
+
 
 ## 2. Running PHANTASM
 A [detailed tutorial](https://github.com/dr-joe-wirth/phantasm/blob/master/docker_build_files/README.md#3-running-phantasm) exists for the Docker image. The only major difference between running phantasm natively and running phantasm in a Docker container is that the command `phantasm` should be replaced with `python3 <path to phantasm>/phantasm.py`. Alternatively, you can add the following line to your bash profile (.profile, .bashrc, etc.) which will allow your terminal to call phantasm with the command `phantasm`. Keep in mind that you will need to reload your terminal for the changes to take effect.
