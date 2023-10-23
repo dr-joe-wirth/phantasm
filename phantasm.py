@@ -1,5 +1,4 @@
-# Author: Joseph S. Wirth
-__version__ = "1.1.1"
+__version__ = "1.1.2"
 __author__ = "Joseph S. Wirth"
 
 from PHANTASM.main import getPhyloMarker, refinePhylogeny, knownPhyloMarker, analyzeSpecifiedGenomes, rankPhyloMarkers
