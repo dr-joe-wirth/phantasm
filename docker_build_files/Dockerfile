@@ -7,9 +7,7 @@ FROM ubuntu:22.04
 
 # install nano, wget, git, python, curl, libcurl, mummer, and blast+
 RUN apt-get update
-RUN apt-get -y install nano
 RUN apt-get -y install wget
-RUN apt-get -y install git
 RUN apt-get -y install python3.9 python3-pip python3-setuptools python3-dev
 RUN apt-get -y install curl libcurl4-openssl-dev
 RUN apt-get -y install mummer
