@@ -125,6 +125,7 @@ See [section 1.2](#12-native-installation) for installation details.
   * parasail
   * rpy2
   * [pyani](https://github.com/widdowquinn/pyani)
+  * semver
 
 ### 3.3 R packages (R version 4.1.1 or above)
   * ape

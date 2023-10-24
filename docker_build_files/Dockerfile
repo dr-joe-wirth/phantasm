@@ -32,13 +32,14 @@ RUN R -e "BiocManager::install('DECIPHER')"
 
 # install required python modules
 RUN pip3 install --upgrade pip
-RUN pip3 install scipy
 RUN pip3 install Bio
-RUN pip3 install textdistance
 RUN pip3 install numpy
 RUN pip3 install parasail
-RUN pip3 install rpy2
 RUN pip3 install pyani
+RUN pip3 install rpy2
+RUN pip3 install scipy
+RUN pip3 install semver
+RUN pip3 install textdistance
 
 # create the exec directory to hold muscle, fasttree, and iqtree
 RUN mkdir /exec
