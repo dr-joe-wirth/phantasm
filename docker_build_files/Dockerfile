@@ -31,6 +31,7 @@ RUN R -e "install.packages('BiocManager',dependencies=TRUE, repos='http://cran.r
 RUN R -e "BiocManager::install('DECIPHER')"
 
 # install required python modules
+RUN pip3 install --upgrade pip
 RUN pip3 install scipy
 RUN pip3 install Bio
 RUN pip3 install textdistance
