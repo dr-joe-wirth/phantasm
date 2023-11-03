@@ -18,8 +18,10 @@ doi: [10.1093/nar/gkad196](https://doi.org/10.1093/nar/gkad196)
 1. [Installing PHANTASM](#1-installing-phantasm)
 
     1.1. [Using the Docker image](#11-using-the-docker-image)
+
+    1.2 [`conda` installation](#12-conda-installation)
     
-    1.2. [Native Installation](#12-native-installation)
+    1.3. [Native Installation](#13-native-installation)
     
 2. [Running PHANTASM](#2-running-phantasm)
 
@@ -36,7 +38,16 @@ doi: [10.1093/nar/gkad196](https://doi.org/10.1093/nar/gkad196)
 The easiest way to get started is is to use the [Docker image](https://hub.docker.com/r/jwirth/phantasm). There are instructions for using phantasm as a Docker container on [dockerhub](https://hub.docker.com/r/jwirth/phantasm). The Docker image contains all of the dependencies pre-installed and only requires that Docker Desktop is installed (or `docker` if using a linux server). Alternatively, Singularity may be used. Please see the [detailed tutorial for using a PHANTASM in a container](https://github.com/dr-joe-wirth/phantasm/blob/master/docker_build_files/README.md) for more information.
 
 
-### 1.2 Native installation
+### 1.2 `conda` installation
+To install `phantasm` using `conda`, run the following commands:
+
+    conda config --add channels bioconda
+    conda install phantasm
+
+Instructions for running `phantasm` within a `conda` environment are identical to those for [the Docker image](#11-using-the-docker-image). See the [detailed tutorial](https://github.com/dr-joe-wirth/phantasm/blob/master/docker_build_files/README.md) for more information.
+
+
+### 1.3 Native installation
 PHANTASM requires `python3` (v. 3.9+). This can be installed via the command line with the following command:
 
     sudo apt-get -y install python3.9 python3-pip python3-setuptools python3-dev
@@ -98,9 +109,11 @@ To check that dependencies are properly installed, run the following command:
 
     python3 <path to phantasm>/phantasm.py check
 
+If no error occurs, then all dependencies are properly installed.
+
 
 ## 2. Running PHANTASM
-A [detailed tutorial](https://github.com/dr-joe-wirth/phantasm/blob/master/docker_build_files/README.md#3-running-phantasm) exists for the Docker image. The only major difference between running phantasm natively and running phantasm in a Docker container is that the command `phantasm` should be replaced with `python3 <path to phantasm>/phantasm.py`. Alternatively, you can add the following line to your bash profile (.profile, .bashrc, etc.) which will allow your terminal to call phantasm with the command `phantasm`. Keep in mind that you will need to reload your terminal for the changes to take effect.
+A [detailed tutorial](https://github.com/dr-joe-wirth/phantasm/blob/master/docker_build_files/README.md#3-running-phantasm) exists for the Docker image and the instructions are identical for using the `conda` installation. The only major difference between running phantasm natively and running phantasm in a Docker container is that the command `phantasm` should be replaced with `python3 <path to phantasm>/phantasm.py`. Alternatively, you can add the following line to your bash profile (.profile, .bashrc, etc.) which will allow your terminal to call phantasm with the command `phantasm`. Keep in mind that you will need to reload your terminal for the changes to take effect.
 
     alias phantasm='python3 <absolute path to phantasm>/phantasm.py'
 
