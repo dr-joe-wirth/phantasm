@@ -230,18 +230,22 @@ def parseArgs() -> tuple[list, list, Parameters]:
     helpRequested = False
     job = None
     
+    # handle no arguments
     if len(sys.argv) == 1:
         helpRequested = True
         getHelpMessage(JOB_0A)
     
+    # print help if requested
     elif sys.argv[1] == JOB_0A:
         helpRequested = True
         getHelpMessage(JOB_0A)
     
+    # print version if requested
     elif sys.argv[1] == JOB_0B:
         helpRequested = True
         getHelpMessage(JOB_0B)
     
+    # check environment for dependencies if requested
     elif sys.argv[1] == JOB_0C:
         helpRequested = True
         paramO = Parameters('',
@@ -255,7 +259,9 @@ def parseArgs() -> tuple[list, list, Parameters]:
                             False,
                             False)
         checkForValidExecutables(paramO)
+        checkRInstallation()
     
+    # print help for the specified task
     elif HELP_FLAGS[0] in sys.argv or HELP_FLAGS[1] in sys.argv:
         helpRequested = True
         getHelpMessage(sys.argv[1])
@@ -491,6 +497,7 @@ def parseArgs() -> tuple[list, list, Parameters]:
             
             # make sure that the specified executables are accessible
             checkForValidExecutables(paramO)
+            checkRInstallation()
 
     return genomesL, tagsL, paramO, job, helpRequested
 
@@ -1289,6 +1296,30 @@ def checkForValidExecutables(paramO:Parameters) -> None:
     if not os.access(paramO.iqTreePath, os.X_OK):
         logger.error(ERR_MSG_2 + paramO.musclePath + MSG_END)
         raise ValueError(ERR_MSG_5 + paramO.iqTreePath + MSG_END)
+
+
+def checkRInstallation() -> None:
+    """checks if all the required R packages are installed
+
+    Raises:
+        PackageNotInstalledError: raises an error if any packages are not installed
+    """
+    from rpy2.robjects.packages import importr, PackageNotInstalledError
+    # constants
+    R_PACKAGES = ('ape', 'DECIPHER', 'dendextend', 'gplots')
+    ERR_PREFIX = 'The R package "'
+    ERR_SUFFIX = '" is not installed.'
+    
+    # initialize logger
+    logger = logging.getLogger(__name__ + "." + checkRInstallation.__name__)
+    
+    # check for the presence of each R package; raise an error if one is missing
+    for pack in R_PACKAGES:
+        try:
+            importr(pack)
+        except PackageNotInstalledError:
+            logger.error(ERR_PREFIX + pack + ERR_SUFFIX)
+            raise PackageNotInstalledError(ERR_PREFIX + pack + ERR_SUFFIX)
 
 
 def checkForValidHumanMapFile(paramO:Parameters) -> None:
