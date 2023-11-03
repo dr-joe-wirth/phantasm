@@ -942,9 +942,6 @@ def __runIqTree(outgroupName:str, paramO:Parameters) -> None:
     humanMapFN = paramO.fileNameMapFN
     speTreeFN = paramO.speciesTreeFN
 
-    # reformat the outgroup name
-    outgroupName = __formatNamesForIqTree(outgroupName)
-
     # build iqtree command
     cmd = [iqtree, '-quiet', \
            '-b', numBootstraps, \
@@ -953,7 +950,16 @@ def __runIqTree(outgroupName:str, paramO:Parameters) -> None:
            '-s', alnFN]
     
     # run iqtree
-    subprocess.run(cmd)
+    try:
+        subprocess.run(cmd, check=True)
+        renamed = False
+    
+    # lower versions of iqtree will modify the taxa names
+    except subprocess.CalledProcessError:
+        # reformat the outgroup name and try to run again
+        cmd[cmd.index(outgroupName)] = __formatNamesForIqTree(outgroupName)
+        subprocess.run(cmd, check=True)
+        renamed = True
     
     # determine the output filename
     iqtreeOutFN = alnFN + IQTREE_OUT_EXT
@@ -963,13 +969,15 @@ def __runIqTree(outgroupName:str, paramO:Parameters) -> None:
     treeStr = iqtreeFH.read()
     iqtreeFH.close()
 
-    # load the human map file
-    humanMapD = loadHumanMap(humanMapFN)
+    # handle lower versions renaming the taxa
+    if renamed:
+        # load the human map file
+        humanMapD = loadHumanMap(humanMapFN)
 
-    # use the human map file to replace the names in the tree
-    for origName in humanMapD.values():
-        treeName = __formatNamesForIqTree(origName)
-        treeStr = re.sub(treeName, origName, treeStr)
+        # use the human map file to replace the names in the tree
+        for origName in humanMapD.values():
+            treeName = __formatNamesForIqTree(origName)
+            treeStr = re.sub(treeName, origName, treeStr)
     
     # write the tree string to the species tree file
     treeFH = open(speTreeFN, 'w')
