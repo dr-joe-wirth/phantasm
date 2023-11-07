@@ -943,7 +943,7 @@ def __runIqTree(outgroupName:str, paramO:Parameters) -> None:
     speTreeFN = paramO.speciesTreeFN
 
     # build iqtree command
-    cmd = [iqtree, '-quiet', \
+    cmd = [iqtree, '-quiet', '-safe', \
            '-b', numBootstraps, \
            '-nt', numThreads, \
            '-o', outgroupName, \
