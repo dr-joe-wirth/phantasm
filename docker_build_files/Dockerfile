@@ -65,11 +65,11 @@ RUN wget https://github.com/dr-joe-wirth/xenoGI/archive/refs/tags/v3.1.2.tar.gz
 RUN tar xzf v3.1.2.tar.gz
 RUN rm v3.1.2.tar.gz
 
-# get phantasm v1.1.2
-RUN wget https://github.com/dr-joe-wirth/phantasm/archive/refs/tags/v1.1.2.tar.gz
-RUN tar xzf v1.1.2.tar.gz
-RUN rm v1.1.2.tar.gz
-RUN mv /phantasm-1.1.2 /phantasm
+# get phantasm v1.1.3
+RUN wget https://github.com/dr-joe-wirth/phantasm/archive/refs/tags/v1.1.3.tar.gz
+RUN tar xzf v1.1.3.tar.gz
+RUN rm v1.1.3.tar.gz
+RUN mv /phantasm-1.1.3 /phantasm
 
 # copy the param file
 COPY ./docker_param.py /phantasm/param.py
