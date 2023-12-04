@@ -1335,7 +1335,7 @@ def checkDirectoriesInParam() -> None:
         raise NotADirectoryError(ERR_MSG_2)
     
     # check that the xenoGI directory contains the xenoGI.py file
-    if not os.path.exists(os.path.join(XENOGI_DIR, "xenoGI.py")):
+    if not os.path.exists(os.path.join(XENOGI_DIR, "xenoGI", "xenoGI.py")):
         logger.error(ERR_MSG_2)
         raise FileNotFoundError(ERR_MSG_2)
     
