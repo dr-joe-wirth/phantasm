@@ -259,6 +259,7 @@ def parseArgs() -> tuple[list, list, Parameters]:
                             False,
                             False)
         checkForValidExecutables(paramO)
+        checkDirectoriesInParam()
         checkRInstallation()
     
     # print help for the specified task
