@@ -497,6 +497,7 @@ def parseArgs() -> tuple[list, list, Parameters]:
             
             # make sure that the specified executables are accessible
             checkForValidExecutables(paramO)
+            checkDirectoriesInParam()
             checkRInstallation()
 
     return genomesL, tagsL, paramO, job, helpRequested
@@ -1297,6 +1298,46 @@ def checkForValidExecutables(paramO:Parameters) -> None:
         logger.error(ERR_MSG_2 + paramO.musclePath + MSG_END)
         raise ValueError(ERR_MSG_5 + paramO.iqTreePath + MSG_END)
 
+
+def checkDirectoriesInParam() -> None:
+    """checks if the PHANTASM_DIR and XENOGI_DIR variables are properly defined in param.py
+
+    Raises:
+        NotADirectoryError: PHANTASM_DIR does not exist
+        FileNotFoundError: PHANTASM_DIR/phantasm.py does not exist
+        NotADirectoryError: XENOGI_DIR does not exist
+        FileNotFoundError: XENOGI/xenoGI.py does not exist
+    """
+    # imports specific to this function
+    from param import PHANTASM_DIR, XENOGI_DIR
+    
+    # constants
+    ERR_MSG_1 = "'PHANTASM_DIR' is improperly defined in 'param.py'"
+    ERR_MSG_2 = "'XENOGI_DIR' is improperly defined in 'param.py'"
+    
+    # initialize logger
+    logger = logging.getLogger(__name__ + "." + checkDirectoriesInParam.__name__)
+
+    # check that the phantasm directory exists
+    if not os.path.isdir(PHANTASM_DIR):
+        logger.error(ERR_MSG_1)
+        raise NotADirectoryError(ERR_MSG_1)
+    
+    # check that the phantasm directory contains the phantasm.py file
+    if not os.path.exists(os.path.join(PHANTASM_DIR, "phantasm.py")):
+        logger.error(ERR_MSG_1)
+        raise FileNotFoundError(ERR_MSG_2)
+    
+    # check that the xenoGI directory exists
+    if not os.path.isdir(XENOGI_DIR):
+        logger.error(ERR_MSG_2)
+        raise NotADirectoryError(ERR_MSG_2)
+    
+    # check that the xenoGI directory contains the xenoGI.py file
+    if not os.path.exists(os.path.join(XENOGI_DIR, "xenoGI.py")):
+        logger.error(ERR_MSG_2)
+        raise FileNotFoundError(ERR_MSG_2)
+    
 
 def checkRInstallation() -> None:
     """checks if all the required R packages are installed
