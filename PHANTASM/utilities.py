@@ -1304,11 +1304,16 @@ def checkRInstallation() -> None:
     Raises:
         PackageNotInstalledError: raises an error if any packages are not installed
     """
+    # imports specific to this function
     from rpy2.robjects.packages import importr, PackageNotInstalledError
+    import rpy2.robjects as robjects
+    from param import PHANTASM_DIR
+    
     # constants
     R_PACKAGES = ('ape', 'DECIPHER', 'dendextend', 'gplots')
-    ERR_PREFIX = 'The R package "'
-    ERR_SUFFIX = '" is not installed.'
+    ERR_1_PREFIX = 'The R package "'
+    ERR_1_SUFFIX = '" is not installed.'
+    ERR_2 = "Could not source 'heatmap.R'"
     
     # initialize logger
     logger = logging.getLogger(__name__ + "." + checkRInstallation.__name__)
@@ -1318,8 +1323,16 @@ def checkRInstallation() -> None:
         try:
             importr(pack)
         except PackageNotInstalledError:
-            logger.error(ERR_PREFIX + pack + ERR_SUFFIX)
-            raise PackageNotInstalledError(ERR_PREFIX + pack + ERR_SUFFIX)
+            logger.error(ERR_1_PREFIX + pack + ERR_1_SUFFIX)
+            raise PackageNotInstalledError(ERR_1_PREFIX + pack + ERR_1_SUFFIX)
+    
+    # make sure the heatmap script can be sourced
+    try:
+        rScript = os.path.join(PHANTASM_DIR, "PHANTASM", "heatmap.R")
+        robjects.r['source'](rScript)
+    except:
+        logger.error(ERR_2)
+        raise FileNotFoundError(ERR_2)
 
 
 def checkForValidHumanMapFile(paramO:Parameters) -> None:
